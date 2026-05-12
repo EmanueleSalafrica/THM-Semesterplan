@@ -1,0 +1,15 @@
+/* Zentrale Styles für das MPM-Projekt. Mobile first erweitern. */
+
+:root {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #1f2933;
+  background: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
