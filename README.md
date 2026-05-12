@@ -23,6 +23,28 @@ Für HTML-Dateien kann GSAP so geladen werden:
 
 Die Anwendung soll GSAP nicht per CDN laden, damit sie offline lauffähig bleibt.
 
+## GSAP testen
+
+Jede Person im Team kann prüfen, ob GSAP nach dem Pull lokal funktioniert:
+
+```bash
+git pull
+```
+
+Danach die Datei `gsap-test.html` im Browser öffnen.
+
+Der Test ist erfolgreich, wenn:
+
+- sich das Quadrat bewegt,
+- die Seite `GSAP ist lokal eingebunden` anzeigt,
+- die Version `3.15.0` angezeigt wird.
+
+Die Testdatei lädt GSAP direkt aus dem Repository:
+
+```html
+<script src="JS/lib/gsap/gsap.min.js"></script>
+```
+
 ## Grundregeln
 
 - Die Anwendung wird mobile first entwickelt.
