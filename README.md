@@ -10,6 +10,35 @@ Basisprojekt für das MPM-Gruppenprojekt.
 - `Dokumente/` enthält zentrale Projektdokumentation wie Definition of Done, Retrospektive und Bildquellen.
 - `data/` enthält bereitgestellte Projektdaten.
 
+## Git für das Team
+
+Wer das Projekt noch nicht auf dem eigenen Rechner hat, klont es einmalig:
+
+```bash
+git clone https://git.thm.de/mibmpm2026/mpm-projekt-team-2.git
+cd mpm-projekt-team-2
+```
+
+Wer das Projekt schon lokal hat, holt sich neue Änderungen mit:
+
+```bash
+git pull
+```
+
+Mit diesem Befehl kann geprüft werden, ob lokale Änderungen vorhanden sind:
+
+```bash
+git status
+```
+
+Wenn eigene Änderungen fertig sind, werden sie so gespeichert und hochgeladen:
+
+```bash
+git add .
+git commit -m "Kurze Beschreibung der Änderung"
+git push
+```
+
 ## GSAP
 
 GSAP ist lokal in Version `3.15.0` eingebunden.
