@@ -86,3 +86,4 @@ Die Testdatei lädt GSAP direkt aus dem Repository:
 
 - Emanuele Salafrica
 - Morrigan Schuh
+- Jeannett Rudi
