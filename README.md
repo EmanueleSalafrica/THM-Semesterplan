@@ -93,6 +93,7 @@ Für HTML-Dateien kann GSAP so geladen werden:
 
 ```html
 <script src="JS/lib/gsap/gsap.min.js"></script>
+<script src="JS/api-client.js"></script>
 <script src="JS/main.js"></script>
 ```
 
@@ -119,6 +120,18 @@ Die Testdatei lädt GSAP direkt aus dem Repository:
 ```html
 <script src="JS/lib/gsap/gsap.min.js"></script>
 ```
+
+## API-Anbindung testen
+
+Die Datei `JS/api-client.js` stellt eine Funktion bereit, mit der API-Abfragen per JavaScript gestartet werden können:
+
+```js
+window.MPMProjekt.api.starteApiAbfrage("https://jsonplaceholder.typicode.com/todos/1")
+```
+
+Die Funktion nutzt `fetch`, prüft den HTTP-Status und gibt erfolgreiche Antworten in der Browser-Konsole aus.
+
+Zum Testen kann `api-test.html` im Browser geöffnet werden. Der Test ist erfolgreich, wenn nach dem Klick auf `API-Abfrage starten` eine Erfolgsmeldung erscheint und das Ergebnis in der Browser-Konsole ausgegeben wird.
 
 ## Tailwind CSS
 
