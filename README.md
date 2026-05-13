@@ -93,6 +93,7 @@ Für HTML-Dateien kann GSAP so geladen werden:
 
 ```html
 <script src="JS/lib/gsap/gsap.min.js"></script>
+<script src="JS/data-loader.js"></script>
 <script src="JS/main.js"></script>
 ```
 
@@ -119,6 +120,26 @@ Die Testdatei lädt GSAP direkt aus dem Repository:
 ```html
 <script src="JS/lib/gsap/gsap.min.js"></script>
 ```
+
+## Datenstruktur laden
+
+Die vorgegebene JSON-Datei `data/module-mib.json` wird zur Laufzeit über `JS/data-loader.js` geladen.
+
+HTML-Dateien binden den Loader vor `JS/main.js` ein:
+
+```html
+<script src="JS/data-loader.js"></script>
+<script src="JS/main.js"></script>
+```
+
+Nach erfolgreichem Laden sind die Daten im Browser verfügbar:
+
+```js
+window.MPMProjekt.moduldaten
+window.MPMProjekt.module
+```
+
+Zum Testen kann `datenstruktur-test.html` über einen lokalen Server geöffnet werden. Der Test ist erfolgreich, wenn die Seite `Moduldaten geladen` anzeigt und in der Browser-Konsole eine Tabelle mit den ersten Modulen ausgegeben wird.
 
 ## Tailwind CSS
 

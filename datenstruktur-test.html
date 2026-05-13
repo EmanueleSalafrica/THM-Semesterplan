@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Datenstruktur Test - MPM Projekt Team 2</title>
+    <link rel="stylesheet" href="CSS/style.css">
+    <style>
+      body {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: #f4f7fb;
+      }
+
+      main {
+        width: min(100%, 720px);
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        font-size: 2rem;
+      }
+
+      p {
+        line-height: 1.5;
+      }
+
+      .status {
+        margin-top: 24px;
+        padding: 16px;
+        border-radius: 8px;
+        background: #e8f5ed;
+        color: #166534;
+        font-weight: 700;
+      }
+
+      .status.fehler {
+        background: #fdecec;
+        color: #991b1b;
+      }
+
+      code {
+        padding: 2px 6px;
+        border-radius: 4px;
+        background: #e5e7eb;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Datenstruktur Test</h1>
+      <p>
+        Diese Seite lädt zur Laufzeit <code>data/module-mib.json</code>.
+        Die geladenen Moduldaten werden in der Browser-Konsole ausgegeben.
+      </p>
+      <p>
+        Nach erfolgreichem Laden sind die Daten außerdem unter
+        <code>window.MPMProjekt.moduldaten</code> und
+        <code>window.MPMProjekt.module</code> verfügbar.
+      </p>
+
+      <p id="status" class="status">Moduldaten werden geladen...</p>
+    </main>
+
+    <script src="JS/data-loader.js"></script>
+    <script>
+      const statusElement = document.querySelector("#status");
+
+      window.MPMProjekt
+        .ladeModuldaten()
+        .then((daten) => {
+          statusElement.textContent = `Moduldaten geladen: ${daten.modules.length} Module, Version ${daten.version}`;
+        })
+        .catch((fehler) => {
+          statusElement.textContent = "Moduldaten konnten nicht geladen werden. Bitte über einen lokalen Server öffnen und die Konsole prüfen.";
+          statusElement.classList.add("fehler");
+          console.error("[MPM] Fehler beim Laden der Datenstruktur:", fehler);
+        });
+    </script>
+  </body>
+</html>
