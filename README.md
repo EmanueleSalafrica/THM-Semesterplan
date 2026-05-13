@@ -39,6 +39,52 @@ git commit -m "Kurze Beschreibung der Änderung"
 git push
 ```
 
+## Arbeiten mit Branches
+
+Jede Person arbeitet auf dem eigenen Ticket-Branch und nicht direkt auf `master`.
+
+Vor der Arbeit zuerst den aktuellen Stand holen:
+
+```bash
+git checkout master
+git pull
+```
+
+Dann in den passenden Branch wechseln:
+
+```bash
+git checkout BRANCH-NAME
+```
+
+Beispiel:
+
+```bash
+git checkout MPM202602-13-recherche-zu-gsap-animation
+```
+
+Während der Arbeit kann der aktuelle Stand geprüft werden:
+
+```bash
+git status
+```
+
+Wenn die Änderung fertig ist:
+
+```bash
+git add .
+git commit -m "Kurze Beschreibung der Änderung"
+git push
+```
+
+Falls der Branch lokal noch nicht bekannt ist, kann er so geholt werden:
+
+```bash
+git fetch
+git checkout BRANCH-NAME
+```
+
+Änderungen aus einem Branch werden später über einen Merge Request in `master` übernommen.
+
 ## GSAP
 
 GSAP ist lokal in Version `3.15.0` eingebunden.
