@@ -74,6 +74,39 @@ Die Testdatei lädt GSAP direkt aus dem Repository:
 <script src="JS/lib/gsap/gsap.min.js"></script>
 ```
 
+## Tailwind CSS
+
+Tailwind CSS ist zentral für das Team vorbereitet. Die Konfiguration liegt in `tailwind.config.js`; dort sind die THM-CD-Farben und die Schriftfamilie hinterlegt.
+
+Verwendete THM-CD-Werte:
+
+- Hauptfarbe Grün: `#80ba24`
+- Hauptfarbe Grau: `#4a5c66`
+- Zusatzfarben für Hervorhebungen und Infografiken: `thm-red`, `thm-yellow`, `thm-cyan`, `thm-blue`
+- Schrift: `DIN Pro` mit `DIN 2014`, `Arial`, `Helvetica` und `sans-serif` als Fallbacks
+
+Einmalig nach dem Klonen oder Pullen installieren:
+
+```bash
+npm install
+```
+
+Falls PowerShell die Ausführung von `npm` blockiert, können die Befehle mit `npm.cmd` ausgeführt werden.
+
+CSS für die Anwendung bauen:
+
+```bash
+npm run build:css
+```
+
+Beim Entwickeln kann Tailwind automatisch neu gebaut werden:
+
+```bash
+npm run dev:css
+```
+
+HTML-Dateien binden weiterhin `CSS/style.css` ein. Eigene Tailwind-Erweiterungen gehören in `CSS/tailwind.css`, damit alle im Team dieselbe Grundlage nutzen.
+
 ## Grundregeln
 
 - Die Anwendung wird mobile first entwickelt.
