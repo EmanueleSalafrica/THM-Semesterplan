@@ -85,3 +85,4 @@ Die Testdatei lädt GSAP direkt aus dem Repository:
 ## Authors
 
 - Emanuele Salafrica
+- Morrigan Schuh
