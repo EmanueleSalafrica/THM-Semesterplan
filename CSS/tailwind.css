@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    font-family: theme("fontFamily.thm");
+    color: theme("colors.thm.gray");
+    background: theme("colors.white");
+  }
+
+  body {
+    min-width: 320px;
+    margin: 0;
+  }
+}
+
