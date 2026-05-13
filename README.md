@@ -93,6 +93,7 @@ Für HTML-Dateien kann GSAP so geladen werden:
 
 ```html
 <script src="JS/lib/gsap/gsap.min.js"></script>
+<script src="JS/api-client.js"></script>
 <script src="JS/data-loader.js"></script>
 <script src="JS/main.js"></script>
 ```
@@ -140,6 +141,18 @@ window.MPMProjekt.module
 ```
 
 Zum Testen kann `datenstruktur-test.html` über einen lokalen Server geöffnet werden. Der Test ist erfolgreich, wenn die Seite `Moduldaten geladen` anzeigt und in der Browser-Konsole eine Tabelle mit den ersten Modulen ausgegeben wird.
+
+## API-Anbindung testen
+
+Die Datei `JS/api-client.js` stellt eine Funktion bereit, mit der API-Abfragen per JavaScript gestartet werden können:
+
+```js
+window.MPMProjekt.api.starteApiAbfrage("https://jsonplaceholder.typicode.com/todos/1")
+```
+
+Die Funktion nutzt `fetch`, prüft den HTTP-Status und gibt erfolgreiche Antworten in der Browser-Konsole aus.
+
+Zum Testen kann `api-test.html` im Browser geöffnet werden. Der Test ist erfolgreich, wenn nach dem Klick auf `API-Abfrage starten` eine Erfolgsmeldung erscheint und das Ergebnis in der Browser-Konsole ausgegeben wird.
 
 ## Tailwind CSS
 
