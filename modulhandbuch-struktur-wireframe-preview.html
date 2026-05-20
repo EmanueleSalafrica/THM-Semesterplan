@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Modulhandbuch Seiten-Struktur</title>
+  </head>
+  <body>
+    <header>
+      <strong>Digitales Modulhandbuch</strong>
+    </header>
+
+    <main>
+      <section data-screen="start">
+        <h1>Startseite</h1>
+        <p>Struktur für den Einstieg in das digitale Modulhandbuch.</p>
+        <button type="button" data-screen-link="options">Semesterplan erstellen</button>
+        <button type="button" data-screen-link="focus">Schwerpunktwahl Info</button>
+      </section>
+
+      <section data-screen="options" hidden>
+        <h1>Semesterplan Optionen</h1>
+
+        <fieldset>
+          <legend>Schwerpunkt</legend>
+          <label>
+            <input type="radio" name="focus" value="Medienproduktion" checked>
+            Medienproduktion
+          </label>
+          <label>
+            <input type="radio" name="focus" value="Web & Mobile">
+            Web &amp; Mobile
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Startsemester</legend>
+          <label>
+            <input type="radio" name="start" value="Sommer" checked>
+            Sommer
+          </label>
+          <label>
+            <input type="radio" name="start" value="Winter">
+            Winter
+          </label>
+        </fieldset>
+
+        <label>
+          Auslastung
+          <input type="range" min="7" max="10" value="7" data-semester-input>
+        </label>
+        <p><strong data-semester-output>7 Semester</strong></p>
+
+        <section>
+          <h2>Module ausschließen</h2>
+          <div data-exclude-modules></div>
+        </section>
+
+        <button type="button" data-open-electives>Generiere</button>
+        <button type="button" data-screen-link="start">Zurück zur Startseite</button>
+      </section>
+
+      <section data-screen="focus" hidden>
+        <h1>Schwerpunktwahl Info</h1>
+        <p>Der aktive Schwerpunktbereich enthält später den jeweiligen Beschreibungstext und ist scrollbar, sobald der Text länger wird.</p>
+
+        <section data-focus-area="media">
+          <h2>Medienproduktion</h2>
+          <p>Platzhalter für den späteren Text zu Medienproduktion.</p>
+          <button type="button" data-focus-link="web">Web &amp; Mobile anzeigen</button>
+        </section>
+
+        <section data-focus-area="web" hidden>
+          <h2>Web &amp; Mobile</h2>
+          <p>Platzhalter für den späteren Text zu Web &amp; Mobile.</p>
+          <button type="button" data-focus-link="media">Medienproduktion anzeigen</button>
+        </section>
+
+        <button type="button" data-screen-link="start">Zurück zur Startseite</button>
+      </section>
+
+      <section data-screen="plan" hidden>
+        <h1>Generierter Semesterplan</h1>
+        <p data-plan-summary>Medienproduktion, Sommerstart, 7 Semester</p>
+        <div data-plan-container></div>
+        <button type="button">Plan speichern</button>
+        <button type="button" data-screen-link="options">Optionen bearbeiten</button>
+      </section>
+    </main>
+
+    <dialog data-dialog="electives">
+      <form method="dialog">
+        <button type="submit">Schließen</button>
+      </form>
+      <h2>Wahlpflichtfach Auswahl</h2>
+      <p>Die Wahlpflichtfächer werden später erst im 5. Semester in den Plan übernommen.</p>
+      <div data-elective-list></div>
+      <button type="button" data-create-plan>Plan erstellen</button>
+    </dialog>
+
+    <dialog data-dialog="module">
+      <form method="dialog">
+        <button type="submit">Schließen</button>
+      </form>
+      <h2 data-module-title>Modulbeschreibung</h2>
+      <p>Platzhalter für Modulbeschreibung, Credits, Voraussetzungen und Prüfungsleistung.</p>
+    </dialog>
+
+    <script>
+      const planTemplates = {
+        "Medienproduktion": [
+          ["GDV 1", "AV 1", "SWE 1", "WEB 1", "MG 1"],
+          ["GDV 2", "AV 2", "SWE 2", "WEB 2"],
+          ["MP 1", "3D 1", "UX 1", "DB 1"],
+          ["MP 2", "Film 1", "PM 1", "WEB 3"],
+          ["Projekt 1"],
+          ["Praxis", "Portfolio"]
+        ],
+        "Web & Mobile": [
+          ["WEB 1", "SWE 1", "GDV 1", "UX 1", "WM 1"],
+          ["WEB 2", "SWE 2", "DB 1", "AV 1"],
+          ["WM 2", "UX 2", "API 1", "GDV 2"],
+          ["WEB 3", "APP 1", "PM 1", "MP 1"],
+          ["Projekt 1"],
+          ["Praxis", "Portfolio"]
+        ]
+      };
+
+      const electiveModules = [
+        "Wahlpflicht A",
+        "Wahlpflicht B",
+        "Wahlpflicht C",
+        "Wahlpflicht D",
+        "Wahlpflicht E",
+        "Wahlpflicht F"
+      ];
+
+      const state = {
+        focus: "Medienproduktion",
+        start: "Sommer",
+        semesters: 7,
+        selectedElectives: []
+      };
+
+      const screens = document.querySelectorAll("[data-screen]");
+      const semesterInput = document.querySelector("[data-semester-input]");
+      const semesterOutput = document.querySelector("[data-semester-output]");
+      const planSummary = document.querySelector("[data-plan-summary]");
+      const planContainer = document.querySelector("[data-plan-container]");
+      const electiveDialog = document.querySelector('[data-dialog="electives"]');
+      const moduleDialog = document.querySelector('[data-dialog="module"]');
+
+      function showScreen(screenName) {
+        screens.forEach((screen) => {
+          screen.hidden = screen.dataset.screen !== screenName;
+        });
+      }
+
+      function readOptions() {
+        state.focus = document.querySelector('input[name="focus"]:checked').value;
+        state.start = document.querySelector('input[name="start"]:checked').value;
+        state.semesters = Number(semesterInput.value);
+        semesterOutput.textContent = state.semesters === 7
+          ? "7 Semester"
+          : `${state.semesters} Semester (+${state.semesters - 7})`;
+      }
+
+      function createModuleButton(moduleName) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = moduleName;
+        button.addEventListener("click", () => {
+          moduleDialog.querySelector("[data-module-title]").textContent = moduleName;
+          moduleDialog.showModal();
+        });
+        return button;
+      }
+
+      function renderExcludeModules() {
+        const container = document.querySelector("[data-exclude-modules]");
+        container.replaceChildren(
+          ...electiveModules.slice(0, 4).map((moduleName) => {
+            const wrapper = document.createElement("p");
+            wrapper.append(createModuleButton(moduleName));
+            return wrapper;
+          })
+        );
+      }
+
+      function renderElectiveDialog() {
+        const list = document.querySelector("[data-elective-list]");
+        list.replaceChildren(
+          ...electiveModules.map((moduleName) => {
+            const item = document.createElement("article");
+            const chooseButton = document.createElement("button");
+            chooseButton.type = "button";
+            chooseButton.textContent = state.selectedElectives.includes(moduleName) ? "Ausgewählt" : "Wählen";
+            chooseButton.addEventListener("click", () => {
+              if (state.selectedElectives.includes(moduleName)) {
+                state.selectedElectives = state.selectedElectives.filter((selected) => selected !== moduleName);
+                chooseButton.textContent = "Wählen";
+              } else {
+                state.selectedElectives.push(moduleName);
+                chooseButton.textContent = "Ausgewählt";
+              }
+            });
+
+            item.append(createModuleButton(moduleName), " ", chooseButton);
+            return item;
+          })
+        );
+      }
+
+      function modulesForSemester(semesterNumber) {
+        const template = planTemplates[state.focus];
+        const baseModules = template[Math.min(semesterNumber, template.length) - 1] || [`Flex ${semesterNumber}`];
+
+        if (semesterNumber === 5) {
+          const selected = state.selectedElectives.length > 0
+            ? state.selectedElectives
+            : electiveModules.slice(0, 2);
+          return baseModules.concat(selected);
+        }
+
+        if (semesterNumber > template.length) {
+          return [`Flex ${semesterNumber - template.length}`, "Projekt"];
+        }
+
+        return baseModules;
+      }
+
+      function renderPlan() {
+        readOptions();
+        const semesterSections = [];
+
+        for (let semester = 1; semester <= state.semesters; semester += 1) {
+          const section = document.createElement("section");
+          const heading = document.createElement("h2");
+          const list = document.createElement("ul");
+
+          heading.textContent = `${semester}. Semester`;
+          modulesForSemester(semester).forEach((moduleName) => {
+            const item = document.createElement("li");
+            item.append(createModuleButton(moduleName));
+            list.append(item);
+          });
+
+          section.append(heading, list);
+          semesterSections.push(section);
+        }
+
+        planContainer.replaceChildren(...semesterSections);
+        planSummary.textContent = `${state.focus}, ${state.start}start, ${semesterOutput.textContent}`;
+      }
+
+      document.querySelectorAll("[data-screen-link]").forEach((button) => {
+        button.addEventListener("click", () => {
+          readOptions();
+          showScreen(button.dataset.screenLink);
+        });
+      });
+
+      document.querySelectorAll("[data-focus-link]").forEach((button) => {
+        button.addEventListener("click", () => {
+          document.querySelectorAll("[data-focus-area]").forEach((area) => {
+            area.hidden = area.dataset.focusArea !== button.dataset.focusLink;
+          });
+        });
+      });
+
+      semesterInput.addEventListener("input", readOptions);
+
+      document.querySelector("[data-open-electives]").addEventListener("click", () => {
+        readOptions();
+        renderElectiveDialog();
+        electiveDialog.showModal();
+      });
+
+      document.querySelector("[data-create-plan]").addEventListener("click", () => {
+        electiveDialog.close();
+        renderPlan();
+        showScreen("plan");
+      });
+
+      renderExcludeModules();
+      renderElectiveDialog();
+      renderPlan();
+    </script>
+  </body>
+</html>

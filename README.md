@@ -10,6 +10,25 @@ Basisprojekt für das MPM-Gruppenprojekt.
 - `Dokumente/` enthält zentrale Projektdokumentation wie Definition of Done, Retrospektive und Bildquellen.
 - `data/` enthält bereitgestellte Projektdaten.
 
+## Modulhandbuch Seiten-Struktur
+
+Die CSS-freie Struktur-Preview für das Modulhandbuch liegt in:
+
+```text
+modulhandbuch-struktur-wireframe-preview.html
+```
+
+Die Datei kann direkt im Browser geöffnet werden. Sie zeigt den geplanten Ablauf der Seiten-Struktur:
+
+- Startseite
+- Semesterplan-Optionen
+- Wahlpflichtfach-Auswahl
+- generierter Semesterplan
+- Schwerpunktwahl-Info
+- Modulbeschreibung als Dialog
+
+Die Datei enthält bewusst kein eigenes CSS, damit die separate Aufgabe zur Seiten-Formatierung nicht vorweggenommen wird.
+
 ## Git für das Team
 
 Wer das Projekt noch nicht auf dem eigenen Rechner hat, klont es einmalig:
