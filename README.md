@@ -14,9 +14,7 @@ Basisprojekt für das MPM-Gruppenprojekt.
 
 Die CSS-freie Struktur-Preview für das Modulhandbuch liegt in:
 
-```text
-modulhandbuch-struktur-wireframe-preview.html
-```
+[Modulhandbuch Struktur-Wireframe öffnen](./modulhandbuch-struktur-wireframe-preview.html)
 
 Die Datei kann direkt im Browser geöffnet werden. Sie zeigt den geplanten Ablauf der Seiten-Struktur:
 
