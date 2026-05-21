@@ -106,6 +106,7 @@
       <p>Platzhalter für Modulbeschreibung, Credits, Voraussetzungen und Prüfungsleistung.</p>
     </dialog>
 
+    <script src="JS/data-loader.js"></script>
     <script>
       const planTemplates = {
         "Medienproduktion": [
@@ -126,7 +127,7 @@
         ]
       };
 
-      const electiveModules = [
+      let electiveModules = [
         "Wahlpflicht A",
         "Wahlpflicht B",
         "Wahlpflicht C",
@@ -229,6 +230,29 @@
         return baseModules;
       }
 
+      function moduleNamesFromLoadedData() {
+        return window.MPMProjekt?.module
+          ?.map((module) => module.titel)
+          .filter(Boolean) || [];
+      }
+
+      async function loadAvailableModuleNames() {
+        if (!window.MPMProjekt?.ladeModuldaten) {
+          return;
+        }
+
+        try {
+          await window.MPMProjekt.ladeModuldaten();
+          const loadedModuleNames = moduleNamesFromLoadedData();
+
+          if (loadedModuleNames.length > 0) {
+            electiveModules = loadedModuleNames.slice(0, 12);
+          }
+        } catch (error) {
+          console.info("[MPM] Struktur-Preview nutzt Platzhalterdaten, weil die JSON-Daten nicht geladen werden konnten.", error);
+        }
+      }
+
       function renderPlan() {
         readOptions();
         const semesterSections = [];
@@ -282,9 +306,14 @@
         showScreen("plan");
       });
 
-      renderExcludeModules();
-      renderElectiveDialog();
-      renderPlan();
+      async function init() {
+        await loadAvailableModuleNames();
+        renderExcludeModules();
+        renderElectiveDialog();
+        renderPlan();
+      }
+
+      init();
     </script>
   </body>
 </html>
