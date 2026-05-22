@@ -162,15 +162,28 @@ Zum Testen kann `datenstruktur-test.html` über einen lokalen Server geöffnet w
 
 ## API-Anbindung testen
 
-Die Datei `JS/api-client.js` stellt eine Funktion bereit, mit der API-Abfragen per JavaScript gestartet werden können:
+Die Datei `JS/api-client.js` stellt eine Funktion für die CurrGen-API bereit:
 
 ```js
-window.MPMProjekt.api.starteApiAbfrage("https://jsonplaceholder.typicode.com/todos/1")
+window.MPMProjekt.api.generiereStudienplan({
+  geschwindigkeit: 100,
+  schwerpunkt: "WM",
+  startJahreszeit: "W",
+  vorhandeneModule: [1, 4, 5],
+  ausgeschlosseneModule: [12],
+  maxAnzahlLoesungen: 2
+})
 ```
 
-Die Funktion nutzt `fetch`, prüft den HTTP-Status und gibt erfolgreiche Antworten in der Browser-Konsole aus.
+Die Funktion sendet einen JSON-POST an:
 
-Zum Testen kann `api-test.html` im Browser geöffnet werden. Der Test ist erfolgreich, wenn nach dem Klick auf `API-Abfrage starten` eine Erfolgsmeldung erscheint und das Ergebnis in der Browser-Konsole ausgegeben wird.
+```text
+https://turing.iem.thm.de/currgen/api/v1/generate-schedule
+```
+
+Die Antwort der API wird in der Browser-Konsole ausgegeben. Zum Testen kann `api-test.html` geöffnet werden. Dort können Geschwindigkeit, Schwerpunkt, Start-Jahreszeit und Modulnummern eingetragen werden.
+
+Hinweis: Der Endpoint liefert serverseitig erfolgreich Daten. Falls ein Browser die Anfrage wegen CORS blockiert, muss die Anwendung später über eine freigegebene Herkunft oder einen Backend-Proxy angebunden werden.
 
 ## Tailwind CSS
 

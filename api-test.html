@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>API Test - MPM Projekt Team 2</title>
+    <title>CurrGen API Test - MPM Projekt Team 2</title>
     <link rel="stylesheet" href="CSS/style.css">
     <style>
       body {
@@ -15,7 +15,7 @@
       }
 
       main {
-        width: min(100%, 760px);
+        width: min(100%, 820px);
       }
 
       h1 {
@@ -29,15 +29,18 @@
 
       form {
         display: grid;
-        gap: 12px;
+        gap: 14px;
         margin-top: 24px;
       }
 
       label {
+        display: grid;
+        gap: 6px;
         font-weight: 700;
       }
 
-      input {
+      input,
+      select {
         width: 100%;
         min-height: 44px;
         padding: 10px 12px;
@@ -81,46 +84,102 @@
   </head>
   <body>
     <main>
-      <h1>API Test</h1>
+      <h1>CurrGen API Test</h1>
       <p>
-        Diese Seite startet eine API-Abfrage mit <code>fetch</code>.
+        Diese Seite sendet eine echte Studienplan-Anfrage an die CurrGen-API.
         Die Antwort wird in der Browser-Konsole ausgegeben.
+      </p>
+      <p>
+        Endpoint:
+        <code>https://turing.iem.thm.de/currgen/api/v1/generate-schedule</code>
       </p>
 
       <form id="api-form">
-        <label for="api-url">API-URL</label>
-        <input
-          id="api-url"
-          name="api-url"
-          type="url"
-          value="https://jsonplaceholder.typicode.com/todos/1"
-          required
-        >
-        <button type="submit">API-Abfrage starten</button>
+        <label>
+          Geschwindigkeit
+          <select name="geschwindigkeit">
+            <option value="100">100 Prozent</option>
+            <option value="90">90 Prozent</option>
+            <option value="80">80 Prozent</option>
+            <option value="70">70 Prozent</option>
+            <option value="60">60 Prozent</option>
+            <option value="50">50 Prozent</option>
+          </select>
+        </label>
+
+        <label>
+          Schwerpunkt
+          <select name="schwerpunkt">
+            <option value="WM">Web &amp; Mobile</option>
+            <option value="MP">Medienproduktion</option>
+          </select>
+        </label>
+
+        <label>
+          Start-Jahreszeit
+          <select name="startJahreszeit">
+            <option value="W">Wintersemester</option>
+            <option value="S">Sommersemester</option>
+          </select>
+        </label>
+
+        <label>
+          Vorhandene Module, kommasepariert
+          <input name="vorhandeneModule" value="1, 4, 5" inputmode="numeric">
+        </label>
+
+        <label>
+          Ausgeschlossene Module, kommasepariert
+          <input name="ausgeschlosseneModule" value="12" inputmode="numeric">
+        </label>
+
+        <label>
+          Maximale Anzahl Lösungen
+          <input name="maxAnzahlLoesungen" type="number" min="1" max="100" value="2">
+        </label>
+
+        <button type="submit">Studienplan generieren</button>
       </form>
 
-      <p id="status" class="status">Bereit für die API-Abfrage.</p>
+      <p id="status" class="status">Bereit für die CurrGen-API-Abfrage.</p>
     </main>
 
     <script src="JS/api-client.js"></script>
     <script>
       const form = document.querySelector("#api-form");
-      const urlInput = document.querySelector("#api-url");
       const statusElement = document.querySelector("#status");
+
+      function formularAlsParameter() {
+        const formData = new FormData(form);
+
+        return {
+          geschwindigkeit: formData.get("geschwindigkeit"),
+          schwerpunkt: formData.get("schwerpunkt"),
+          startJahreszeit: formData.get("startJahreszeit"),
+          vorhandeneModule: formData.get("vorhandeneModule"),
+          ausgeschlosseneModule: formData.get("ausgeschlosseneModule"),
+          maxAnzahlLoesungen: formData.get("maxAnzahlLoesungen")
+        };
+      }
 
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
         statusElement.classList.remove("fehler");
-        statusElement.textContent = "API-Abfrage läuft...";
+        statusElement.textContent = "CurrGen-API-Abfrage läuft...";
 
         try {
-          const daten = await window.MPMProjekt.api.starteApiAbfrage(urlInput.value);
-          statusElement.textContent = "API-Abfrage erfolgreich. Ergebnis steht in der Browser-Konsole.";
-          console.log("[MPM] Ergebnis der Testabfrage:", daten);
+          const daten = await window.MPMProjekt.api.generiereStudienplan(formularAlsParameter());
+          const ersteLoesung = daten.loesungen?.[0];
+
+          statusElement.textContent = `Studienplan generiert: ${daten.anzahlGelieferterLoesungen} Lösung(en), Penalty ${daten.penalty}. Details stehen in der Browser-Konsole.`;
+          console.log("[MPM] CurrGen Request:", daten.request);
+          console.log("[MPM] CurrGen Response:", daten);
+          console.log("[MPM] Erste Lösung:", ersteLoesung);
         } catch (fehler) {
-          statusElement.textContent = "API-Abfrage fehlgeschlagen. Details stehen in der Browser-Konsole.";
+          statusElement.textContent = "CurrGen-API-Abfrage fehlgeschlagen. Details stehen in der Browser-Konsole.";
           statusElement.classList.add("fehler");
-          console.error("[MPM] Fehler bei der API-Testabfrage:", fehler);
+          console.error("[MPM] Fehler bei der CurrGen-API-Abfrage:", fehler);
+          console.info("[MPM] Hinweis: Wenn der Browser die Anfrage wegen CORS blockiert, muss die Anwendung später über eine freigegebene Herkunft oder einen Backend-Proxy angebunden werden.");
         }
       });
     </script>
