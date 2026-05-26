@@ -46,10 +46,28 @@
         </fieldset>
 
         <label>
-          Auslastung
-          <input type="range" min="7" max="10" value="7" data-semester-input>
+          Aktuelles Semester
+          <select data-current-semester-input>
+            <option value="1">1. Semester</option>
+            <option value="2">2. Semester</option>
+            <option value="3">3. Semester</option>
+            <option value="4">4. Semester</option>
+            <option value="5">5. Semester</option>
+            <option value="6">6. Semester</option>
+            <option value="7">7. Semester</option>
+          </select>
         </label>
-        <p><strong data-semester-output>7 Semester</strong></p>
+
+        <label>
+          Auslastung
+          <input type="range" min="1" max="3" value="2" data-load-input>
+        </label>
+        <p><strong data-load-output>8 Semester (+1)</strong></p>
+
+        <section>
+          <h2>Bereits bestandene Module</h2>
+          <div data-passed-modules></div>
+        </section>
 
         <section>
           <h2>Module ausschließen</h2>
@@ -81,7 +99,8 @@
 
       <section data-screen="plan" hidden>
         <h1>Generierter Semesterplan</h1>
-        <p data-plan-summary>Medienproduktion, Sommerstart, 7 Semester</p>
+        <nav aria-label="Planvarianten" data-plan-tabs></nav>
+        <p data-plan-summary>Medienproduktion, Sommerstart, ab 1. Semester, 8 Semester (+1)</p>
         <div data-plan-container></div>
         <button type="button">Plan speichern</button>
         <button type="button" data-screen-link="options">Optionen bearbeiten</button>
@@ -106,7 +125,6 @@
       <p>Platzhalter für Modulbeschreibung, Credits, Voraussetzungen und Prüfungsleistung.</p>
     </dialog>
 
-    <script src="JS/data-loader.js"></script>
     <script>
       const planTemplates = {
         "Medienproduktion": [
@@ -139,17 +157,29 @@
       const state = {
         focus: "Medienproduktion",
         start: "Sommer",
-        semesters: 7,
-        selectedElectives: []
+        loadLevel: 2,
+        currentSemester: 1,
+        passedModules: [],
+        excludedModules: [],
+        selectedElectives: [],
+        activePlanIndex: 0,
+        planVariants: []
       };
 
       const screens = document.querySelectorAll("[data-screen]");
-      const semesterInput = document.querySelector("[data-semester-input]");
-      const semesterOutput = document.querySelector("[data-semester-output]");
+      const loadInput = document.querySelector("[data-load-input]");
+      const loadOutput = document.querySelector("[data-load-output]");
+      const currentSemesterInput = document.querySelector("[data-current-semester-input]");
       const planSummary = document.querySelector("[data-plan-summary]");
+      const planTabs = document.querySelector("[data-plan-tabs]");
       const planContainer = document.querySelector("[data-plan-container]");
       const electiveDialog = document.querySelector('[data-dialog="electives"]');
       const moduleDialog = document.querySelector('[data-dialog="module"]');
+      const loadLabels = {
+        1: "9 Semester (+2)",
+        2: "8 Semester (+1)",
+        3: "7 Semester (+0)"
+      };
 
       function showScreen(screenName) {
         screens.forEach((screen) => {
@@ -157,13 +187,18 @@
         });
       }
 
+      function checkedValues(selector) {
+        return Array.from(document.querySelectorAll(selector), (input) => input.value);
+      }
+
       function readOptions() {
         state.focus = document.querySelector('input[name="focus"]:checked').value;
         state.start = document.querySelector('input[name="start"]:checked').value;
-        state.semesters = Number(semesterInput.value);
-        semesterOutput.textContent = state.semesters === 7
-          ? "7 Semester"
-          : `${state.semesters} Semester (+${state.semesters - 7})`;
+        state.loadLevel = Number(loadInput.value);
+        state.currentSemester = Number(currentSemesterInput.value);
+        state.passedModules = checkedValues("[data-passed-modules] input:checked");
+        state.excludedModules = checkedValues("[data-exclude-modules] input:checked");
+        loadOutput.textContent = loadLabels[state.loadLevel];
       }
 
       function createModuleButton(moduleName) {
@@ -177,14 +212,32 @@
         return button;
       }
 
+      function moduleCheckbox(moduleName) {
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.value = moduleName;
+
+        const label = document.createElement("label");
+        label.append(checkbox, " ", moduleName);
+
+        const wrapper = document.createElement("p");
+        wrapper.append(label, " ", createModuleButton(moduleName));
+        return wrapper;
+      }
+
+      function selectableModuleNames() {
+        return [...new Set(Object.values(planTemplates).flat(2))];
+      }
+
+      function renderPassedModules() {
+        document.querySelector("[data-passed-modules]").replaceChildren(
+          ...selectableModuleNames().map(moduleCheckbox)
+        );
+      }
+
       function renderExcludeModules() {
-        const container = document.querySelector("[data-exclude-modules]");
-        container.replaceChildren(
-          ...electiveModules.slice(0, 4).map((moduleName) => {
-            const wrapper = document.createElement("p");
-            wrapper.append(createModuleButton(moduleName));
-            return wrapper;
-          })
+        document.querySelector("[data-exclude-modules]").replaceChildren(
+          ...selectableModuleNames().map(moduleCheckbox)
         );
       }
 
@@ -212,58 +265,100 @@
         );
       }
 
-      function modulesForSemester(semesterNumber) {
-        const template = planTemplates[state.focus];
-        const baseModules = template[Math.min(semesterNumber, template.length) - 1] || [`Flex ${semesterNumber}`];
-
-        if (semesterNumber === 5) {
-          const selected = state.selectedElectives.length > 0
-            ? state.selectedElectives
-            : electiveModules.slice(0, 2);
-          return baseModules.concat(selected);
-        }
-
-        if (semesterNumber > template.length) {
-          return [`Flex ${semesterNumber - template.length}`, "Projekt"];
-        }
-
-        return baseModules;
+      function moduleLimit() {
+        return {
+          1: 3,
+          2: 4,
+          3: 5
+        }[state.loadLevel];
       }
 
-      function moduleNamesFromLoadedData() {
-        return window.MPMProjekt?.module
-          ?.map((module) => module.titel)
-          .filter(Boolean) || [];
+      function modulesForPlanning() {
+        return planTemplates[state.focus].flat().map((moduleName, index) => ({
+          titel: moduleName,
+          semester: Math.floor(index / 5) + 1
+        })).filter((module) => !state.passedModules.includes(module.titel))
+          .filter((module) => !state.excludedModules.includes(module.titel));
       }
 
-      async function loadAvailableModuleNames() {
-        if (!window.MPMProjekt?.ladeModuldaten) {
-          return;
-        }
+      function addModuleToPlan(plan, semester, moduleName) {
+        plan.set(semester, [...(plan.get(semester) || []), moduleName]);
+      }
 
-        try {
-          await window.MPMProjekt.ladeModuldaten();
-          const loadedModuleNames = moduleNamesFromLoadedData();
+      function createPlanVariant(variantIndex) {
+        const plan = new Map();
+        const variantOffsets = [
+          [0, 0, 0],
+          [0, 1, 0],
+          [1, 0, 1],
+          [0, 1, 1],
+          [1, 1, 0]
+        ];
+        const offsets = variantOffsets[variantIndex] || variantOffsets[0];
+        const modules = modulesForPlanning().sort((a, b) => {
+          const semesterDiff = (a.semester || 1) - (b.semester || 1);
+          return semesterDiff !== 0 ? semesterDiff : a.titel.localeCompare(b.titel);
+        });
 
-          if (loadedModuleNames.length > 0) {
-            electiveModules = loadedModuleNames.slice(0, 12);
+        modules.forEach((module, moduleIndex) => {
+          const semesterOffset = offsets[moduleIndex % offsets.length];
+          const preferredSemester = Math.max(state.currentSemester, module.semester || state.currentSemester);
+          const targetSemester = preferredSemester + semesterOffset;
+          const semesterModules = plan.get(targetSemester) || [];
+
+          if (semesterModules.length < moduleLimit() || semesterModules.length === 0) {
+            addModuleToPlan(plan, targetSemester, module.titel);
+          } else {
+            addModuleToPlan(plan, targetSemester + 1, module.titel);
           }
-        } catch (error) {
-          console.info("[MPM] Struktur-Preview nutzt Platzhalterdaten, weil die JSON-Daten nicht geladen werden konnten.", error);
+        });
+
+        if (state.selectedElectives.length > 0) {
+          const electiveSemester = Math.max(5, state.currentSemester);
+          state.selectedElectives
+            .filter((moduleName) => !state.passedModules.includes(moduleName))
+            .forEach((moduleName) => addModuleToPlan(plan, electiveSemester, moduleName));
         }
+
+        return plan;
+      }
+
+      function generatePlanVariants() {
+        readOptions();
+        state.planVariants = Array.from({ length: 5 }, (_, index) => createPlanVariant(index));
+        state.activePlanIndex = 0;
+      }
+
+      function renderPlanTabs() {
+        planTabs.replaceChildren(
+          ...state.planVariants.map((_, index) => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.textContent = index + 1;
+            button.ariaLabel = `Planvariante ${index + 1} anzeigen`;
+            button.disabled = index === state.activePlanIndex;
+            button.addEventListener("click", () => {
+              state.activePlanIndex = index;
+              renderPlan();
+            });
+            return button;
+          })
+        );
       }
 
       function renderPlan() {
         readOptions();
+        const activePlan = state.planVariants[state.activePlanIndex] || createPlanVariant(0);
         const semesterSections = [];
+        const semesterNumbers = [...activePlan.keys()].sort((a, b) => a - b);
 
-        for (let semester = 1; semester <= state.semesters; semester += 1) {
+        semesterNumbers.forEach((semester) => {
           const section = document.createElement("section");
           const heading = document.createElement("h2");
           const list = document.createElement("ul");
 
           heading.textContent = `${semester}. Semester`;
-          modulesForSemester(semester).forEach((moduleName) => {
+          activePlan.get(semester).forEach((moduleName) => {
             const item = document.createElement("li");
             item.append(createModuleButton(moduleName));
             list.append(item);
@@ -271,10 +366,11 @@
 
           section.append(heading, list);
           semesterSections.push(section);
-        }
+        });
 
+        renderPlanTabs();
         planContainer.replaceChildren(...semesterSections);
-        planSummary.textContent = `${state.focus}, ${state.start}start, ${semesterOutput.textContent}`;
+        planSummary.textContent = `Variante ${state.activePlanIndex + 1}: ${state.focus}, ${state.start}start, ab ${state.currentSemester}. Semester, ${loadOutput.textContent}`;
       }
 
       document.querySelectorAll("[data-screen-link]").forEach((button) => {
@@ -292,7 +388,8 @@
         });
       });
 
-      semesterInput.addEventListener("input", readOptions);
+      loadInput.addEventListener("input", readOptions);
+      currentSemesterInput.addEventListener("change", readOptions);
 
       document.querySelector("[data-open-electives]").addEventListener("click", () => {
         readOptions();
@@ -302,14 +399,39 @@
 
       document.querySelector("[data-create-plan]").addEventListener("click", () => {
         electiveDialog.close();
+        generatePlanVariants();
         renderPlan();
         showScreen("plan");
       });
 
-      async function init() {
-        await loadAvailableModuleNames();
+      let touchStartX = 0;
+
+      planContainer.addEventListener("touchstart", (event) => {
+        touchStartX = event.changedTouches[0].clientX;
+      });
+
+      planContainer.addEventListener("touchend", (event) => {
+        const touchEndX = event.changedTouches[0].clientX;
+        const swipeDistance = touchEndX - touchStartX;
+
+        if (Math.abs(swipeDistance) < 40 || state.planVariants.length === 0) {
+          return;
+        }
+
+        if (swipeDistance < 0) {
+          state.activePlanIndex = Math.min(state.activePlanIndex + 1, state.planVariants.length - 1);
+        } else {
+          state.activePlanIndex = Math.max(state.activePlanIndex - 1, 0);
+        }
+
+        renderPlan();
+      });
+
+      function init() {
+        renderPassedModules();
         renderExcludeModules();
         renderElectiveDialog();
+        generatePlanVariants();
         renderPlan();
       }
 
