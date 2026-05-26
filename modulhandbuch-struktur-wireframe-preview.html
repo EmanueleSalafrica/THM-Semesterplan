@@ -81,7 +81,7 @@
       </section>
 
       <section class="screen screen-focus" data-screen="focus" hidden>
-        <h1>Schwerpunktwahl Info</h1>
+        <h1>Welcher Schwerpunkt interessiert dich?</h1>
 
         <div class="focus-panels">
         <section class="focus-panel focus-panel-media" data-focus-area="media">
@@ -195,7 +195,16 @@
         screens.forEach((screen) => {
           screen.hidden = screen.dataset.screen !== screenName;
         });
+        if (screenName === "focus") {
+          showFocusOverview();
+        }
         window.scrollTo(0, 0);
+      }
+
+      function showFocusOverview() {
+        document.querySelectorAll("[data-focus-area]").forEach((area) => {
+          area.hidden = false;
+        });
       }
 
       function showFocusArea(focusName) {
