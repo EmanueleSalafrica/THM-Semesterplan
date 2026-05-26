@@ -25,9 +25,6 @@ Die Datei kann direkt im Browser geöffnet werden. Sie zeigt den geplanten Ablau
 - Schwerpunktwahl-Info
 - Modulbeschreibung als Dialog
 
-Die Datei enthält bewusst kein eigenes CSS, damit die separate Aufgabe zur Seiten-Formatierung nicht vorweggenommen wird.
-Sie bindet optional `JS/data-loader.js` ein und kann dadurch später echte JSON-Daten verwenden; wenn diese nicht geladen werden können, nutzt sie Platzhalterdaten.
-
 ## Git für das Team
 
 Wer das Projekt noch nicht auf dem eigenen Rechner hat, klont es einmalig:
