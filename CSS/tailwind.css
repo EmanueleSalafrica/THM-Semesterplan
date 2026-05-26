@@ -36,11 +36,11 @@
   }
 
   .app-logo {
-    @apply text-sm font-bold tracking-normal text-white md:text-xl;
+    @apply inline-grid cursor-pointer grid-cols-[1.35rem_auto] items-center gap-x-2 border-0 bg-transparent p-0 text-left text-white transition hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white;
   }
 
   .app-logo::before {
-    @apply mr-2 inline-block align-middle;
+    @apply row-span-2 inline-block align-middle;
     content: "";
     width: 1.15rem;
     height: 1.15rem;
@@ -56,6 +56,14 @@
       linear-gradient(#80ba24 0 0) 0.72rem 0.72rem / 0.22rem 0.22rem;
     background-repeat: no-repeat;
     filter: brightness(0) invert(1);
+  }
+
+  .app-logo span {
+    @apply text-2xl font-bold leading-none tracking-normal;
+  }
+
+  .app-logo small {
+    @apply hidden text-[0.42rem] font-bold uppercase leading-none md:block;
   }
 
   .app-main {
@@ -85,7 +93,7 @@
 
   .action-stack,
   .screen-actions {
-    @apply flex w-full max-w-xs flex-col items-center gap-3;
+    @apply mx-auto flex w-full max-w-xs flex-col items-center gap-3;
   }
 
   .button-primary,
@@ -97,7 +105,7 @@
   }
 
   .button-primary {
-    @apply bg-thm-green text-white hover:bg-thm-gray;
+    @apply bg-[#5f9718] text-white hover:bg-thm-gray;
   }
 
   .button-secondary,
@@ -160,7 +168,7 @@
   }
 
   .module-filter-grid {
-    @apply grid max-h-80 grid-cols-3 gap-2 overflow-y-auto pr-1;
+    @apply grid max-h-80 grid-cols-2 gap-2 overflow-y-auto pr-1 sm:grid-cols-3;
   }
 
   .elective-list {
@@ -176,12 +184,12 @@
   }
 
   .module-checkbox {
-    @apply flex min-h-10 min-w-0 items-center justify-center gap-1 rounded-sm bg-white/20 px-1 text-center text-[0.58rem] font-bold leading-tight text-white;
+    @apply flex h-20 min-w-0 cursor-pointer items-center justify-center rounded-sm border-0 bg-lime-200 px-2 text-center text-[0.62rem] font-bold leading-tight text-thm-gray shadow-sm transition hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white;
     overflow-wrap: anywhere;
   }
 
-  .module-checkbox input {
-    @apply accent-thm-green;
+  .module-checkbox[aria-pressed="true"] {
+    @apply bg-thm-gray text-white;
   }
 
   .screen-plan {
@@ -191,6 +199,10 @@
 
   .plan-tabs {
     @apply flex items-center justify-center gap-2;
+  }
+
+  .plan-arrow {
+    @apply hidden h-10 w-10 items-center justify-center rounded-full bg-transparent text-4xl font-bold leading-none text-thm-gray transition hover:text-white disabled:cursor-default disabled:opacity-30 md:inline-flex;
   }
 
   .plan-tab {
@@ -218,11 +230,11 @@
   }
 
   .semester-modules {
-    @apply grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5;
+    @apply grid grid-cols-2 items-stretch gap-3 sm:grid-cols-3 md:grid-cols-5;
   }
 
   .module-card {
-    @apply relative flex min-h-28 min-w-0 flex-col items-center justify-end overflow-hidden rounded-sm px-2 pb-3 pt-14 text-center text-xs font-bold text-white shadow-md transition hover:-translate-y-1 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:min-h-32 md:text-sm;
+    @apply relative flex h-32 min-w-0 flex-col items-center justify-end overflow-hidden rounded-sm px-2 pb-0 pt-14 text-center text-xs font-bold text-white shadow-md transition hover:-translate-y-1 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:h-36 md:text-sm;
     background: linear-gradient(to bottom, #d9f99d 0 68%, #4a5c66 68% 100%);
     line-height: 1.1;
     overflow-wrap: anywhere;
@@ -240,6 +252,14 @@
       linear-gradient(315deg, transparent 50%, #cfcfcf 0) 100% 100% / 50% 50%;
     background-repeat: no-repeat;
     transform: rotate(45deg) skew(-8deg, -8deg);
+  }
+
+  .module-card-label {
+    @apply flex h-[32%] w-full items-center justify-center px-1;
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
   }
 
   .screen-focus {
@@ -332,10 +352,6 @@
 
     .screen-options {
       @apply fixed bottom-0 left-0 top-0 z-20 overflow-y-auto pt-20;
-    }
-
-    .screen-plan {
-      @apply pl-80;
     }
 
     .focus-panel[hidden] {

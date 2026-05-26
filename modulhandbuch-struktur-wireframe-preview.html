@@ -8,12 +8,15 @@
   </head>
   <body class="app-shell">
     <header class="app-header">
-      <strong class="app-logo">Digitales Modulhandbuch</strong>
+      <button class="app-logo" type="button" data-screen-link="start" aria-label="Zurück zum Hauptmenü">
+        <span>THM</span>
+        <small>Technische Hochschule Mittelhessen</small>
+      </button>
     </header>
 
     <main class="app-main">
       <section class="screen screen-start" data-screen="start">
-        <h1>Startseite</h1>
+        <h1>Willkommen im digitalen Modulhandbuch</h1>
         <p>Struktur für den Einstieg in das digitale Modulhandbuch.</p>
         <div class="action-stack">
           <button class="button-primary" type="button" data-screen-link="options">Semesterplan erstellen</button>
@@ -313,9 +316,13 @@
 
       function createModuleButton(moduleName, buttonText = moduleName) {
         const button = document.createElement("button");
+        const buttonLabel = document.createElement("span");
+
         button.type = "button";
         button.className = buttonText === "Info" ? "module-info-button" : "module-card";
-        button.textContent = buttonText;
+        buttonLabel.className = "module-card-label";
+        buttonLabel.textContent = buttonText;
+        button.append(buttonLabel);
         button.addEventListener("click", () => {
           moduleDialog.querySelector("[data-module-title]").textContent = moduleName;
           renderModuleDetails(moduleName);
@@ -326,16 +333,24 @@
 
       function moduleCheckbox(moduleName) {
         const checkbox = document.createElement("input");
+        const button = document.createElement("button");
+
         checkbox.type = "checkbox";
         checkbox.value = moduleName;
+        checkbox.hidden = true;
 
-        const label = document.createElement("label");
-        label.className = "module-checkbox";
-        label.append(checkbox, " ", moduleName);
+        button.type = "button";
+        button.className = "module-checkbox";
+        button.textContent = moduleName;
+        button.ariaPressed = "false";
+        button.addEventListener("click", () => {
+          checkbox.checked = !checkbox.checked;
+          button.ariaPressed = String(checkbox.checked);
+        });
 
         const wrapper = document.createElement("p");
         wrapper.className = "module-checkbox-row";
-        wrapper.append(label, " ", createModuleButton(moduleName, "Info"));
+        wrapper.append(checkbox, button);
         return wrapper;
       }
 
@@ -459,8 +474,9 @@
       }
 
       function renderPlanTabs() {
-        planTabs.replaceChildren(
-          ...state.planVariants.map((_, index) => {
+        const previousButton = document.createElement("button");
+        const nextButton = document.createElement("button");
+        const tabButtons = state.planVariants.map((_, index) => {
             const button = document.createElement("button");
             button.type = "button";
             button.className = "plan-tab";
@@ -472,8 +488,29 @@
               renderPlan();
             });
             return button;
-          })
-        );
+          });
+
+        previousButton.type = "button";
+        previousButton.className = "plan-arrow plan-arrow-previous";
+        previousButton.textContent = "‹";
+        previousButton.ariaLabel = "Vorherige Planvariante anzeigen";
+        previousButton.disabled = state.activePlanIndex === 0;
+        previousButton.addEventListener("click", () => {
+          state.activePlanIndex = Math.max(state.activePlanIndex - 1, 0);
+          renderPlan();
+        });
+
+        nextButton.type = "button";
+        nextButton.className = "plan-arrow plan-arrow-next";
+        nextButton.textContent = "›";
+        nextButton.ariaLabel = "Nächste Planvariante anzeigen";
+        nextButton.disabled = state.activePlanIndex === state.planVariants.length - 1;
+        nextButton.addEventListener("click", () => {
+          state.activePlanIndex = Math.min(state.activePlanIndex + 1, state.planVariants.length - 1);
+          renderPlan();
+        });
+
+        planTabs.replaceChildren(previousButton, ...tabButtons, nextButton);
       }
 
       function renderPlan() {
