@@ -65,13 +65,8 @@
         <p><strong data-load-output>8 Semester (+1)</strong></p>
 
         <section>
-          <h2>Bereits bestandene Module</h2>
-          <div data-passed-modules></div>
-        </section>
-
-        <section>
-          <h2>Module ausschließen</h2>
-          <div data-exclude-modules></div>
+          <h2>Bestandene oder auszuschließende Module</h2>
+          <div data-skipped-modules></div>
         </section>
 
         <button type="button" data-open-electives>Generiere</button>
@@ -105,6 +100,7 @@
         <button type="button">Plan speichern</button>
         <button type="button" data-screen-link="options">Optionen bearbeiten</button>
       </section>
+
     </main>
 
     <dialog data-dialog="electives">
@@ -122,9 +118,12 @@
         <button type="submit">Schließen</button>
       </form>
       <h2 data-module-title>Modulbeschreibung</h2>
-      <p>Platzhalter für Modulbeschreibung, Credits, Voraussetzungen und Prüfungsleistung.</p>
+      <div data-module-details>
+        <p>Moduldaten werden geladen.</p>
+      </div>
     </dialog>
 
+    <script src="JS/data-loader.js"></script>
     <script>
       const planTemplates = {
         "Medienproduktion": [
@@ -153,14 +152,14 @@
         "Wahlpflicht E",
         "Wahlpflicht F"
       ];
+      let loadedModules = [];
 
       const state = {
         focus: "Medienproduktion",
         start: "Sommer",
         loadLevel: 2,
         currentSemester: 1,
-        passedModules: [],
-        excludedModules: [],
+        skippedModules: [],
         selectedElectives: [],
         activePlanIndex: 0,
         planVariants: []
@@ -175,6 +174,7 @@
       const planContainer = document.querySelector("[data-plan-container]");
       const electiveDialog = document.querySelector('[data-dialog="electives"]');
       const moduleDialog = document.querySelector('[data-dialog="module"]');
+      const moduleDetails = document.querySelector("[data-module-details]");
       const loadLabels = {
         1: "9 Semester (+2)",
         2: "8 Semester (+1)",
@@ -191,22 +191,115 @@
         return Array.from(document.querySelectorAll(selector), (input) => input.value);
       }
 
+      function moduleTitle(module) {
+        return typeof module === "string" ? module : module.titel;
+      }
+
+      function findModule(moduleName) {
+        return loadedModules.find((module) => module.titel === moduleName);
+      }
+
+      function hasValue(value) {
+        return value !== null && value !== undefined && value !== "";
+      }
+
+      function formatValue(value) {
+        if (!hasValue(value)) {
+          return "Keine Angabe";
+        }
+
+        if (Array.isArray(value)) {
+          return value.length > 0 ? value.join(", ") : "Keine Angabe";
+        }
+
+        if (typeof value === "object") {
+          return JSON.stringify(value);
+        }
+
+        return String(value);
+      }
+
+      function visibleModuleFields(module) {
+        return Object.entries(module).filter(([fieldName]) => fieldName !== "img");
+      }
+
+      function fieldLabel(fieldName) {
+        const labels = {
+          nr: "Nr.",
+          titel: "Titel",
+          kurzbeschreibung: "Kurzbeschreibung",
+          inhalt: "Inhalt",
+          umf_v: "Umfang Vorlesung",
+          umf_s: "Umfang Seminar",
+          umf_u: "Umfang Übung",
+          umf_p: "Umfang Praktikum",
+          umf_the: "Umfang Theoretische Einheiten",
+          umf_bpp: "Umfang BPP",
+          credits: "Credits",
+          semester: "Semester",
+          sose: "Sommersemester",
+          wise: "Wintersemester",
+          medienproduktion: "Medienproduktion",
+          webmobile: "Web & Mobile",
+          schspezag: "Schwerpunkt/Spezialgebiet",
+          bonuspunkte: "Bonuspunkte",
+          pflicht: "Pflichtmodul",
+          voraussetzungenPflicht: "Pflichtvoraussetzungen",
+          voraussetzungenEmpfohlen: "Empfohlene Voraussetzungen",
+          img: "Bild",
+          pruefungsleistung: "Prüfungsleistung"
+        };
+
+        return labels[fieldName] || fieldName;
+      }
+
+      function textBlock(tagName, text) {
+        const element = document.createElement(tagName);
+        element.textContent = text;
+        return element;
+      }
+
+      function renderModuleDetails(moduleName) {
+        const module = findModule(moduleName);
+
+        if (!module) {
+          moduleDetails.replaceChildren(
+            textBlock("p", "Zu diesem Platzhaltermodul liegen noch keine geladenen Daten vor.")
+          );
+          return;
+        }
+
+        const detailsContainer = document.createElement("section");
+        visibleModuleFields(module).forEach(([fieldName, value]) => {
+          const field = document.createElement("section");
+          const label = document.createElement("h3");
+          const details = document.createElement("p");
+
+          label.textContent = fieldLabel(fieldName);
+          details.textContent = formatValue(value);
+          field.append(label, details);
+          detailsContainer.append(field);
+        });
+
+        moduleDetails.replaceChildren(detailsContainer);
+      }
+
       function readOptions() {
         state.focus = document.querySelector('input[name="focus"]:checked').value;
         state.start = document.querySelector('input[name="start"]:checked').value;
         state.loadLevel = Number(loadInput.value);
         state.currentSemester = Number(currentSemesterInput.value);
-        state.passedModules = checkedValues("[data-passed-modules] input:checked");
-        state.excludedModules = checkedValues("[data-exclude-modules] input:checked");
+        state.skippedModules = checkedValues("[data-skipped-modules] input:checked");
         loadOutput.textContent = loadLabels[state.loadLevel];
       }
 
-      function createModuleButton(moduleName) {
+      function createModuleButton(moduleName, buttonText = moduleName) {
         const button = document.createElement("button");
         button.type = "button";
-        button.textContent = moduleName;
+        button.textContent = buttonText;
         button.addEventListener("click", () => {
           moduleDialog.querySelector("[data-module-title]").textContent = moduleName;
+          renderModuleDetails(moduleName);
           moduleDialog.showModal();
         });
         return button;
@@ -221,22 +314,20 @@
         label.append(checkbox, " ", moduleName);
 
         const wrapper = document.createElement("p");
-        wrapper.append(label, " ", createModuleButton(moduleName));
+        wrapper.append(label, " ", createModuleButton(moduleName, "Info"));
         return wrapper;
       }
 
       function selectableModuleNames() {
+        if (loadedModules.length > 0) {
+          return loadedModules.map(moduleTitle);
+        }
+
         return [...new Set(Object.values(planTemplates).flat(2))];
       }
 
-      function renderPassedModules() {
-        document.querySelector("[data-passed-modules]").replaceChildren(
-          ...selectableModuleNames().map(moduleCheckbox)
-        );
-      }
-
-      function renderExcludeModules() {
-        document.querySelector("[data-exclude-modules]").replaceChildren(
+      function renderSkippedModules() {
+        document.querySelector("[data-skipped-modules]").replaceChildren(
           ...selectableModuleNames().map(moduleCheckbox)
         );
       }
@@ -273,12 +364,27 @@
         }[state.loadLevel];
       }
 
+      function moduleFitsFocus(module) {
+        return state.focus === "Medienproduktion"
+          ? module.medienproduktion === "Ja"
+          : module.webmobile === "Ja";
+      }
+
       function modulesForPlanning() {
+        if (loadedModules.length > 0) {
+          return loadedModules
+            .filter(moduleFitsFocus)
+            .filter((module) => !state.skippedModules.includes(module.titel))
+            .map((module) => ({
+              titel: module.titel,
+              semester: Number(module.semester) || 1
+            }));
+        }
+
         return planTemplates[state.focus].flat().map((moduleName, index) => ({
           titel: moduleName,
           semester: Math.floor(index / 5) + 1
-        })).filter((module) => !state.passedModules.includes(module.titel))
-          .filter((module) => !state.excludedModules.includes(module.titel));
+        })).filter((module) => !state.skippedModules.includes(module.titel));
       }
 
       function addModuleToPlan(plan, semester, moduleName) {
@@ -316,7 +422,7 @@
         if (state.selectedElectives.length > 0) {
           const electiveSemester = Math.max(5, state.currentSemester);
           state.selectedElectives
-            .filter((moduleName) => !state.passedModules.includes(moduleName))
+            .filter((moduleName) => !state.skippedModules.includes(moduleName))
             .forEach((moduleName) => addModuleToPlan(plan, electiveSemester, moduleName));
         }
 
@@ -373,6 +479,18 @@
         planSummary.textContent = `Variante ${state.activePlanIndex + 1}: ${state.focus}, ${state.start}start, ab ${state.currentSemester}. Semester, ${loadOutput.textContent}`;
       }
 
+      async function loadContentData() {
+        if (!window.MPMProjekt?.ladeModuldaten) {
+          return;
+        }
+
+        const data = await window.MPMProjekt.ladeModuldaten();
+        loadedModules = data.modules;
+        electiveModules = loadedModules
+          .filter((module) => module.pflicht !== "Ja")
+          .map(moduleTitle);
+      }
+
       document.querySelectorAll("[data-screen-link]").forEach((button) => {
         button.addEventListener("click", () => {
           readOptions();
@@ -427,15 +545,21 @@
         renderPlan();
       });
 
-      function init() {
-        renderPassedModules();
-        renderExcludeModules();
+      async function init() {
+        await loadContentData();
+        renderSkippedModules();
         renderElectiveDialog();
         generatePlanVariants();
         renderPlan();
       }
 
-      init();
+      init().catch((error) => {
+        console.error("[MPM] Moduldaten konnten nicht in die Struktur geladen werden.", error);
+        renderSkippedModules();
+        renderElectiveDialog();
+        generatePlanVariants();
+        renderPlan();
+      });
     </script>
   </body>
 </html>

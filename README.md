@@ -16,6 +16,10 @@ Die CSS-freie Struktur-Preview für das Modulhandbuch liegt in:
 
 [Modulhandbuch Struktur-Wireframe öffnen](./modulhandbuch-struktur-wireframe-preview.html)
 
+Die gleiche Vorschau zeigt im Branch `MPM202602-19-modulhandbuch-struktur-inhalt` auch die eingebundenen Inhalte aus der geladenen Datenstruktur:
+
+[Modulhandbuch Struktur mit Inhalt öffnen](./modulhandbuch-struktur-wireframe-preview.html)
+
 Die Datei kann direkt im Browser geöffnet werden. Sie zeigt den geplanten Ablauf der Seiten-Struktur:
 
 - Startseite
@@ -24,6 +28,11 @@ Die Datei kann direkt im Browser geöffnet werden. Sie zeigt den geplanten Ablau
 - generierter Semesterplan
 - Schwerpunktwahl-Info
 - Modulbeschreibung als Dialog
+
+Offene Punkte:
+
+- Der Inhalt für `Schwerpunktwahl-Info` fehlt noch, weil dafür noch keine finalen Inhalte vorliegen.
+- Die englische Übersetzung fehlt noch, weil das Modulhandbuch bisher noch nicht auf Englisch bereitgestellt wurde.
 
 ## Git für das Team
 
