@@ -33,6 +33,28 @@ Die Vorschau zeigt den geplanten Ablauf der Seiten-Struktur:
 - Schwerpunktwahl-Info
 - Modulbeschreibung als Dialog
 
+Die Vorschau ist mit Tailwind CSS formatiert. Beim Testen sollen besonders diese Punkte geprüft werden:
+
+- Das THM-Logo oben links ist als Button zurück zum Hauptmenü nutzbar.
+- Der feste Header hat eine grüne Hintergrundfläche, damit gescrollte Inhalte nicht unter dem Logo sichtbar durchlaufen.
+- In der Desktop-Ansicht ist der generierte Semesterplan mittig ausgerichtet und die Pfeile neben den fünf Planvarianten sind sichtbar.
+- In der mobilen Ansicht werden die Planvarianten per Swipe gewechselt.
+- Die Schwerpunktwahl zeigt beim Öffnen beide Schwerpunktbereiche geteilt an; per Swipe kann ein Schwerpunkt ausgewählt werden.
+- Modulkarten im Stundenplan haben eine einheitliche Größe.
+- Die Buttons `Plan speichern`, `Optionen bearbeiten` und `Generiere` sind auch mobil mittig und gut sichtbar.
+
+Nach Änderungen an `CSS/tailwind.css` muss die gebaute CSS-Datei aktualisiert werden:
+
+```bash
+npm run build
+```
+
+Falls PowerShell `npm` blockiert:
+
+```bash
+npm.cmd run build
+```
+
 Offene Punkte:
 
 - Der Inhalt für `Schwerpunktwahl-Info` fehlt noch, weil dafür noch keine finalen Inhalte vorliegen.
