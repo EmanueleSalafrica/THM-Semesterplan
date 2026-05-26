@@ -16,11 +16,15 @@ Die CSS-freie Struktur-Preview für das Modulhandbuch liegt in:
 
 [Modulhandbuch Struktur-Wireframe öffnen](./modulhandbuch-struktur-wireframe-preview.html)
 
-Die gleiche Vorschau zeigt im Branch `MPM202602-19-modulhandbuch-struktur-inhalt` auch die eingebundenen Inhalte aus der geladenen Datenstruktur:
+Die gleiche Vorschau zeigt im Branch `MPM202602-19-modulhandbuch-struktur-inhalt` auch die eingebundenen Inhalte aus der geladenen Datenstruktur.
 
-[Modulhandbuch Struktur mit Inhalt öffnen](./modulhandbuch-struktur-wireframe-preview.html)
+Damit die JSON-Daten geladen werden, muss die Vorschau über einen lokalen Server geöffnet werden:
 
-Die Datei kann direkt im Browser geöffnet werden. Sie zeigt den geplanten Ablauf der Seiten-Struktur:
+[Modulhandbuch Struktur mit Inhalt lokal öffnen](http://127.0.0.1:8000/modulhandbuch-struktur-wireframe-preview.html)
+
+Beim direkten Öffnen der Datei über `file://` kann der Browser das Laden der JSON-Datei blockieren; dann ist nur die Struktur ohne Inhalte sichtbar.
+
+Die Vorschau zeigt den geplanten Ablauf der Seiten-Struktur:
 
 - Startseite
 - Semesterplan-Optionen
