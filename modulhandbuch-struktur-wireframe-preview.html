@@ -4,48 +4,51 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Modulhandbuch Seiten-Struktur</title>
+    <link rel="stylesheet" href="CSS/style.css">
   </head>
-  <body>
-    <header>
-      <strong>Digitales Modulhandbuch</strong>
+  <body class="app-shell">
+    <header class="app-header">
+      <strong class="app-logo">Digitales Modulhandbuch</strong>
     </header>
 
-    <main>
-      <section data-screen="start">
+    <main class="app-main">
+      <section class="screen screen-start" data-screen="start">
         <h1>Startseite</h1>
         <p>Struktur für den Einstieg in das digitale Modulhandbuch.</p>
-        <button type="button" data-screen-link="options">Semesterplan erstellen</button>
-        <button type="button" data-screen-link="focus">Schwerpunktwahl Info</button>
+        <div class="action-stack">
+          <button class="button-primary" type="button" data-screen-link="options">Semesterplan erstellen</button>
+          <button class="button-secondary" type="button" data-screen-link="focus">Schwerpunktwahl Info</button>
+        </div>
       </section>
 
-      <section data-screen="options" hidden>
+      <section class="screen screen-options" data-screen="options" hidden>
         <h1>Semesterplan Optionen</h1>
 
-        <fieldset>
+        <fieldset class="option-group">
           <legend>Schwerpunkt</legend>
-          <label>
+          <label class="choice-pill">
             <input type="radio" name="focus" value="Medienproduktion" checked>
             Medienproduktion
           </label>
-          <label>
+          <label class="choice-pill">
             <input type="radio" name="focus" value="Web & Mobile">
             Web &amp; Mobile
           </label>
         </fieldset>
 
-        <fieldset>
+        <fieldset class="option-group">
           <legend>Startsemester</legend>
-          <label>
+          <label class="choice-pill">
             <input type="radio" name="start" value="Sommer" checked>
             Sommer
           </label>
-          <label>
+          <label class="choice-pill">
             <input type="radio" name="start" value="Winter">
             Winter
           </label>
         </fieldset>
 
-        <label>
+        <label class="form-control">
           Aktuelles Semester
           <select data-current-semester-input>
             <option value="1">1. Semester</option>
@@ -58,67 +61,73 @@
           </select>
         </label>
 
-        <label>
+        <label class="form-control">
           Auslastung
           <input type="range" min="1" max="3" value="2" data-load-input>
         </label>
-        <p><strong data-load-output>8 Semester (+1)</strong></p>
+        <p class="load-output"><strong data-load-output>8 Semester (+1)</strong></p>
 
-        <section>
+        <section class="module-filter">
           <h2>Bestandene oder auszuschließende Module</h2>
-          <div data-skipped-modules></div>
+          <div class="module-filter-grid" data-skipped-modules></div>
         </section>
 
-        <button type="button" data-open-electives>Generiere</button>
-        <button type="button" data-screen-link="start">Zurück zur Startseite</button>
+        <div class="screen-actions">
+          <button class="button-primary" type="button" data-open-electives>Generiere</button>
+          <button class="button-secondary" type="button" data-screen-link="start">Zurück zur Startseite</button>
+        </div>
       </section>
 
-      <section data-screen="focus" hidden>
+      <section class="screen screen-focus" data-screen="focus" hidden>
         <h1>Schwerpunktwahl Info</h1>
         <p>Der aktive Schwerpunktbereich enthält später den jeweiligen Beschreibungstext und ist scrollbar, sobald der Text länger wird.</p>
 
-        <section data-focus-area="media">
+        <div class="focus-panels">
+        <section class="focus-panel focus-panel-media" data-focus-area="media">
           <h2>Medienproduktion</h2>
           <p>Platzhalter für den späteren Text zu Medienproduktion.</p>
-          <button type="button" data-focus-link="web">Web &amp; Mobile anzeigen</button>
+          <button class="focus-swipe-button" type="button" data-focus-link="web">Web &amp; Mobile anzeigen</button>
         </section>
 
-        <section data-focus-area="web" hidden>
+        <section class="focus-panel focus-panel-web" data-focus-area="web" hidden>
           <h2>Web &amp; Mobile</h2>
           <p>Platzhalter für den späteren Text zu Web &amp; Mobile.</p>
-          <button type="button" data-focus-link="media">Medienproduktion anzeigen</button>
+          <button class="focus-swipe-button" type="button" data-focus-link="media">Medienproduktion anzeigen</button>
         </section>
+        </div>
 
-        <button type="button" data-screen-link="start">Zurück zur Startseite</button>
+        <button class="button-secondary" type="button" data-screen-link="start">Zurück zur Startseite</button>
       </section>
 
-      <section data-screen="plan" hidden>
+      <section class="screen screen-plan" data-screen="plan" hidden>
         <h1>Generierter Semesterplan</h1>
-        <nav aria-label="Planvarianten" data-plan-tabs></nav>
-        <p data-plan-summary>Medienproduktion, Sommerstart, ab 1. Semester, 8 Semester (+1)</p>
-        <div data-plan-container></div>
-        <button type="button">Plan speichern</button>
-        <button type="button" data-screen-link="options">Optionen bearbeiten</button>
+        <nav class="plan-tabs" aria-label="Planvarianten" data-plan-tabs></nav>
+        <p class="plan-summary" data-plan-summary>Medienproduktion, Sommerstart, ab 1. Semester, 8 Semester (+1)</p>
+        <div class="plan-container" data-plan-container></div>
+        <div class="screen-actions">
+          <button class="button-primary" type="button">Plan speichern</button>
+          <button class="button-secondary" type="button" data-screen-link="options">Optionen bearbeiten</button>
+        </div>
       </section>
 
     </main>
 
-    <dialog data-dialog="electives">
-      <form method="dialog">
-        <button type="submit">Schließen</button>
+    <dialog class="app-dialog" data-dialog="electives">
+      <form class="dialog-close-form" method="dialog">
+        <button class="dialog-close" type="submit">Schließen</button>
       </form>
       <h2>Wahlpflichtfach Auswahl</h2>
       <p>Die Wahlpflichtfächer werden später erst im 5. Semester in den Plan übernommen.</p>
-      <div data-elective-list></div>
-      <button type="button" data-create-plan>Plan erstellen</button>
+      <div class="elective-list" data-elective-list></div>
+      <button class="button-primary" type="button" data-create-plan>Plan erstellen</button>
     </dialog>
 
-    <dialog data-dialog="module">
-      <form method="dialog">
-        <button type="submit">Schließen</button>
+    <dialog class="app-dialog module-dialog" data-dialog="module">
+      <form class="dialog-close-form" method="dialog">
+        <button class="dialog-close" type="submit">Schließen</button>
       </form>
       <h2 data-module-title>Modulbeschreibung</h2>
-      <div data-module-details>
+      <div class="module-details" data-module-details>
         <p>Moduldaten werden geladen.</p>
       </div>
     </dialog>
@@ -184,6 +193,13 @@
       function showScreen(screenName) {
         screens.forEach((screen) => {
           screen.hidden = screen.dataset.screen !== screenName;
+        });
+        window.scrollTo(0, 0);
+      }
+
+      function showFocusArea(focusName) {
+        document.querySelectorAll("[data-focus-area]").forEach((area) => {
+          area.hidden = area.dataset.focusArea !== focusName;
         });
       }
 
@@ -270,11 +286,13 @@
         }
 
         const detailsContainer = document.createElement("section");
+        detailsContainer.className = "module-detail-grid";
         visibleModuleFields(module).forEach(([fieldName, value]) => {
           const field = document.createElement("section");
           const label = document.createElement("h3");
           const details = document.createElement("p");
 
+          field.className = "module-detail-field";
           label.textContent = fieldLabel(fieldName);
           details.textContent = formatValue(value);
           field.append(label, details);
@@ -296,6 +314,7 @@
       function createModuleButton(moduleName, buttonText = moduleName) {
         const button = document.createElement("button");
         button.type = "button";
+        button.className = buttonText === "Info" ? "module-info-button" : "module-card";
         button.textContent = buttonText;
         button.addEventListener("click", () => {
           moduleDialog.querySelector("[data-module-title]").textContent = moduleName;
@@ -311,9 +330,11 @@
         checkbox.value = moduleName;
 
         const label = document.createElement("label");
+        label.className = "module-checkbox";
         label.append(checkbox, " ", moduleName);
 
         const wrapper = document.createElement("p");
+        wrapper.className = "module-checkbox-row";
         wrapper.append(label, " ", createModuleButton(moduleName, "Info"));
         return wrapper;
       }
@@ -338,7 +359,9 @@
           ...electiveModules.map((moduleName) => {
             const item = document.createElement("article");
             const chooseButton = document.createElement("button");
+            item.className = "elective-item";
             chooseButton.type = "button";
+            chooseButton.className = "button-secondary";
             chooseButton.textContent = state.selectedElectives.includes(moduleName) ? "Ausgewählt" : "Wählen";
             chooseButton.addEventListener("click", () => {
               if (state.selectedElectives.includes(moduleName)) {
@@ -440,6 +463,7 @@
           ...state.planVariants.map((_, index) => {
             const button = document.createElement("button");
             button.type = "button";
+            button.className = "plan-tab";
             button.textContent = index + 1;
             button.ariaLabel = `Planvariante ${index + 1} anzeigen`;
             button.disabled = index === state.activePlanIndex;
@@ -463,6 +487,8 @@
           const heading = document.createElement("h2");
           const list = document.createElement("ul");
 
+          section.className = "semester-section";
+          list.className = "semester-modules";
           heading.textContent = `${semester}. Semester`;
           activePlan.get(semester).forEach((moduleName) => {
             const item = document.createElement("li");
@@ -500,9 +526,7 @@
 
       document.querySelectorAll("[data-focus-link]").forEach((button) => {
         button.addEventListener("click", () => {
-          document.querySelectorAll("[data-focus-area]").forEach((area) => {
-            area.hidden = area.dataset.focusArea !== button.dataset.focusLink;
-          });
+          showFocusArea(button.dataset.focusLink);
         });
       });
 
@@ -523,13 +547,13 @@
       });
 
       let touchStartX = 0;
+      let focusTouchStartX = 0;
+      let planPointerStartX = 0;
+      let focusPointerStartX = 0;
+      const focusScreen = document.querySelector('[data-screen="focus"]');
+      const planScreen = document.querySelector('[data-screen="plan"]');
 
-      planContainer.addEventListener("touchstart", (event) => {
-        touchStartX = event.changedTouches[0].clientX;
-      });
-
-      planContainer.addEventListener("touchend", (event) => {
-        const touchEndX = event.changedTouches[0].clientX;
+      function handlePlanSwipe(touchEndX) {
         const swipeDistance = touchEndX - touchStartX;
 
         if (Math.abs(swipeDistance) < 40 || state.planVariants.length === 0) {
@@ -543,6 +567,51 @@
         }
 
         renderPlan();
+      }
+
+      planScreen.addEventListener("touchstart", (event) => {
+        touchStartX = event.changedTouches[0].clientX;
+      });
+
+      planScreen.addEventListener("touchend", (event) => {
+        handlePlanSwipe(event.changedTouches[0].clientX);
+      });
+
+      planScreen.addEventListener("pointerdown", (event) => {
+        planPointerStartX = event.clientX;
+      });
+
+      planScreen.addEventListener("pointerup", (event) => {
+        touchStartX = planPointerStartX;
+        handlePlanSwipe(event.clientX);
+      });
+
+      focusScreen.addEventListener("touchstart", (event) => {
+        focusTouchStartX = event.changedTouches[0].clientX;
+      });
+
+      focusScreen.addEventListener("touchend", (event) => {
+        const swipeDistance = event.changedTouches[0].clientX - focusTouchStartX;
+
+        if (Math.abs(swipeDistance) < 40) {
+          return;
+        }
+
+        showFocusArea(swipeDistance < 0 ? "web" : "media");
+      });
+
+      focusScreen.addEventListener("pointerdown", (event) => {
+        focusPointerStartX = event.clientX;
+      });
+
+      focusScreen.addEventListener("pointerup", (event) => {
+        const swipeDistance = event.clientX - focusPointerStartX;
+
+        if (Math.abs(swipeDistance) < 40) {
+          return;
+        }
+
+        showFocusArea(swipeDistance < 0 ? "web" : "media");
       });
 
       async function init() {
