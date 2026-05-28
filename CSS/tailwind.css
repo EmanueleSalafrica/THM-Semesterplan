@@ -32,7 +32,7 @@
   }
 
   .app-header {
-    @apply fixed left-0 right-0 top-0 z-30 flex h-16 items-center justify-between px-4 md:h-20 md:px-8;
+    @apply fixed left-0 right-0 top-0 z-30 flex h-16 items-center justify-between bg-thm-green/95 px-4 shadow-sm backdrop-blur md:h-20 md:px-8;
   }
 
   .app-logo {
