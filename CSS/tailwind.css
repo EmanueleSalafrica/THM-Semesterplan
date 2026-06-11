@@ -120,6 +120,7 @@
   }
 
   .screen-options h1,
+  .screen-modules h1,
   .screen-plan h1 {
     @apply text-2xl font-bold leading-tight md:text-4xl;
   }
@@ -186,6 +187,51 @@
 
   .module-checkbox[aria-pressed="true"] {
     @apply bg-thm-gray text-white;
+  }
+
+  .screen-modules {
+    @apply mx-auto flex max-w-6xl flex-col gap-5 text-center;
+  }
+
+  .module-browser-filters {
+    @apply grid gap-3 rounded-sm bg-white/95 p-4 text-left text-sm font-bold text-thm-gray shadow-md sm:grid-cols-2 lg:grid-cols-6;
+  }
+
+  .module-browser-filters label {
+    @apply flex min-w-0 flex-col gap-2;
+  }
+
+  .module-browser-filters input,
+  .module-browser-filters select {
+    @apply min-h-11 rounded-sm border border-gray-200 bg-white px-3 text-thm-gray shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-thm-gray;
+  }
+
+  .module-browser-search {
+    @apply sm:col-span-2 lg:col-span-2;
+  }
+
+  .module-browser-filters button {
+    @apply self-end;
+  }
+
+  .module-browser-summary {
+    @apply text-sm font-bold text-white/90;
+  }
+
+  .module-browser-grid {
+    @apply grid grid-cols-2 items-stretch gap-3 sm:grid-cols-3 lg:grid-cols-5;
+  }
+
+  .module-browser-item {
+    @apply flex min-w-0 flex-col gap-2;
+  }
+
+  .module-browser-meta {
+    @apply min-h-10 rounded-sm bg-white/90 px-2 py-1 text-center text-[0.68rem] font-bold leading-tight text-thm-gray;
+  }
+
+  .module-browser-empty {
+    @apply col-span-full rounded-sm bg-white/95 p-6 text-center font-bold text-thm-gray;
   }
 
   .screen-plan {

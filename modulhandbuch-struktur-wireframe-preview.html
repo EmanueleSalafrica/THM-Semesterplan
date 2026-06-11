@@ -18,6 +18,7 @@
       <section class="screen screen-start" data-screen="start">
         <h1>Willkommen im digitalen Modulhandbuch</h1>
         <div class="action-stack">
+          <button class="button-primary" type="button" data-screen-link="modules">Modulhandbuch anzeigen</button>
           <button class="button-primary" type="button" data-screen-link="options">Semesterplan erstellen</button>
           <button class="button-secondary" type="button" data-screen-link="focus">Schwerpunktwahl Info</button>
         </div>
@@ -100,6 +101,68 @@
         <button class="button-secondary" type="button" data-screen-link="start">Zurück zur Startseite</button>
       </section>
 
+      <section class="screen screen-modules" data-screen="modules" hidden>
+        <h1>Modulhandbuch</h1>
+
+        <form class="module-browser-filters" data-module-filter-form>
+          <label class="module-browser-search">
+            Suche
+            <input type="search" placeholder="Modultitel oder Inhalt suchen" data-module-filter="query">
+          </label>
+
+          <label>
+            Semester
+            <select data-module-filter="semester">
+              <option value="all">Alle Semester</option>
+            </select>
+          </label>
+
+          <label>
+            Credits
+            <select data-module-filter="credits">
+              <option value="all">Alle Credits</option>
+            </select>
+          </label>
+
+          <label>
+            Modulart
+            <select data-module-filter="required">
+              <option value="all">Pflicht und Wahlpflicht</option>
+              <option value="Ja">Pflichtmodule</option>
+              <option value="Nein">Wahlpflichtmodule</option>
+            </select>
+          </label>
+
+          <label>
+            Schwerpunkt
+            <select data-module-filter="focus">
+              <option value="all">Alle Schwerpunkte</option>
+              <option value="medienproduktion">Medienproduktion</option>
+              <option value="webmobile">Web &amp; Mobile</option>
+              <option value="both">Beide Schwerpunkte</option>
+            </select>
+          </label>
+
+          <label>
+            Angebot
+            <select data-module-filter="offeredIn">
+              <option value="all">Sommer und Winter</option>
+              <option value="sose">Sommersemester</option>
+              <option value="wise">Wintersemester</option>
+            </select>
+          </label>
+
+          <button class="button-secondary" type="button" data-reset-module-filters>Filter zurücksetzen</button>
+        </form>
+
+        <p class="module-browser-summary" data-module-results-summary>Module werden geladen.</p>
+        <div class="module-browser-grid" data-module-results></div>
+
+        <div class="screen-actions">
+          <button class="button-secondary" type="button" data-screen-link="start">Zurück zur Startseite</button>
+        </div>
+      </section>
+
       <section class="screen screen-plan" data-screen="plan" hidden>
         <h1>Generierter Semesterplan</h1>
         <nav class="plan-tabs" aria-label="Planvarianten" data-plan-tabs></nav>
@@ -174,6 +237,14 @@
         activePlanIndex: 0,
         planVariants: []
       };
+      const moduleFilterState = {
+        query: "",
+        semester: "all",
+        credits: "all",
+        required: "all",
+        focus: "all",
+        offeredIn: "all"
+      };
 
       const screens = document.querySelectorAll("[data-screen]");
       const loadInput = document.querySelector("[data-load-input]");
@@ -182,6 +253,9 @@
       const planSummary = document.querySelector("[data-plan-summary]");
       const planTabs = document.querySelector("[data-plan-tabs]");
       const planContainer = document.querySelector("[data-plan-container]");
+      const moduleFilterForm = document.querySelector("[data-module-filter-form]");
+      const moduleResults = document.querySelector("[data-module-results]");
+      const moduleResultsSummary = document.querySelector("[data-module-results-summary]");
       const electiveDialog = document.querySelector('[data-dialog="electives"]');
       const moduleDialog = document.querySelector('[data-dialog="module"]');
       const moduleDetails = document.querySelector("[data-module-details]");
@@ -243,6 +317,24 @@
         }
 
         return String(value);
+      }
+
+      function uniqueSortedValues(fieldName) {
+        return [...new Set(loadedModules.map((module) => module[fieldName]).filter(hasValue))]
+          .sort((a, b) => Number(a) - Number(b) || String(a).localeCompare(String(b)));
+      }
+
+      function fillSelectOptions(filterName, values, labelFactory) {
+        const select = document.querySelector(`[data-module-filter="${filterName}"]`);
+        const firstOption = select.firstElementChild;
+
+        select.replaceChildren(firstOption);
+        values.forEach((value) => {
+          const option = document.createElement("option");
+          option.value = String(value);
+          option.textContent = labelFactory(value);
+          select.append(option);
+        });
       }
 
       function visibleModuleFields(module) {
@@ -310,6 +402,138 @@
         });
 
         moduleDetails.replaceChildren(detailsContainer);
+      }
+
+      function readModuleFilters() {
+        Object.keys(moduleFilterState).forEach((filterName) => {
+          const input = document.querySelector(`[data-module-filter="${filterName}"]`);
+          moduleFilterState[filterName] = input ? input.value : moduleFilterState[filterName];
+        });
+      }
+
+      function moduleMatchesQuery(module, query) {
+        if (!query) {
+          return true;
+        }
+
+        const searchableText = [
+          module.titel,
+          module.kurzbeschreibung,
+          module.inhalt,
+          module.voraussetzungenPflicht,
+          module.voraussetzungenEmpfohlen,
+          module.pruefungsleistung
+        ].filter(hasValue).join(" ").toLocaleLowerCase("de-DE");
+
+        return searchableText.includes(query.toLocaleLowerCase("de-DE"));
+      }
+
+      function moduleMatchesFocusFilter(module, focusFilter) {
+        if (focusFilter === "medienproduktion") {
+          return module.medienproduktion === "Ja";
+        }
+
+        if (focusFilter === "webmobile") {
+          return module.webmobile === "Ja";
+        }
+
+        if (focusFilter === "both") {
+          return module.medienproduktion === "Ja" && module.webmobile === "Ja";
+        }
+
+        return true;
+      }
+
+      function moduleMatchesOfferedInFilter(module, offeredInFilter) {
+        if (offeredInFilter === "sose") {
+          return module.sose === "Ja" || module.sose === "Bedarf";
+        }
+
+        if (offeredInFilter === "wise") {
+          return module.wise === "Ja" || module.wise === "Bedarf";
+        }
+
+        return true;
+      }
+
+      function filterModules() {
+        return loadedModules.filter((module) => {
+          const semesterMatches = moduleFilterState.semester === "all"
+            || String(module.semester) === moduleFilterState.semester;
+          const creditsMatches = moduleFilterState.credits === "all"
+            || String(module.credits) === moduleFilterState.credits;
+          const requiredMatches = moduleFilterState.required === "all"
+            || module.pflicht === moduleFilterState.required;
+
+          return moduleMatchesQuery(module, moduleFilterState.query)
+            && semesterMatches
+            && creditsMatches
+            && requiredMatches
+            && moduleMatchesFocusFilter(module, moduleFilterState.focus)
+            && moduleMatchesOfferedInFilter(module, moduleFilterState.offeredIn);
+        });
+      }
+
+      function moduleMetaText(module) {
+        const moduleType = module.pflicht === "Ja" ? "Pflichtmodul" : "Wahlpflichtmodul";
+        return `${module.semester}. Semester | ${module.credits} Credits | ${moduleType}`;
+      }
+
+      function createModuleResultCard(module) {
+        const item = document.createElement("article");
+        const meta = document.createElement("p");
+        const infoButton = createModuleButton(module.titel);
+
+        item.className = "module-browser-item";
+        meta.className = "module-browser-meta";
+        meta.textContent = moduleMetaText(module);
+        item.append(infoButton, meta);
+        return item;
+      }
+
+      function renderModuleBrowser() {
+        readModuleFilters();
+
+        if (loadedModules.length === 0) {
+          moduleResultsSummary.textContent = "Es wurden noch keine Moduldaten geladen.";
+          moduleResults.replaceChildren();
+          return;
+        }
+
+        const filteredModules = filterModules();
+        const resultText = filteredModules.length === 1 ? "1 Modul gefunden" : `${filteredModules.length} Module gefunden`;
+        const emptyState = textBlock("p", "Keine Module gefunden.");
+        emptyState.className = "module-browser-empty";
+
+        moduleResultsSummary.textContent = resultText;
+        moduleResults.replaceChildren(
+          ...(filteredModules.length > 0 ? filteredModules.map(createModuleResultCard) : [emptyState])
+        );
+      }
+
+      function renderModuleFilterOptions() {
+        fillSelectOptions("semester", uniqueSortedValues("semester"), (value) => `${value}. Semester`);
+        fillSelectOptions("credits", uniqueSortedValues("credits"), (value) => `${value} Credits`);
+      }
+
+      function resetModuleFilters() {
+        Object.assign(moduleFilterState, {
+          query: "",
+          semester: "all",
+          credits: "all",
+          required: "all",
+          focus: "all",
+          offeredIn: "all"
+        });
+
+        Object.entries(moduleFilterState).forEach(([filterName, value]) => {
+          const input = document.querySelector(`[data-module-filter="${filterName}"]`);
+          if (input) {
+            input.value = value;
+          }
+        });
+
+        renderModuleBrowser();
       }
 
       function readOptions() {
@@ -576,6 +800,9 @@
 
       loadInput.addEventListener("input", readOptions);
       currentSemesterInput.addEventListener("change", readOptions);
+      moduleFilterForm.addEventListener("input", renderModuleBrowser);
+      moduleFilterForm.addEventListener("change", renderModuleBrowser);
+      document.querySelector("[data-reset-module-filters]").addEventListener("click", resetModuleFilters);
 
       document.querySelector("[data-open-electives]").addEventListener("click", () => {
         readOptions();
@@ -660,6 +887,8 @@
 
       async function init() {
         await loadContentData();
+        renderModuleFilterOptions();
+        renderModuleBrowser();
         renderSkippedModules();
         renderElectiveDialog();
         generatePlanVariants();
@@ -668,6 +897,7 @@
 
       init().catch((error) => {
         console.error("[MPM] Moduldaten konnten nicht in die Struktur geladen werden.", error);
+        renderModuleBrowser();
         renderSkippedModules();
         renderElectiveDialog();
         generatePlanVariants();
