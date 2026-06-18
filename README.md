@@ -16,11 +16,17 @@ Die CSS-freie Struktur-Preview für das Modulhandbuch liegt in:
 
 [Modulhandbuch Struktur-Wireframe öffnen](./modulhandbuch-struktur-wireframe-preview.html)
 
+Die implementierte Schwerpunktwahl-Info ist zusätzlich direkt erreichbar über:
+
+[Schwerpunktwahl-Info öffnen](./schwerpunktwahl-info.html)
+
 Die gleiche Vorschau zeigt im Branch `MPM202602-19-modulhandbuch-struktur-inhalt` auch die eingebundenen Inhalte aus der geladenen Datenstruktur.
 
 Damit die JSON-Daten geladen werden, muss die Vorschau über einen lokalen Server geöffnet werden:
 
 [Modulhandbuch Struktur mit Inhalt lokal öffnen](http://127.0.0.1:8000/modulhandbuch-struktur-wireframe-preview.html)
+
+[Schwerpunktwahl-Info lokal öffnen](http://127.0.0.1:8000/schwerpunktwahl-info.html)
 
 Beim direkten Öffnen der Datei über `file://` kann der Browser das Laden der JSON-Datei blockieren; dann ist nur die Struktur ohne Inhalte sichtbar.
 
@@ -57,7 +63,6 @@ npm.cmd run build
 
 Offene Punkte:
 
-- Der Inhalt für `Schwerpunktwahl-Info` fehlt noch, weil dafür noch keine finalen Inhalte vorliegen.
 - Die englische Übersetzung fehlt noch, weil das Modulhandbuch bisher noch nicht auf Englisch bereitgestellt wurde.
 
 ## Git für das Team
