@@ -36,34 +36,38 @@
   }
 
   .app-logo {
-    @apply inline-grid cursor-pointer grid-cols-[1.6rem_auto] items-center gap-x-2 border-0 bg-transparent p-0 text-left text-white transition hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white md:grid-cols-[2rem_auto];
+    @apply inline-grid cursor-pointer grid-cols-[2.125rem_auto] items-end gap-x-3 border-0 bg-transparent p-0 text-left transition hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:grid-cols-[2.625rem_auto];
   }
 
   .app-logo::before {
-    @apply row-span-2 inline-block align-middle;
+    @apply inline-block h-8 w-6 self-center border-r border-white/80 pr-2.5 md:h-10 md:w-[1.875rem] md:pr-3;
     content: "";
-    width: 1.35rem;
-    height: 1.35rem;
+    box-sizing: content-box;
     background:
-      linear-gradient(#80ba24 0 0) 0 0 / 0.22rem 0.22rem,
-      linear-gradient(#80ba24 0 0) 0.36rem 0 / 0.22rem 0.22rem,
-      linear-gradient(#80ba24 0 0) 0.72rem 0 / 0.22rem 0.22rem,
-      linear-gradient(#80ba24 0 0) 0 0.36rem / 0.22rem 0.22rem,
-      linear-gradient(#80ba24 0 0) 0.36rem 0.36rem / 0.22rem 0.22rem,
-      linear-gradient(#80ba24 0 0) 0.72rem 0.36rem / 0.22rem 0.22rem,
-      linear-gradient(#80ba24 0 0) 0 0.72rem / 0.22rem 0.22rem,
-      linear-gradient(#80ba24 0 0) 0.36rem 0.72rem / 0.22rem 0.22rem,
-      linear-gradient(#80ba24 0 0) 0.72rem 0.72rem / 0.22rem 0.22rem;
+      linear-gradient(white 0 0) 40% 0 / 20% 16%,
+      linear-gradient(white 0 0) 80% 0 / 20% 16%,
+      linear-gradient(white 0 0) 0 28% / 20% 16%,
+      linear-gradient(white 0 0) 40% 28% / 20% 16%,
+      linear-gradient(white 0 0) 80% 28% / 20% 16%,
+      linear-gradient(white 0 0) 0 56% / 20% 16%,
+      linear-gradient(white 0 0) 40% 56% / 20% 16%,
+      linear-gradient(white 0 0) 80% 56% / 20% 16%,
+      linear-gradient(white 0 0) 0 84% / 20% 16%,
+      linear-gradient(white 0 0) 40% 84% / 20% 16%,
+      linear-gradient(white 0 0) 80% 84% / 20% 16%;
     background-repeat: no-repeat;
-    filter: brightness(0) invert(1);
+    background-origin: content-box;
+    background-clip: content-box;
   }
 
   .app-logo span {
-    @apply text-3xl font-bold leading-none tracking-normal md:text-4xl;
+    @apply text-4xl font-semibold leading-none text-white md:text-5xl;
+    font-family: "Arial Narrow", "DIN Condensed", "DIN Pro", Arial, sans-serif;
   }
 
   .app-logo small {
-    @apply block text-[0.58rem] font-bold uppercase leading-none md:text-[0.7rem];
+    @apply col-span-2 mt-1 block w-full whitespace-nowrap text-[0.48rem] font-bold uppercase leading-none text-white md:text-[0.6rem];
+    font-family: "Arial Narrow", "DIN Condensed", "DIN Pro", Arial, sans-serif;
   }
 
   .app-main {
