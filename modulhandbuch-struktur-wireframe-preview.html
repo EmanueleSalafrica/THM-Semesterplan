@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Modulhandbuch Seiten-Struktur</title>
     <link rel="stylesheet" href="CSS/style.css">
+
+    <script src="./JS/lib/gsap/gsap.js" defer></script>
+
+    <!-- ScrollTrigger -->
+    <script src="./JS/lib/gsap/ScrollTrigger.js" defer></script>
+
+    <!-- Optional für Text Animation -->
+    <script src="./JS/lib/gsap/SplitText.js" defer></script>
+
+    <script src="./GSAP/GsapScript.js" defer></script>
   </head>
   <body class="app-shell">
     <header class="app-header">
@@ -23,6 +33,8 @@
           <a class="button-secondary" href="schwerpunktwahl-info.html">Schwerpunktwahl Info</a>
         </div>
       </section>
+
+      <div class="options-greyout" data-options-greyout hidden aria-hidden="true"></div>
 
       <section class="screen screen-options" data-screen="options" hidden>
         <h1>Semesterplan Optionen</h1>
@@ -273,6 +285,9 @@
           showFocusOverview();
         }
         window.scrollTo(0, 0);
+        document.dispatchEvent(new CustomEvent("mpm:screen-change", {
+          detail: { screenName }
+        }));
       }
 
       function showFocusOverview() {
@@ -714,10 +729,7 @@
             button.textContent = index + 1;
             button.ariaLabel = `Planvariante ${index + 1} anzeigen`;
             button.disabled = index === state.activePlanIndex;
-            button.addEventListener("click", () => {
-              state.activePlanIndex = index;
-              renderPlan();
-            });
+            button.addEventListener("click", () => changePlan(index));
             return button;
           });
 
@@ -727,8 +739,7 @@
         previousButton.ariaLabel = "Vorherige Planvariante anzeigen";
         previousButton.disabled = state.activePlanIndex === 0;
         previousButton.addEventListener("click", () => {
-          state.activePlanIndex = Math.max(state.activePlanIndex - 1, 0);
-          renderPlan();
+          changePlan(Math.max(state.activePlanIndex - 1, 0));
         });
 
         nextButton.type = "button";
@@ -737,8 +748,7 @@
         nextButton.ariaLabel = "Nächste Planvariante anzeigen";
         nextButton.disabled = state.activePlanIndex === state.planVariants.length - 1;
         nextButton.addEventListener("click", () => {
-          state.activePlanIndex = Math.min(state.activePlanIndex + 1, state.planVariants.length - 1);
-          renderPlan();
+          changePlan(Math.min(state.activePlanIndex + 1, state.planVariants.length - 1));
         });
 
         planTabs.replaceChildren(previousButton, ...tabButtons, nextButton);
@@ -771,6 +781,24 @@
         renderPlanTabs();
         planContainer.replaceChildren(...semesterSections);
         planSummary.textContent = `Variante ${state.activePlanIndex + 1}: ${state.focus}, ${state.start}start, ab ${state.currentSemester}. Semester, ${loadOutput.textContent}`;
+      }
+
+      function changePlan(nextIndex) {
+        if (nextIndex === state.activePlanIndex) {
+          return;
+        }
+
+        const direction = nextIndex > state.activePlanIndex ? 1 : -1;
+        const updatePlan = () => {
+          state.activePlanIndex = nextIndex;
+          renderPlan();
+        };
+
+        if (window.MPMAnimations?.transitionPlan) {
+          window.MPMAnimations.transitionPlan(planContainer, direction, updatePlan);
+        } else {
+          updatePlan();
+        }
       }
 
       async function loadContentData() {
@@ -811,10 +839,18 @@
       });
 
       document.querySelector("[data-create-plan]").addEventListener("click", () => {
-        electiveDialog.close();
-        generatePlanVariants();
-        renderPlan();
-        showScreen("plan");
+        const createPlan = () => {
+          generatePlanVariants();
+          renderPlan();
+          showScreen("plan");
+        };
+
+        if (window.MPMAnimations?.closeDialog) {
+          window.MPMAnimations.closeDialog(electiveDialog, createPlan);
+        } else {
+          electiveDialog.close();
+          createPlan();
+        }
       });
 
       let touchStartX = 0;
@@ -831,13 +867,11 @@
           return;
         }
 
-        if (swipeDistance < 0) {
-          state.activePlanIndex = Math.min(state.activePlanIndex + 1, state.planVariants.length - 1);
-        } else {
-          state.activePlanIndex = Math.max(state.activePlanIndex - 1, 0);
-        }
+        const nextIndex = swipeDistance < 0
+          ? Math.min(state.activePlanIndex + 1, state.planVariants.length - 1)
+          : Math.max(state.activePlanIndex - 1, 0);
 
-        renderPlan();
+        changePlan(nextIndex);
       }
 
       planScreen.addEventListener("touchstart", (event) => {
