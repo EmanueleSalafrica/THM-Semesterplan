@@ -1,0 +1,13 @@
+<svg width="640" height="420" viewBox="0 0 640 420" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Tutoring und Mentoring: Methoden &amp; Didaktik</title>
+  <desc id="desc">Eigene, copyrightfreie Platzhalterillustration: Entwicklung (digitaler) didaktischer und methodischer Kompetenzen, didaktische Konzepte, (digitale) Methoden und Medien zur Vorbereitung, Gestaltung und Reflexion von Lehr-, Lern-, und Gruppenprozessen, Training von Kommunikations- und Kooperationsfähigkeiten, Fähigkeit zur Leitung von Gruppen (auch in digitalen Lehr-/Lernkontexten), Bewältigung von Konfliktsituationen. Die entwickelten (digitalen) Kompetenzen werden aktiv im Rahmen der Tutoring-/Mentoringtätigkeit angewendet und systematisch reflektiert.</desc>
+  <rect width="640" height="420" fill="#f3a7b5"/>
+  <path d="M640 168v252H0V268L372 84l268 84z" fill="#faebb1" opacity="0.95"/>
+  <circle cx="96" cy="88" r="54" fill="white" opacity="0.18"/>
+  <circle cx="546" cy="346" r="96" fill="white" opacity="0.12"/>
+  <g transform="translate(64 30)"><path d="M158 302l34-88 126-126c16-16 42-16 58 0s16 42 0 58L250 272l-92 30z" fill="#4a5c66"/><path d="M294 112l58 58" stroke="#4a5c66" stroke-width="18" stroke-linecap="round"/><path d="M192 214l58 58" stroke="#4a5c66" stroke-width="12" opacity="0.55"/></g>
+  <rect x="40" y="318" width="560" height="62" rx="10" fill="#263640" opacity="0.88"/>
+  <text x="62" y="346" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700">Tutoring und Mentoring: Methoden &amp; Didaktik</text>
+  <text x="62" y="368" fill="#d9f99d" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700">6. Semester · 6 Credits · Wahlpflicht</text>
+  <text x="540" y="108" text-anchor="middle" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="800" opacity="0.92">TMM</text>
+</svg>

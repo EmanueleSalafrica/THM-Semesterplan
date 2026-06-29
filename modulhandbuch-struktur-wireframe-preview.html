@@ -314,6 +314,56 @@
         return loadedModules.find((module) => module.titel === moduleName);
       }
 
+      function moduleImagePath(moduleOrName) {
+        const module = typeof moduleOrName === "string" ? findModule(moduleOrName) : moduleOrName;
+
+        if (module?.img) {
+          return module.img;
+        }
+
+        if (module?.nr) {
+          return `Bilder/module-${String(module.nr).padStart(2, "0")}.svg`;
+        }
+
+        return "Bilder/module-placeholder.svg";
+      }
+
+      function moduleFocusText(module) {
+        const focusAreas = [];
+
+        if (module.medienproduktion === "Ja") {
+          focusAreas.push("Medienproduktion");
+        }
+
+        if (module.webmobile === "Ja") {
+          focusAreas.push("Web & Mobile");
+        }
+
+        if (module.schspezag === "Ja") {
+          focusAreas.push("Schwerpunkt/Spezialgebiet");
+        }
+
+        return focusAreas.length > 0 ? focusAreas.join(", ") : "Allgemeiner Studienbereich";
+      }
+
+      function moduleOfferText(module) {
+        const offers = [];
+
+        if (module.sose === "Ja" || module.sose === "Bedarf") {
+          offers.push(module.sose === "Bedarf" ? "Sommersemester bei Bedarf" : "Sommersemester");
+        }
+
+        if (module.wise === "Ja" || module.wise === "Bedarf") {
+          offers.push(module.wise === "Bedarf" ? "Wintersemester bei Bedarf" : "Wintersemester");
+        }
+
+        return offers.length > 0 ? offers.join(", ") : "Angebot nicht angegeben";
+      }
+
+      function moduleCapabilityText(module) {
+        return module.kurzbeschreibung || module.inhalt || "Zu diesem Modul liegt noch keine Beschreibung vor.";
+      }
+
       function hasValue(value) {
         return value !== null && value !== undefined && value !== "";
       }
@@ -392,6 +442,28 @@
         return element;
       }
 
+      function createModuleImage(moduleOrName, className = "module-card-image") {
+        const moduleName = moduleTitle(moduleOrName);
+        const image = document.createElement("img");
+
+        image.className = className;
+        image.src = moduleImagePath(moduleOrName);
+        image.alt = `Bild zum Modul ${moduleName}`;
+        image.loading = "lazy";
+        image.decoding = "async";
+        image.addEventListener("error", () => {
+          image.src = "Bilder/module-placeholder.svg";
+        }, { once: true });
+
+        return image;
+      }
+
+      function openModuleDialog(moduleName) {
+        moduleDialog.querySelector("[data-module-title]").textContent = moduleName;
+        renderModuleDetails(moduleName);
+        moduleDialog.showModal();
+      }
+
       function renderModuleDetails(moduleName) {
         const module = findModule(moduleName);
 
@@ -401,6 +473,30 @@
           );
           return;
         }
+
+        const detailsHero = document.createElement("section");
+        const image = createModuleImage(module, "module-detail-image");
+        const overview = document.createElement("div");
+        const summary = textBlock("p", moduleCapabilityText(module));
+        const facts = document.createElement("ul");
+
+        detailsHero.className = "module-detail-hero";
+        overview.className = "module-detail-overview";
+        summary.className = "module-detail-summary";
+        facts.className = "module-detail-facts";
+        [
+          `${module.semester}. Semester`,
+          `${module.credits} Credits`,
+          module.pflicht === "Ja" ? "Pflichtmodul" : "Wahlpflichtmodul",
+          moduleFocusText(module),
+          moduleOfferText(module)
+        ].forEach((factText) => {
+          const fact = document.createElement("li");
+          fact.textContent = factText;
+          facts.append(fact);
+        });
+        overview.append(summary, facts);
+        detailsHero.append(image, overview);
 
         const detailsContainer = document.createElement("section");
         detailsContainer.className = "module-detail-grid";
@@ -416,7 +512,7 @@
           detailsContainer.append(field);
         });
 
-        moduleDetails.replaceChildren(detailsContainer);
+        moduleDetails.replaceChildren(detailsHero, detailsContainer);
       }
 
       function readModuleFilters() {
@@ -496,13 +592,30 @@
 
       function createModuleResultCard(module) {
         const item = document.createElement("article");
+        const image = createModuleImage(module, "module-browser-image");
+        const content = document.createElement("div");
+        const title = document.createElement("h2");
+        const description = document.createElement("p");
         const meta = document.createElement("p");
-        const infoButton = createModuleButton(module.titel);
+        const focus = document.createElement("p");
+        const infoButton = document.createElement("button");
 
         item.className = "module-browser-item";
+        content.className = "module-browser-content";
+        title.className = "module-browser-title";
+        description.className = "module-browser-description";
         meta.className = "module-browser-meta";
+        focus.className = "module-browser-focus";
+        infoButton.type = "button";
+        infoButton.className = "button-secondary module-browser-detail-button";
+        title.textContent = module.titel;
+        description.textContent = moduleCapabilityText(module);
         meta.textContent = moduleMetaText(module);
-        item.append(infoButton, meta);
+        focus.textContent = moduleFocusText(module);
+        infoButton.textContent = "Details ansehen";
+        infoButton.addEventListener("click", () => openModuleDialog(module.titel));
+        content.append(title, description, meta, focus, infoButton);
+        item.append(image, content);
         return item;
       }
 
@@ -563,16 +676,21 @@
       function createModuleButton(moduleName, buttonText = moduleName) {
         const button = document.createElement("button");
         const buttonLabel = document.createElement("span");
+        const module = findModule(moduleName);
 
         button.type = "button";
         button.className = buttonText === "Info" ? "module-info-button" : "module-card";
         buttonLabel.className = "module-card-label";
         buttonLabel.textContent = buttonText;
-        button.append(buttonLabel);
+
+        if (buttonText !== "Info") {
+          button.append(createModuleImage(module || moduleName), buttonLabel);
+        } else {
+          button.append(buttonLabel);
+        }
+
         button.addEventListener("click", () => {
-          moduleDialog.querySelector("[data-module-title]").textContent = moduleName;
-          renderModuleDetails(moduleName);
-          moduleDialog.showModal();
+          openModuleDialog(moduleName);
         });
         return button;
       }

@@ -1,0 +1,13 @@
+<svg width="640" height="420" viewBox="0 0 640 420" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Mobile Apps: Grundlagen</title>
+  <desc id="desc">Eigene, copyrightfreie Platzhalterillustration: Mobile Betriebssysteme, unterschiedliche Entwicklungsansätze, Gestaltung von Benutzerschnittstellen, native Programmierung mobiler Anwendungen, nebenläufige Programmierung.</desc>
+  <rect width="640" height="420" fill="#7389b8"/>
+  <path d="M640 168v252H0V268L372 84l268 84z" fill="#263640" opacity="0.95"/>
+  <circle cx="96" cy="88" r="54" fill="white" opacity="0.18"/>
+  <circle cx="546" cy="346" r="96" fill="white" opacity="0.12"/>
+  <g transform="translate(64 30)"><rect x="188" y="88" width="128" height="220" rx="22" fill="#ffffff"/><rect x="204" y="120" width="96" height="144" rx="8" fill="#d6e3ff"/><circle cx="256" cy="286" r="8" fill="#4a5c66"/><path d="M226 152h60M226 178h40M226 204h52" stroke="#4a5c66" stroke-width="9" stroke-linecap="round"/></g>
+  <rect x="40" y="318" width="560" height="62" rx="10" fill="#263640" opacity="0.88"/>
+  <text x="62" y="346" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700">Mobile Apps: Grundlagen</text>
+  <text x="62" y="368" fill="#d9f99d" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700">4. Semester · 6 Credits · Pflicht</text>
+  <text x="540" y="108" text-anchor="middle" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="800" opacity="0.92">MAG</text>
+</svg>

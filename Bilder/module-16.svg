@@ -1,0 +1,13 @@
+<svg width="640" height="420" viewBox="0 0 640 420" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Einführung in die BWL</title>
+  <desc id="desc">Eigene, copyrightfreie Platzhalterillustration: In diesem Modul werden den Studierenden die Grundlagen der Unternehmensorganisation, der Unternehmensführung sowie der elementaren Funktionsbereiche von Unternehmen vermittelt.</desc>
+  <rect width="640" height="420" fill="#80ba24"/>
+  <path d="M640 168v252H0V268L372 84l268 84z" fill="#5f9718" opacity="0.95"/>
+  <circle cx="96" cy="88" r="54" fill="white" opacity="0.18"/>
+  <circle cx="546" cy="346" r="96" fill="white" opacity="0.12"/>
+  <g transform="translate(64 30)"><rect x="142" y="248" width="48" height="70" rx="8" fill="#ffffff"/><rect x="220" y="190" width="48" height="128" rx="8" fill="#ffffff" opacity="0.85"/><rect x="298" y="134" width="48" height="184" rx="8" fill="#ffffff" opacity="0.72"/><path d="M138 330h232" stroke="#ffffff" stroke-width="14" stroke-linecap="round"/></g>
+  <rect x="40" y="318" width="560" height="62" rx="10" fill="#263640" opacity="0.88"/>
+  <text x="62" y="346" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700">Einführung in die BWL</text>
+  <text x="62" y="368" fill="#d9f99d" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700">3. Semester · 3 Credits · Pflicht</text>
+  <text x="540" y="108" text-anchor="middle" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="800" opacity="0.92">EB</text>
+</svg>

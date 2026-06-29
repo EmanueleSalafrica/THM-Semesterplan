@@ -1,0 +1,13 @@
+<svg width="640" height="420" viewBox="0 0 640 420" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Fortgeschrittene Modellierung</title>
+  <desc id="desc">Eigene, copyrightfreie Platzhalterillustration: Verfahren zur Erzeugung von 3D-Modellen inkl. polygonaler Modellierung, NURBS, Digital Sculpting und prozeduraler Modellierung.</desc>
+  <rect width="640" height="420" fill="#f7c550"/>
+  <path d="M640 168v252H0V268L372 84l268 84z" fill="#edbe7f" opacity="0.95"/>
+  <circle cx="96" cy="88" r="54" fill="white" opacity="0.18"/>
+  <circle cx="546" cy="346" r="96" fill="white" opacity="0.12"/>
+  <g transform="translate(64 30)"><path d="M256 76l128 74-128 74-128-74 128-74z" fill="#4a5c66"/><path d="M128 150v148l128 74V224L128 150z" fill="#4a5c66" opacity="0.72"/><path d="M384 150v148l-128 74V224l128-74z" fill="#4a5c66" opacity="0.82"/></g>
+  <rect x="40" y="318" width="560" height="62" rx="10" fill="#263640" opacity="0.88"/>
+  <text x="62" y="346" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700">Fortgeschrittene Modellierung</text>
+  <text x="62" y="368" fill="#d9f99d" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700">6. Semester · 6 Credits · Wahlpflicht</text>
+  <text x="540" y="108" text-anchor="middle" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="800" opacity="0.92">FM</text>
+</svg>

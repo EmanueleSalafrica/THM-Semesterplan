@@ -140,6 +140,10 @@
     @apply text-2xl font-bold leading-tight md:text-4xl;
   }
 
+  .screen-modules h1 {
+    @apply text-thm-gray;
+  }
+
   .option-group {
     @apply grid grid-cols-2 gap-2 border-0;
   }
@@ -230,19 +234,52 @@
   }
 
   .module-browser-summary {
-    @apply text-sm font-bold text-white/90;
+    @apply text-sm font-bold text-thm-gray;
   }
 
   .module-browser-grid {
-    @apply grid grid-cols-2 items-stretch gap-x-3 gap-y-6 sm:grid-cols-3 lg:grid-cols-5;
+    @apply grid grid-cols-1 items-stretch gap-4 md:grid-cols-2 xl:grid-cols-3;
   }
 
   .module-browser-item {
-    @apply flex min-w-0 flex-col gap-2;
+    @apply flex min-w-0 flex-col overflow-hidden rounded-sm bg-white/95 text-left text-thm-gray shadow-md;
+  }
+
+  .module-browser-image {
+    @apply h-44 w-full bg-thm-gray object-cover;
+  }
+
+  .module-browser-content {
+    @apply flex min-h-0 flex-1 flex-col gap-3 p-4;
+  }
+
+  .module-browser-title {
+    @apply text-lg font-bold leading-tight text-thm-gray;
+  }
+
+  .module-browser-description {
+    @apply text-sm font-semibold leading-relaxed text-thm-gray/90;
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+  }
+
+  .module-browser-meta,
+  .module-browser-focus {
+    @apply rounded-sm px-2 py-1 text-xs font-bold leading-tight;
   }
 
   .module-browser-meta {
-    @apply min-h-10 rounded-sm bg-white/90 px-2 py-1 text-center text-[0.68rem] font-bold leading-tight text-thm-gray;
+    @apply bg-lime-100 text-thm-gray;
+  }
+
+  .module-browser-focus {
+    @apply bg-thm-gray/10 text-thm-gray;
+  }
+
+  .module-browser-detail-button {
+    @apply mt-auto w-full;
   }
 
   .module-browser-empty {
@@ -295,14 +332,14 @@
   }
 
   .module-card {
-    @apply relative flex h-32 w-full min-w-0 flex-col items-center justify-end overflow-hidden rounded-sm px-2 pb-0 pt-14 text-center text-xs font-bold text-white shadow-md transition hover:-translate-y-1 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:h-36 md:text-sm;
-    background: linear-gradient(to bottom, #d9f99d 0 68%, #4a5c66 68% 100%);
+    @apply relative flex h-32 w-full min-w-0 flex-col items-center justify-end overflow-hidden rounded-sm p-0 text-center text-xs font-bold text-white shadow-md transition hover:-translate-y-1 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:h-36 md:text-sm;
+    background: #4a5c66;
     line-height: 1.1;
     overflow-wrap: anywhere;
   }
 
   .module-card::before {
-    @apply absolute top-4 block;
+    @apply hidden;
     content: "";
     width: 3.2rem;
     height: 3.2rem;
@@ -316,11 +353,15 @@
   }
 
   .module-card-label {
-    @apply flex h-[32%] w-full items-center justify-center px-1;
+    @apply relative z-10 flex h-[34%] w-full items-center justify-center bg-thm-gray px-1;
     display: -webkit-box;
     overflow: hidden;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
+  }
+
+  .module-card-image {
+    @apply absolute inset-x-0 top-0 h-[66%] w-full object-cover;
   }
 
   .screen-focus {
@@ -400,6 +441,30 @@
 
   .module-detail-grid {
     @apply grid gap-4 md:grid-cols-2;
+  }
+
+  .module-detail-hero {
+    @apply mb-5 grid overflow-hidden rounded-sm bg-gray-50 text-thm-gray shadow-sm md:grid-cols-[minmax(16rem,22rem)_1fr];
+  }
+
+  .module-detail-image {
+    @apply h-56 w-full bg-thm-gray object-cover md:h-full;
+  }
+
+  .module-detail-overview {
+    @apply flex flex-col gap-4 p-4 md:p-5;
+  }
+
+  .module-detail-summary {
+    @apply text-base font-semibold leading-relaxed;
+  }
+
+  .module-detail-facts {
+    @apply flex flex-wrap gap-2;
+  }
+
+  .module-detail-facts li {
+    @apply rounded-sm bg-thm-green/15 px-2 py-1 text-xs font-bold text-thm-gray;
   }
 
   .module-detail-field {

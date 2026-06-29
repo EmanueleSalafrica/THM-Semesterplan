@@ -1,0 +1,13 @@
+<svg width="640" height="420" viewBox="0 0 640 420" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">IT- und Medienrecht</title>
+  <desc id="desc">Eigene, copyrightfreie Platzhalterillustration: Einführung in das Recht, Struktur und Aufbau der Rechtsgebiete, Aufbau der Gerichtsbarkeit in Deutschland, Internet- und Onlinerecht, Urheberrecht, Datenschutzrecht.</desc>
+  <rect width="640" height="420" fill="#8197cf"/>
+  <path d="M640 168v252H0V268L372 84l268 84z" fill="#4a5c66" opacity="0.95"/>
+  <circle cx="96" cy="88" r="54" fill="white" opacity="0.18"/>
+  <circle cx="546" cy="346" r="96" fill="white" opacity="0.12"/>
+  <g transform="translate(64 30)"><rect x="150" y="112" width="212" height="128" rx="12" fill="#ffffff" opacity="0.95"/><rect x="168" y="136" width="176" height="72" rx="6" fill="#d9f9ff" opacity="0.8"/><path d="M186 174h44M250 174h76M186 194h112" stroke="#4a5c66" stroke-width="10" stroke-linecap="round"/><path d="M232 266h48M256 240v26" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/></g>
+  <rect x="40" y="318" width="560" height="62" rx="10" fill="#263640" opacity="0.88"/>
+  <text x="62" y="346" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700">IT- und Medienrecht</text>
+  <text x="62" y="368" fill="#d9f99d" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700">4. Semester · 3 Credits · Pflicht</text>
+  <text x="540" y="108" text-anchor="middle" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="800" opacity="0.92">IM</text>
+</svg>

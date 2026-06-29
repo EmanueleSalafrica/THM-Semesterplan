@@ -1,0 +1,13 @@
+<svg width="640" height="420" viewBox="0 0 640 420" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Medienproduktion: Bewegtbild und Ton</title>
+  <desc id="desc">Eigene, copyrightfreie Platzhalterillustration: Film- und Fernsehproduktion: Umsetzung von theoretischen Kompetenzen aus der Film- und Fernsehanalyse an einem konkreten medialen Artefakt</desc>
+  <rect width="640" height="420" fill="#2f6f73"/>
+  <path d="M640 168v252H0V268L372 84l268 84z" fill="#4a5c66" opacity="0.95"/>
+  <circle cx="96" cy="88" r="54" fill="white" opacity="0.18"/>
+  <circle cx="546" cy="346" r="96" fill="white" opacity="0.12"/>
+  <g transform="translate(64 30)"><ellipse cx="256" cy="118" rx="102" ry="34" fill="#d9f99d"/><path d="M154 118v134c0 19 46 34 102 34s102-15 102-34V118" fill="#d9f99d" opacity="0.82"/><path d="M154 164c0 19 46 34 102 34s102-15 102-34M154 210c0 19 46 34 102 34s102-15 102-34" fill="none" stroke="#4a5c66" stroke-width="10" opacity="0.55"/></g>
+  <rect x="40" y="318" width="560" height="62" rx="10" fill="#263640" opacity="0.88"/>
+  <text x="62" y="346" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700">Medienproduktion: Bewegtbild und Ton</text>
+  <text x="62" y="368" fill="#d9f99d" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700">2. Semester · 3 Credits · Pflicht</text>
+  <text x="540" y="108" text-anchor="middle" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="800" opacity="0.92">MBT</text>
+</svg>
