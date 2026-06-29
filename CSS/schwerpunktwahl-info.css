@@ -65,65 +65,147 @@ a {
 }
 
 .focus-panel {
+  --panel-pad-x: clamp(1.25rem, 3vw, 3rem);
+  --panel-pad-top: clamp(1.25rem, 3vw, 3rem);
+  --panel-pad-bottom: clamp(3rem, 6vh, 5rem);
   position: relative;
   display: flex;
   min-width: 0;
   flex: 1 1 50%;
   flex-direction: column;
   gap: 1.25rem;
+  isolation: isolate;
   overflow: hidden;
-  padding: clamp(1.25rem, 3vw, 3rem) clamp(1.25rem, 3vw, 3rem) clamp(3rem, 6vh, 5rem);
+  padding: var(--panel-pad-top) var(--panel-pad-x) var(--panel-pad-bottom);
   color: var(--white);
-  transition: flex-basis 260ms ease, opacity 220ms ease, padding 260ms ease;
+  scrollbar-width: none;
+  transition: flex-basis 320ms ease, opacity 220ms ease, padding 260ms ease, filter 260ms ease;
+}
+
+.focus-panel::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 .focus-panel-media {
   flex-basis: 50%;
-  background:
-    linear-gradient(152deg, transparent 0 48%, var(--media-soft) 48.3% 100%),
-    var(--media);
+  background: #faebb1;
 }
 
 .focus-panel-web {
   flex-basis: 50%;
-  background:
-    linear-gradient(152deg, transparent 0 48%, #6f86b3 48.3% 100%),
-    var(--web);
+  background: #7389b8;
+}
+
+.focus-header-graphic {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  object-fit: cover;
+  object-position: center bottom;
+  pointer-events: none;
+  transform: translate3d(var(--bg-shift-x, 0), var(--bg-shift-y, 0), 0) scale(1.02);
+  transition: transform 480ms ease, opacity 260ms ease, object-position 480ms ease;
+}
+
+.focus-panel-media .focus-header-graphic {
+  object-position: center bottom;
+}
+
+.focus-panel-web .focus-header-graphic {
+  object-position: center bottom;
+}
+
+.focus-panel:hover,
+.focus-panel:focus-visible {
+  filter: saturate(1.04);
+}
+
+.focus-panel:hover .focus-header-graphic,
+.focus-panel:focus-visible .focus-header-graphic {
+  transform: translate3d(var(--bg-shift-x, 0), var(--bg-shift-y, 0), 0) scale(1.08);
+}
+
+@media (hover: hover) and (pointer: fine) and (min-width: 768px) {
+  .focus-panels.is-hovering-media .focus-panel-media,
+  .focus-panels:has(.focus-panel-media:hover) .focus-panel-media,
+  .focus-panels:has(.focus-panel-media:focus-visible) .focus-panel-media {
+    flex-basis: 58%;
+  }
+
+  .focus-panels.is-hovering-media .focus-panel-web,
+  .focus-panels:has(.focus-panel-media:hover) .focus-panel-web,
+  .focus-panels:has(.focus-panel-media:focus-visible) .focus-panel-web {
+    flex-basis: 42%;
+  }
+
+  .focus-panels.is-hovering-web .focus-panel-media,
+  .focus-panels:has(.focus-panel-web:hover) .focus-panel-media,
+  .focus-panels:has(.focus-panel-web:focus-visible) .focus-panel-media {
+    flex-basis: 38%;
+  }
+
+  .focus-panels.is-hovering-web .focus-panel-web,
+  .focus-panels:has(.focus-panel-web:hover) .focus-panel-web,
+  .focus-panels:has(.focus-panel-web:focus-visible) .focus-panel-web {
+    flex-basis: 62%;
+  }
+
+  .focus-panels.is-hovering-web .focus-panel-web .focus-header-graphic,
+  .focus-panels:has(.focus-panel-web:hover) .focus-panel-web .focus-header-graphic,
+  .focus-panels:has(.focus-panel-web:focus-visible) .focus-panel-web .focus-header-graphic {
+    object-position: 42% bottom;
+  }
 }
 
 .panel-title {
+  position: relative;
+  z-index: 1;
   display: grid;
-  gap: 1.4rem;
-  align-content: start;
-  min-height: clamp(10rem, 30vh, 23rem);
+  gap: 1rem;
+  align-content: space-between;
+  min-height: clamp(14rem, 38vh, 29rem);
 }
 
 .panel-title h2 {
+  justify-self: start;
+  max-width: min(28rem, calc(100% - (2 * var(--panel-pad-x))));
   margin: 0;
   font-size: clamp(2rem, 3.7vw, 4.15rem);
   font-weight: 800;
   line-height: 1.12;
   letter-spacing: 0;
   hyphens: manual;
-  text-align: center;
+  text-align: left;
+  text-shadow: 0 0.25rem 1.25rem rgb(38 54 64 / 0.2);
 }
 
 .panel-title p {
+  justify-self: start;
   max-width: 20rem;
-  margin: auto 0 0;
+  margin: 0;
   color: var(--thm-gray);
   font-size: clamp(1.1rem, 2vw, 2.1rem);
   font-weight: 800;
   line-height: 1.15;
+  text-shadow: 0 0.2rem 1rem rgb(250 235 177 / 0.55);
 }
 
+.focus-panel-web .panel-title h2,
 .focus-panel-web .panel-title p {
   justify-self: end;
   color: var(--white);
   text-align: right;
+  text-shadow: 0 0.25rem 1.25rem rgb(38 54 64 / 0.28);
 }
 
 .panel-content {
+  position: relative;
+  z-index: 1;
   display: grid;
   gap: 1.25rem;
   padding-bottom: clamp(3rem, 8vh, 6rem);
@@ -140,6 +222,11 @@ a {
 
 .focus-panel-web .panel-content p {
   color: var(--white);
+}
+
+.focus-panel-media .panel-content h3,
+.focus-panel-media .module-entry h4 {
+  color: var(--thm-gray);
 }
 
 .intro-block,
@@ -272,7 +359,10 @@ a {
   }
 
   .focus-panel {
-    padding: 1.25rem 1rem 3.75rem;
+    --panel-pad-x: 1rem;
+    --panel-pad-top: 1.25rem;
+    --panel-pad-bottom: 3.75rem;
+    padding: var(--panel-pad-top) var(--panel-pad-x) var(--panel-pad-bottom);
   }
 
   .focus-panel-media {
@@ -285,6 +375,11 @@ a {
 
   .panel-title {
     min-height: 100%;
+  }
+
+  .focus-header-graphic {
+    height: 100%;
+    max-height: none;
   }
 
   .panel-title h2 {
@@ -300,6 +395,18 @@ a {
 
   .focus-panel-web .panel-title h2 {
     color: rgb(255 255 255 / 0.58);
+  }
+
+  .focus-app[data-focus-mode="overview"] .focus-panel-web .panel-title h2 {
+    justify-self: end;
+    max-width: none;
+    margin: 1rem 0.4rem 0 0;
+    font-size: 1.2rem;
+    line-height: 1.05;
+    opacity: 0.72;
+    transform: rotate(180deg);
+    white-space: nowrap;
+    writing-mode: vertical-rl;
   }
 
   .panel-title p {
@@ -320,9 +427,12 @@ a {
 
   .focus-app[data-focus-mode="media"] .focus-panel-web,
   .focus-app[data-focus-mode="web"] .focus-panel-media {
+    --panel-pad-x: 0.35rem;
+    --panel-pad-top: 1.25rem;
+    --panel-pad-bottom: 3.75rem;
     flex: 0 0 var(--focus-peek-width);
     flex-basis: var(--focus-peek-width);
-    padding: 1.25rem 0.35rem 3.75rem;
+    padding: var(--panel-pad-top) var(--panel-pad-x) var(--panel-pad-bottom);
     opacity: 1;
     cursor: pointer;
     pointer-events: auto;
@@ -407,6 +517,5 @@ a {
 
   .focus-panel {
     overflow-y: auto;
-    scrollbar-color: rgb(255 255 255 / 0.55) transparent;
   }
 }

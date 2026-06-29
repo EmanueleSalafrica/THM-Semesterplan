@@ -1,6 +1,8 @@
 const focusApp = document.querySelector(".focus-app");
+const focusPanels = document.querySelector(".focus-panels");
 const panels = Array.from(document.querySelectorAll("[data-focus-panel]"));
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+const canHover = window.matchMedia("(hover: hover) and (pointer: fine)");
 const animatedContent = new WeakSet();
 
 let startX = 0;
@@ -57,6 +59,26 @@ function splitAndAnimate(element, type, vars) {
   });
 }
 
+function animateHeaderGraphic(graphic, direction = 1, delay = 0.12) {
+  if (!graphic || !window.gsap || reduceMotion.matches) {
+    return;
+  }
+
+  gsap.fromTo(graphic, {
+    x: direction * 56,
+    scale: 0.96,
+    opacity: 0
+  }, {
+    x: 0,
+    scale: 1,
+    opacity: 1,
+    duration: 0.58,
+    delay,
+    ease: "power3.out",
+    clearProps: "transform,opacity"
+  });
+}
+
 function animateOverview() {
   const question = document.querySelector(".focus-question h1");
 
@@ -79,6 +101,8 @@ function animateOverview() {
   });
 
   panels.forEach((panel, index) => {
+    animateHeaderGraphic(panel.querySelector(".focus-header-graphic"), index === 0 ? -1 : 1, 0.18);
+
     splitAndAnimate(panel.querySelector(".panel-title h2"), "chars", {
       from: { x: index === 0 ? -18 : 18, opacity: 0 },
       to: { x: 0, opacity: 1, duration: 0.35, stagger: 0.018, delay: 0.16, ease: "power2.out" }
@@ -160,6 +184,8 @@ function animatePanel(panelName) {
     return;
   }
 
+  animateHeaderGraphic(panel.querySelector(".focus-header-graphic"), panelName === "media" ? -1 : 1, 0.02);
+
   splitAndAnimate(panel.querySelector(".panel-title h2"), "chars", {
     from: { y: 22, opacity: 0 },
     to: { y: 0, opacity: 1, duration: 0.38, stagger: 0.02, ease: "power2.out" }
@@ -224,6 +250,27 @@ function handleSwipe(endX, endY) {
 }
 
 panels.forEach((panel) => {
+  panel.addEventListener("pointermove", (event) => {
+    if (!canHover.matches || reduceMotion.matches) {
+      return;
+    }
+
+    focusPanels.classList.toggle("is-hovering-media", panel.dataset.focusPanel === "media");
+    focusPanels.classList.toggle("is-hovering-web", panel.dataset.focusPanel === "web");
+
+    const rect = panel.getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width - 0.5) * 18;
+    const y = ((event.clientY - rect.top) / rect.height - 0.5) * 12;
+    panel.style.setProperty("--bg-shift-x", `${x.toFixed(1)}px`);
+    panel.style.setProperty("--bg-shift-y", `${y.toFixed(1)}px`);
+  });
+
+  panel.addEventListener("pointerleave", () => {
+    panel.style.removeProperty("--bg-shift-x");
+    panel.style.removeProperty("--bg-shift-y");
+    focusPanels.classList.remove("is-hovering-media", "is-hovering-web");
+  });
+
   panel.addEventListener("click", () => {
     openPanel(panel.dataset.focusPanel);
   });
