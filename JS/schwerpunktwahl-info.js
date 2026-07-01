@@ -1,6 +1,8 @@
 const focusApp = document.querySelector(".focus-app");
 const focusPanels = document.querySelector(".focus-panels");
 const panels = Array.from(document.querySelectorAll("[data-focus-panel]"));
+const appMenuToggle = document.querySelector("[data-app-menu-toggle]");
+const appMenuPanel = document.querySelector("[data-app-menu-panel]");
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 const canHover = window.matchMedia("(hover: hover) and (pointer: fine)");
 const animatedContent = new WeakSet();
@@ -234,6 +236,15 @@ function resetMobileOverview() {
   }
 }
 
+function setAppMenuOpen(isOpen) {
+  if (!appMenuToggle || !appMenuPanel) {
+    return;
+  }
+
+  appMenuToggle.setAttribute("aria-expanded", String(isOpen));
+  appMenuPanel.hidden = !isOpen;
+}
+
 function handleSwipe(endX, endY) {
   if (!isMobileLayout()) {
     return;
@@ -281,6 +292,29 @@ panels.forEach((panel) => {
       openPanel(panel.dataset.focusPanel);
     }
   });
+});
+
+appMenuToggle?.addEventListener("click", (event) => {
+  event.stopPropagation();
+  setAppMenuOpen(appMenuToggle.getAttribute("aria-expanded") !== "true");
+});
+
+appMenuPanel?.addEventListener("click", (event) => {
+  if (event.target.closest("a")) {
+    setAppMenuOpen(false);
+  }
+});
+
+document.addEventListener("click", (event) => {
+  if (!event.target.closest(".app-menu")) {
+    setAppMenuOpen(false);
+  }
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    setAppMenuOpen(false);
+  }
 });
 
 focusApp.addEventListener("touchstart", (event) => {

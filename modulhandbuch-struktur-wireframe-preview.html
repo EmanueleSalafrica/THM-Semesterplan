@@ -22,6 +22,22 @@
         <span>THM</span>
         <small>Technische Hochschule Mittelhessen</small>
       </button>
+      <nav class="app-menu" aria-label="Hauptnavigation">
+        <button class="app-menu-button" type="button" aria-expanded="false" aria-controls="app-menu-panel" data-app-menu-toggle>
+          <span class="app-menu-button-label">Menü</span>
+          <span class="app-menu-icon" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+        </button>
+        <div class="app-menu-panel" id="app-menu-panel" data-app-menu-panel hidden>
+          <button type="button" data-screen-link="start">Startseite</button>
+          <button type="button" data-screen-link="modules">Modulhandbuch Filter</button>
+          <button type="button" data-screen-link="options">Semesterplan erstellen</button>
+          <a href="schwerpunktwahl-info.html">Schwerpunktwahl Info</a>
+        </div>
+      </nav>
     </header>
 
     <main class="app-main">
@@ -344,6 +360,8 @@
       const moduleDialog = document.querySelector('[data-dialog="module"]');
       const moduleDetails = document.querySelector("[data-module-details]");
       const printPlanButton = document.querySelector("[data-print-plan]");
+      const appMenuToggle = document.querySelector("[data-app-menu-toggle]");
+      const appMenuPanel = document.querySelector("[data-app-menu-panel]");
       const loadLabels = {
         1: "9 Semester (+2)",
         2: "8 Semester (+1)",
@@ -357,6 +375,7 @@
         if (screenName === "focus") {
           showFocusOverview();
         }
+        updateAppMenuVisibility(screenName);
         window.scrollTo(0, 0);
         document.dispatchEvent(new CustomEvent("mpm:screen-change", {
           detail: { screenName }
@@ -1617,6 +1636,57 @@
           .map(moduleTitle);
       }
 
+      function setAppMenuOpen(isOpen) {
+        if (!appMenuToggle || !appMenuPanel) {
+          return;
+        }
+
+        appMenuToggle.setAttribute("aria-expanded", String(isOpen));
+        appMenuPanel.hidden = !isOpen;
+      }
+
+      function updateAppMenuVisibility(screenName) {
+        if (!appMenuToggle) {
+          return;
+        }
+
+        const shouldHideMenu = screenName === "start";
+        appMenuToggle.hidden = shouldHideMenu;
+
+        if (shouldHideMenu) {
+          setAppMenuOpen(false);
+        }
+      }
+
+      function initialScreenName() {
+        const screenName = new URLSearchParams(window.location.search).get("screen") || window.location.hash.replace("#", "");
+        const allowedScreens = ["start", "modules", "options", "plan"];
+        return allowedScreens.includes(screenName) ? screenName : "start";
+      }
+
+      appMenuToggle?.addEventListener("click", (event) => {
+        event.stopPropagation();
+        setAppMenuOpen(appMenuToggle.getAttribute("aria-expanded") !== "true");
+      });
+
+      appMenuPanel?.addEventListener("click", (event) => {
+        if (event.target.closest("button, a")) {
+          setAppMenuOpen(false);
+        }
+      });
+
+      document.addEventListener("click", (event) => {
+        if (!event.target.closest(".app-menu")) {
+          setAppMenuOpen(false);
+        }
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          setAppMenuOpen(false);
+        }
+      });
+
       document.querySelectorAll("[data-screen-link]").forEach((button) => {
         button.addEventListener("click", () => {
           readOptions();
@@ -1738,6 +1808,7 @@
         readOptions();
         generateLocalPlanVariants();
         renderPlan();
+        showScreen(initialScreenName());
       }
 
       init().catch((error) => {
@@ -1748,6 +1819,7 @@
         readOptions();
         generateLocalPlanVariants();
         renderPlan();
+        showScreen(initialScreenName());
       });
     </script>
   </body>

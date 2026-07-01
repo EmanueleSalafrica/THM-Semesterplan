@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Schwerpunktwahl Info</title>
     <link rel="stylesheet" href="CSS/style.css">
-    <link rel="stylesheet" href="CSS/schwerpunktwahl-info.css?v=svg-background-hover-2">
+    <link rel="stylesheet" href="CSS/schwerpunktwahl-info.css?v=image-tiles-menu-1">
   </head>
   <body>
     <header class="app-header">
@@ -13,6 +13,22 @@
         <span>THM</span>
         <small>Technische Hochschule Mittelhessen</small>
       </a>
+      <nav class="app-menu" aria-label="Hauptnavigation">
+        <button class="app-menu-button" type="button" aria-expanded="false" aria-controls="app-menu-panel" data-app-menu-toggle>
+          <span class="app-menu-button-label">Menü</span>
+          <span class="app-menu-icon" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+        </button>
+        <div class="app-menu-panel" id="app-menu-panel" data-app-menu-panel hidden>
+          <a href="index.html">Startseite</a>
+          <a href="index.html?screen=modules">Modulhandbuch Filter</a>
+          <a href="index.html?screen=options">Semesterplan erstellen</a>
+          <a href="schwerpunktwahl-info.html">Schwerpunktwahl Info</a>
+        </div>
+      </nav>
     </header>
 
     <main class="focus-app" data-focus-mode="overview">
@@ -31,12 +47,16 @@
           <div class="panel-content">
             <section class="intro-block">
               <p>Tauche in die technisch-kreative Welt der Medienproduktion ein. Hier wird dir beigebracht, wie man professionelle Audio-und Videoclips für Live-Broadcasts, Youtube, und Social Media erstellt.</p>
-              <div class="image-placeholder image-av" role="img" aria-label="Platzhalter Bild AV">AV</div>
+              <figure class="image-placeholder image-tile image-av">
+                <img src="Bilder/Stockimages Cropped/MP-BT pexels-bertellifotografia-2025-08-31.jpg" alt="Filmproduktion mit Kamera und Team" loading="lazy" decoding="async">
+              </figure>
             </section>
 
             <section class="intro-block">
               <p>Außerdem lernst du auch, was alles benötigt wird, um 3D Figuren herzustellen, vom ersten Vertex, über das Lichtsystem, bis hin zur vollständigen Animation, welche in Werbung, Filmen oder auch Spielen benutzt werden können.</p>
-              <div class="image-placeholder image-gdv" role="img" aria-label="Platzhalter Bild GDV">GDV</div>
+              <figure class="image-placeholder image-tile image-gdv">
+                <img src="Bilder/Stockimages Cropped/GDV3 pexels-rd-2025-10-23.jpg" alt="3D-Animation und digitale Gestaltung" loading="lazy" decoding="async">
+              </figure>
             </section>
 
             <p class="closing-text">Ob spannende Storylines, beeindruckende visuelle Effekte, oder atemberaubende Animationen, hier in der Medieninformatik lernt ihr eure Ideen mithilfe von innovativer Technologie in die Tat umzusetzen!</p>
@@ -48,31 +68,41 @@
             <section class="module-entry">
               <h4>Studiotechnik und -produktion</h4>
               <p>Licht, Kamera, ACTION! Hier lernt ihr, wie man einen Live-Broadcast erstellt, also wie man professionell ein Video mit Ton aufnimmt und sauber zusammengenäht in das Internet überträgt. Dabei nutzt ihr alles Wissen, was ihr bereits über die audio-visuelle Artefaktenerstellung gelernt habt und werdet als professionelle Filmcrew unseren @campus Livestream erstellen.</p>
-              <div class="image-placeholder" role="img" aria-label="Platzhalter Bild AV live @campus">AV live @campus</div>
+              <figure class="image-placeholder image-tile">
+                <img src="Bilder/Stockimages Cropped/SP-ST pexels-krispytea-2021-10-24.jpg" alt="Studiotechnik mit Kamera und Produktionsteam" loading="lazy" decoding="async">
+              </figure>
             </section>
 
             <section class="module-entry">
               <h4>Grafische Datenverarbeitung: Animation</h4>
               <p>Hier lernst du die technischen Verfahren, wie ein Computer ein 3D-Objekt nimmt und dieses transformiert, um am Ende eine fließende Bewegung darzustellen. Das bleibt aber natürlich nicht nur theoretisch, denn du wirst auch eine Animation ganz alleine erstellen, vom ersten bis zum letzten Frame, und dabei ganz viel über Animationsindustriestandards und -prozesse erlernen.</p>
-              <div class="image-placeholder" role="img" aria-label="Platzhalter Bild GDV Animation">GDV Animation</div>
+              <figure class="image-placeholder image-tile">
+                <img src="Bilder/Stockimages Cropped/GDV3 pexels-rd-2025-10-23.jpg" alt="Grafische Datenverarbeitung und Animation" loading="lazy" decoding="async">
+              </figure>
             </section>
 
             <section class="module-entry">
               <h4>Filmtechnik und -produktion</h4>
               <p>Das eine oder andere Video hast du bestimmt schon gedreht, aber hast du auch bereits ein ganzes Musikvideo erstellt? Denn genau das lernst du hier, du und deine Kommilitonen/innen/* werdet hier als Team den gesamten Prozess durchlaufen, von der Rollenverteilung über die Planung, zum Filmen und Musik aufnehmen, über das Editing und Colorgrading, bis ihr am Ende ein Musikvideo habt, auf das ihr stolz sein könnt!</p>
-              <div class="image-placeholder" role="img" aria-label="Platzhalter Bild Filmtechnik und -produktion">Filmtechnik</div>
+              <figure class="image-placeholder image-tile">
+                <img src="Bilder/Stockimages Cropped/FP-FT pexels-kyleloftusstudios-2021-01-27.jpg" alt="Filmtechnik und Videoproduktion" loading="lazy" decoding="async">
+              </figure>
             </section>
 
             <section class="module-entry">
               <h4>Outside and Remote Technology and Production</h4>
               <p>Jedes gute Konzert hat auch seine technische Crew, die sicherstellt, dass alles sauber läuft. Wie ihr Wind und Wetter zum trotz eine Aufnahme gestaltet, lernt ihr hier, denn kein Studio ist für euch bestimmt kein Problem mehr.</p>
-              <div class="image-placeholder" role="img" aria-label="Platzhalter Bild Outside and Remote Technology and Production">Remote Production</div>
+              <figure class="image-placeholder image-tile">
+                <img src="Bilder/Stockimages Cropped/ORT pexels-followingnyc-2022-05-03.jpg" alt="Remote Production außerhalb des Studios" loading="lazy" decoding="async">
+              </figure>
             </section>
 
             <section class="module-entry">
               <h4>3D-Spieleentwicklung</h4>
               <p>Ihr wisst wie man 3D-Objekte modelliert, wie man sie shaded, und sogar wie man sie dann auch noch animiert. Was nun? Interaktion. Denn hier lernt ihr kennen, wie ihr diese Modelle interaktiv macht, indem ihr sie in eine Game Engine eingebaut und wie man sie von dort aus kontrolliert.</p>
-              <div class="image-placeholder" role="img" aria-label="Platzhalter Bild 3D-Spieleentwicklung">3D Game</div>
+              <figure class="image-placeholder image-tile">
+                <img src="Bilder/Stockimages Cropped/3DSPE pexels-pavel-danilyuk-2021-05-04.jpg" alt="3D-Spieleentwicklung und interaktive Medien" loading="lazy" decoding="async">
+              </figure>
             </section>
           </div>
         </article>
@@ -87,12 +117,16 @@
           <div class="panel-content">
             <section class="intro-block">
               <p>Hier steht die Erstellung von modernen, digitalen Lösungen an vorderster Front. Erlerne wie man Webseiten und Apps erstellt die mit benutzerfreundlichen Design und smarter Interaktivität überzeugen.</p>
-              <div class="image-placeholder image-web" role="img" aria-label="Platzhalter Bild Webtechnologien">Webtechnologien</div>
+              <figure class="image-placeholder image-tile image-web">
+                <img src="Bilder/Stockimages Cropped/WEB pexels-fauxels-2019-11-05.jpg" alt="Webtechnologien und digitale Teamarbeit" loading="lazy" decoding="async">
+              </figure>
             </section>
 
             <section class="intro-block">
               <p>Aber um eine moderne Webseite oder App zu erstellen musst du natürlich auch wissen wie du diese an zentrale Datenbanken anbindest, und wie du deine digitale Lösung vor möglichen Cyberangriffen schützt.</p>
-              <div class="image-placeholder image-security" role="img" aria-label="Platzhalter Bild Cybersecurity">Cybersecurity</div>
+              <figure class="image-placeholder image-tile image-security">
+                <img src="Bilder/Stockimages Cropped/CS pexels-ai25studioai-2020-09-29.jpg" alt="Cybersicherheit und digitale Systeme" loading="lazy" decoding="async">
+              </figure>
             </section>
 
             <p class="closing-text">Ob traditionell oder mobile, in der Web &amp; Mobile erlernst du alles was der moderne Frontend-Developer benötigt.</p>
@@ -104,31 +138,41 @@
             <section class="module-entry">
               <h4>Mobile Apps: Grundlagen</h4>
               <p>Du wolltest schon immer mal wissen, wie man denn all die Apps erstellt, die dich tagein-tagaus begleiten? Denn genau das lernst du hier! Von den ersten bis zur letzten Zeile Code lernst du die Fähigkeiten des Smartphones auszunutzen und attraktive, smarte Apps zu erstellen.</p>
-              <div class="image-placeholder" role="img" aria-label="Platzhalter Bild MOW">MOW</div>
+              <figure class="image-placeholder image-tile">
+                <img src="Bilder/Stockimages Cropped/MA-G pexels-simonptr-2025-08-25.jpg" alt="Mobile App Entwicklung auf dem Smartphone" loading="lazy" decoding="async">
+              </figure>
             </section>
 
             <section class="module-entry">
               <h4>Web-Frameworks</h4>
               <p>Hier vertiefst du dein Verständnis der Webseiten Erstellung mit dem Nutzen von modernen Web-Frameworks. Als Team plant und programmiert ihr euren Weg vom leeren Dokument bis zur responsiven und interaktiven Webseite.</p>
-              <div class="image-placeholder" role="img" aria-label="Platzhalter Bild Web-Frameworks">Web-Frameworks</div>
+              <figure class="image-placeholder image-tile">
+                <img src="Bilder/Stockimages Cropped/WF pexels-fauxels-2019-11-05.jpg" alt="Web-Frameworks und gemeinsames Entwickeln" loading="lazy" decoding="async">
+              </figure>
             </section>
 
             <section class="module-entry">
               <h4>Mobile Apps: Spieleentwicklung</h4>
               <p>Apps kann man nicht nur nutzen um Kleidung zu kaufen oder Ortsinformationen zu erhalten, sondern auch natürlich für den täglichen Zeitvertreib. Wie ihr das genau umsetzt lernt ihr hier in der Mobile Apps: Spieleentwicklung! Hier erlernt ihr eine Game-Engine zu nutzen und damit euren kreativen Ideen freien Lauf zu lassen.</p>
-              <div class="image-placeholder" role="img" aria-label="Platzhalter Bild Mobile Apps: Spieleentwicklung">Mobile Games</div>
+              <figure class="image-placeholder image-tile">
+                <img src="Bilder/Stockimages Cropped/MA-SP pexels-rdne-2021-05-16.jpg" alt="Mobile Spieleentwicklung und digitale Interaktion" loading="lazy" decoding="async">
+              </figure>
             </section>
 
             <section class="module-entry">
               <h4>Datenbanken</h4>
               <p>Eine Webseite ist nur so gut wie die Datenbank, die sie füllt. Das zu bewerkstelligen wird dir hier beigebracht. Mit SQL werden ihr in schnellster Zeit in der Lage sein eine Unmenge an Daten zu kollidieren, zu reduzieren und schließlich genau die Information auszugeben nach denen ihr spezifisch sucht.</p>
-              <div class="image-placeholder" role="img" aria-label="Platzhalter Bild Datenbanken">Datenbanken</div>
+              <figure class="image-placeholder image-tile">
+                <img src="Bilder/Stockimages Cropped/DB pexels-cookiecutter-2026-05-23.jpg" alt="Datenbanken und strukturierte Informationen" loading="lazy" decoding="async">
+              </figure>
             </section>
 
             <section class="module-entry">
               <h4>Cybersicherheit</h4>
               <p>Hacker gibt es mittlerweile überall, und alle wollen an eure Daten. Euch und eure Webseiten davor zu schützen, lernt ihr hier in der Cybersecurity. Mit Hilfe von Internet Protokollen, Verschlüsselungen und Authentifizierungsmethoden seid ihr gewappnet gegen solche Angriffe und könnt beruhigt eure Webseiten zur freien Verfügung stellen.</p>
-              <div class="image-placeholder" role="img" aria-label="Platzhalter Bild Cybersicherheit">Cybersicherheit</div>
+              <figure class="image-placeholder image-tile">
+                <img src="Bilder/Stockimages Cropped/CS pexels-ai25studioai-2020-09-29.jpg" alt="Cybersicherheit und geschützte Websysteme" loading="lazy" decoding="async">
+              </figure>
             </section>
           </div>
         </article>
@@ -137,6 +181,6 @@
 
     <script src="JS/lib/gsap/gsap.js"></script>
     <script src="JS/lib/gsap/SplitText.js"></script>
-    <script src="JS/schwerpunktwahl-info.js"></script>
+    <script src="JS/schwerpunktwahl-info.js?v=image-tiles-menu-1"></script>
   </body>
 </html>
