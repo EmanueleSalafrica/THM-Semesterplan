@@ -252,6 +252,58 @@
         2: { semesterCount: 8, targetCredits: 24, speed: 80 },
         3: { semesterCount: 7, targetCredits: 27, speed: 90 }
       };
+      const moduleImagePathsByNumber = {
+        1: "Bilder/Stockimages Cropped/GDV1 pexels-jakeheinemann-2024-09-28.jpg",
+        2: "Bilder/Stockimages Cropped/MG-TB pexels-diva-plavalaguna-2021-02-24.jpg",
+        3: "Bilder/Stockimages Cropped/TIA pexels-gvenzl-2021-07-07.jpg",
+        4: "Bilder/Stockimages Cropped/SOFT pexels-naboth-otieno-2024-01-09.jpg",
+        5: "Bilder/Stockimages Cropped/FL pexels-diva-plavalaguna-2020-12-10.jpg",
+        6: "Bilder/Stockimages Cropped/MG-BT pexels-ron-lach-2021-10-06.jpg",
+        7: "Bilder/Stockimages Cropped/MP-BT pexels-bertellifotografia-2025-08-31.jpg",
+        8: "Bilder/Stockimages Cropped/GDV2 pexels-tiago-alves-2023-12-02.jpg",
+        9: "Bilder/Stockimages Cropped/WEB pexels-fauxels-2019-11-05.jpg",
+        10: "Bilder/Stockimages Cropped/STAT pexels-yankrukov-2021-06-03.jpg",
+        11: "Bilder/Stockimages Cropped/SP-ST pexels-krispytea-2021-10-24.jpg",
+        12: "Bilder/Stockimages Cropped/GDV3 pexels-rd-2025-10-23.jpg",
+        13: "Bilder/Stockimages Cropped/DB pexels-cookiecutter-2026-05-23.jpg",
+        14: "Bilder/Stockimages Cropped/CS pexels-ai25studioai-2020-09-29.jpg",
+        15: "Bilder/Stockimages Cropped/SPE pexels-rdne-2021-05-16.jpg",
+        16: "Bilder/Stockimages Cropped/BWL pexels-pavel-danilyuk-2021-07-15.jpg",
+        17: "Bilder/Stockimages Cropped/FP-FT pexels-kyleloftusstudios-2021-01-27.jpg",
+        18: "Bilder/Stockimages Cropped/MA-G pexels-simonptr-2025-08-25.jpg",
+        19: "Bilder/Stockimages Cropped/MPM pexels-ai25studioai-2020-09-28.jpg",
+        20: "Bilder/Stockimages Cropped/SEM pexels-bertellifotografia-2024-12-09.jpg",
+        21: "Bilder/Stockimages Cropped/DMT pexels-pavel-danilyuk-2021-06-22.jpg",
+        22: "Bilder/Stockimages Cropped/LAW pexels-sora-shimazaki-2020-10-22.jpg",
+        23: "Bilder/Stockimages Cropped/ORT pexels-followingnyc-2022-05-03.jpg",
+        24: "Bilder/Stockimages Cropped/3DSPE pexels-pavel-danilyuk-2021-05-04.jpg",
+        25: "Bilder/Stockimages Cropped/WF pexels-fauxels-2019-11-05.jpg",
+        26: "Bilder/Stockimages Cropped/MA-SP pexels-rdne-2021-05-16.jpg",
+        27: "Bilder/Stockimages Cropped/BPP pexels-karola-g-2021-05-12.jpg",
+        28: "Bilder/Stockimages Cropped/BACHELOR pexels-cottonbro-2020-08-24.jpg",
+        29: "Bilder/Stockimages Cropped/KOL pexels-pavel-danilyuk-2021-03-23.jpg",
+        30: "Bilder/Stockimages Cropped/FL-BE pexels-hussein-altameemi-2021-08-30.jpg",
+        31: "Bilder/Stockimages Cropped/UGF pexels-a-darmel-2021-05-30.jpg",
+        32: "Bilder/Stockimages Cropped/TM pexels-thirdman-2020-10-20.jpg",
+        33: "Bilder/Stockimages Cropped/FM pexels-the-ghazi-2025-06-15.jpg",
+        34: "Bilder/Stockimages Cropped/DE pexels-merlin-2023-04-29.jpg",
+        35: "Bilder/Stockimages Cropped/MD pexels-shubhamdhage-2026-06-02.jpg",
+        36: "Bilder/Stockimages Cropped/ISS pexels-aboodi-2023-03-30.jpg",
+        37: "Bilder/Stockimages Cropped/FRR pexels-paulseling-2024-03-08.jpg",
+        38: "Bilder/Stockimages Cropped/Z-ST pexels-ron-lach-2021-05-27.jpg",
+        39: "Bilder/Stockimages Cropped/FOTO pexels-klmnb-2023-12-23.jpg",
+        40: "Bilder/Stockimages Cropped/SM pexels-shutter-speed-15406294.jpg",
+        41: "Bilder/Stockimages Cropped/BT-TI pexels-juicemitapfelndrin-2025-02-04.jpg",
+        42: "Bilder/Stockimages Cropped/EMP pexels-jeancont-2021-01-23.jpg",
+        43: "Bilder/Stockimages Cropped/IOT pexels-fotios-photos-2023-04-13.jpg",
+        44: "Bilder/Stockimages Cropped/FED pexels-zayed-hossain-2026-03-26.jpg",
+        45: "Bilder/Stockimages Cropped/CMS pexels-lucasdc-2021-11-23.jpg",
+        46: "Bilder/Stockimages Cropped/MA-PLE pexels-cottonbro-2020-08-11.jpg",
+        47: "Bilder/Stockimages Cropped/MA-FNE pexels-kadiremir-2025-03-13.jpg",
+        48: "Bilder/Stockimages Cropped/MA-PNSP pexels-karola-g-2021-05-12.jpg",
+        49: "Bilder/Stockimages Cropped/AWMT pexels-divinetechygirl-2018-05-22.jpg",
+        50: "Bilder/Stockimages Cropped/BT-EWAA pexels-dothanhyb-2020-10-05.jpg"
+      };
 
       const state = {
         focus: "Medienproduktion",
@@ -427,8 +479,8 @@
           return module.img;
         }
 
-        if (module?.nr) {
-          return `Bilder/Temp/module-${String(module.nr).padStart(2, "0")}.svg`;
+        if (module?.nr && moduleImagePathsByNumber[Number(module.nr)]) {
+          return moduleImagePathsByNumber[Number(module.nr)];
         }
 
         return "Bilder/Temp/module-placeholder.svg";
