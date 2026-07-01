@@ -78,9 +78,9 @@
 
         <label class="form-control">
           Auslastung
-          <input type="range" min="1" max="3" value="2" data-load-input>
+          <input type="range" min="1" max="3" value="3" data-load-input>
         </label>
-        <p class="load-output"><strong data-load-output>8 Semester (+1)</strong></p>
+        <p class="load-output"><strong data-load-output>7 Semester (+0)</strong></p>
 
         <section class="module-filter">
           <h2>Bestandene oder auszuschließende Module</h2>
@@ -181,7 +181,7 @@
         <p class="plan-summary" data-plan-summary>Medienproduktion, Sommerstart, ab 1. Semester, 8 Semester (+1)</p>
         <div class="plan-container" data-plan-container></div>
         <div class="screen-actions">
-          <button class="button-primary" type="button">Plan speichern</button>
+          <button class="button-primary" type="button" data-print-plan disabled>Plan drucken</button>
           <button class="button-secondary" type="button" data-screen-link="options">Optionen bearbeiten</button>
         </div>
       </section>
@@ -192,10 +192,10 @@
       <form class="dialog-close-form" method="dialog">
         <button class="dialog-close" type="submit">Schließen</button>
       </form>
-      <h2>Wahlpflichtfach Auswahl</h2>
-      <p>Die Wahlpflichtfächer werden später erst im 5. Semester in den Plan übernommen.</p>
+      <h2>Wahlpflichtmodul auswählen</h2>
+      <p data-elective-dialog-help>Wähle ein Modul für den Platzhalter im Semesterplan.</p>
       <div class="elective-list" data-elective-list></div>
-      <button class="button-primary" type="button" data-create-plan>Plan erstellen</button>
+      <button class="button-primary" type="button" data-close-elective-dialog>Auswahl schließen</button>
     </dialog>
 
     <dialog class="app-dialog module-dialog" data-dialog="module">
@@ -208,6 +208,7 @@
       </div>
     </dialog>
 
+    <script src="JS/api-client.js"></script>
     <script src="JS/data-loader.js"></script>
     <script>
       const planTemplates = {
@@ -238,16 +239,34 @@
         "Wahlpflicht F"
       ];
       let loadedModules = [];
+      const EMPTY_ELECTIVE_CREDITS = 6;
+      const ELECTIVE_START_SEMESTER = 5;
+      const ELECTIVE_SLOT_COUNT = 4;
+      const API_ELECTIVE_START_ID = 101;
+      const API_ELECTIVE_END_ID = 106;
+      const API_COMPLETION_MODULE_ID = 100;
+      const COMPLETION_MODULE_IDS = [27, 28, 29];
+      const GENERATOR_TIMEOUT_MS = 12000;
+      const planSettings = {
+        1: { semesterCount: 9, targetCredits: 21, speed: 70 },
+        2: { semesterCount: 8, targetCredits: 24, speed: 80 },
+        3: { semesterCount: 7, targetCredits: 27, speed: 90 }
+      };
 
       const state = {
         focus: "Medienproduktion",
         start: "Sommer",
-        loadLevel: 2,
+        loadLevel: 3,
         currentSemester: 1,
         skippedModules: [],
-        selectedElectives: [],
+        selectedElectives: {},
+        activeElectiveSlotId: null,
+        activeElectiveSelectionKey: null,
+        activeElectiveSlotNumber: null,
         activePlanIndex: 0,
-        planVariants: []
+        planVariants: [],
+        planSource: "local",
+        planMessage: ""
       };
       const moduleFilterState = {
         query: "",
@@ -269,8 +288,10 @@
       const moduleResults = document.querySelector("[data-module-results]");
       const moduleResultsSummary = document.querySelector("[data-module-results-summary]");
       const electiveDialog = document.querySelector('[data-dialog="electives"]');
+      const electiveDialogHelp = document.querySelector("[data-elective-dialog-help]");
       const moduleDialog = document.querySelector('[data-dialog="module"]');
       const moduleDetails = document.querySelector("[data-module-details]");
+      const printPlanButton = document.querySelector("[data-print-plan]");
       const loadLabels = {
         1: "9 Semester (+2)",
         2: "8 Semester (+1)",
@@ -307,11 +328,96 @@
       }
 
       function moduleTitle(module) {
-        return typeof module === "string" ? module : module.titel;
+        return (typeof module === "string" ? module : module.titel || "").trim();
       }
 
       function findModule(moduleName) {
-        return loadedModules.find((module) => module.titel === moduleName);
+        return loadedModules.find((module) => moduleTitle(module) === moduleName);
+      }
+
+      function findModuleByNumber(moduleNumber) {
+        return loadedModules.find((module) => Number(module.nr) === Number(moduleNumber));
+      }
+
+      function moduleCredits(moduleOrName) {
+        const module = typeof moduleOrName === "string" ? findModule(moduleOrName) : moduleOrName;
+        return Number(module?.credits) || EMPTY_ELECTIVE_CREDITS;
+      }
+
+      function focusApiCode() {
+        return state.focus === "Medienproduktion" ? "MP" : "WM";
+      }
+
+      function startApiCode() {
+        return state.start === "Sommer" ? "S" : "W";
+      }
+
+      function skippedModuleNumbers() {
+        return state.skippedModules
+          .map((moduleName) => findModule(moduleName)?.nr)
+          .map(Number)
+          .filter(Number.isInteger);
+      }
+
+      function isApiElectiveId(moduleId) {
+        const moduleNumber = Number(moduleId);
+        return moduleNumber >= API_ELECTIVE_START_ID && moduleNumber <= API_ELECTIVE_END_ID;
+      }
+
+      function apiElectiveSlotId(moduleId, fallbackIndex = 0) {
+        const moduleNumber = Number(moduleId);
+        const slotNumber = isApiElectiveId(moduleNumber)
+          ? moduleNumber - API_ELECTIVE_START_ID + 1
+          : fallbackIndex + 1;
+        return `wpm-${slotNumber}`;
+      }
+
+      function planSetting() {
+        return planSettings[state.loadLevel] || planSettings[3];
+      }
+
+      function lastPlanSemester() {
+        return state.currentSemester + planSetting().semesterCount - 1;
+      }
+
+      function completionSemester() {
+        return lastPlanSemester();
+      }
+
+      function isCompletionModuleNumber(moduleNumber) {
+        return COMPLETION_MODULE_IDS.includes(Number(moduleNumber));
+      }
+
+      function isElectivePlaceholder(planItem) {
+        return planItem?.type === "elective-placeholder";
+      }
+
+      function isOpenElectivePlaceholder(planItem) {
+        return isElectivePlaceholder(planItem) && !selectedElectiveModuleName(planItem);
+      }
+
+      function plannedItemCredits(planItem) {
+        if (isElectivePlaceholder(planItem)) {
+          return moduleCredits(selectedElectiveModuleName(planItem)) || EMPTY_ELECTIVE_CREDITS;
+        }
+
+        return Number(planItem?.credits) || moduleCredits(planItem?.title || planItem);
+      }
+
+      function plannedItemTitle(planItem) {
+        if (isElectivePlaceholder(planItem)) {
+          return selectedElectiveModuleName(planItem) || planItem.title;
+        }
+
+        return planItem?.title || planItem;
+      }
+
+      function electiveSelectionKey(planItem) {
+        return planItem?.selectionKey || planItem?.slotId || "";
+      }
+
+      function selectedElectiveModuleName(planItem) {
+        return state.selectedElectives[electiveSelectionKey(planItem)] || planItem?.autoSelectedModuleName || "";
       }
 
       function moduleImagePath(moduleOrName) {
@@ -671,6 +777,7 @@
         state.currentSemester = Number(currentSemesterInput.value);
         state.skippedModules = checkedValues("[data-skipped-modules] input:checked");
         loadOutput.textContent = loadLabels[state.loadLevel];
+        syncSelectedElectivesWithFocus();
       }
 
       function createModuleButton(moduleName, buttonText = moduleName) {
@@ -692,6 +799,39 @@
         button.addEventListener("click", () => {
           openModuleDialog(moduleName);
         });
+        return button;
+      }
+
+      function openElectiveDialog(planItem) {
+        state.activeElectiveSlotId = planItem.slotId;
+        state.activeElectiveSelectionKey = electiveSelectionKey(planItem);
+        state.activeElectiveSlotNumber = planItem.slotNumber || planItem.slotId.replace("wpm-", "");
+        renderElectiveDialog();
+        electiveDialog.showModal();
+      }
+
+      function createElectivePlaceholderButton(planItem) {
+        const button = document.createElement("button");
+        const buttonLabel = document.createElement("span");
+        const selectedModuleName = selectedElectiveModuleName(planItem);
+        const selectedModule = selectedModuleName ? findModule(selectedModuleName) : null;
+        const credits = plannedItemCredits(planItem);
+        const slotNumber = planItem.slotNumber || planItem.slotId.replace("wpm-", "");
+
+        button.type = "button";
+        button.className = selectedModuleName
+          ? "module-card module-card-elective"
+          : "module-card module-card-elective module-card-elective-empty";
+        button.ariaLabel = selectedModuleName
+          ? `${selectedModuleName} ändern`
+          : `Wahlpflichtmodul ${slotNumber} auswählen`;
+        buttonLabel.className = "module-card-label";
+        buttonLabel.textContent = selectedModuleName
+          ? `${selectedModuleName} (${credits} CrP)`
+          : `${planItem.title} (${credits} CrP)`;
+
+        button.append(createModuleImage(selectedModule || "Wahlpflichtmodul"), buttonLabel);
+        button.addEventListener("click", () => openElectiveDialog(planItem));
         return button;
       }
 
@@ -732,38 +872,155 @@
         );
       }
 
+      function moduleAvailableAsElective(module) {
+        const assignedToFocus = module.medienproduktion === "Ja" || module.webmobile === "Ja";
+        return module.pflicht !== "Ja" && (!assignedToFocus || moduleFitsFocus(module));
+      }
+
+      function electiveCandidateModules() {
+        return loadedModules
+          .filter(moduleAvailableAsElective)
+          .filter((module) => !state.skippedModules.includes(moduleTitle(module)));
+      }
+
+      function availableElectiveModuleNames() {
+        if (loadedModules.length > 0) {
+          return electiveCandidateModules()
+            .map(moduleTitle);
+        }
+
+        return electiveModules;
+      }
+
+      function moduleFocusRank(module, variantIndex) {
+        const assignedToFocus = module.medienproduktion === "Ja" || module.webmobile === "Ja";
+        const focusSpecific = assignedToFocus && moduleFitsFocus(module);
+
+        if (variantIndex % 3 === 1) {
+          return focusSpecific ? 0 : 1;
+        }
+
+        if (variantIndex % 3 === 2) {
+          return focusSpecific ? 1 : 0;
+        }
+
+        return 0;
+      }
+
+      function electiveCandidateNamesForVariant(variantIndex) {
+        if (loadedModules.length === 0) {
+          return electiveModules.filter((moduleName) => !state.skippedModules.includes(moduleName));
+        }
+
+        return electiveCandidateModules()
+          .sort((a, b) => {
+            const rankDiff = moduleFocusRank(a, variantIndex) - moduleFocusRank(b, variantIndex);
+            const semesterDiff = (Number(a.semester) || 0) - (Number(b.semester) || 0);
+
+            if (rankDiff !== 0) {
+              return rankDiff;
+            }
+
+            if (variantIndex % 2 === 1 && semesterDiff !== 0) {
+              return -semesterDiff;
+            }
+
+            if (semesterDiff !== 0) {
+              return semesterDiff;
+            }
+
+            return moduleTitle(a).localeCompare(moduleTitle(b));
+          })
+          .map(moduleTitle);
+      }
+
+      function automaticElectiveModuleName(slotIndex, variantIndex, usedModuleNames) {
+        const candidates = electiveCandidateNamesForVariant(variantIndex);
+
+        if (candidates.length === 0) {
+          return "";
+        }
+
+        const startIndex = (variantIndex * ELECTIVE_SLOT_COUNT + slotIndex) % candidates.length;
+
+        for (let offset = 0; offset < candidates.length; offset += 1) {
+          const moduleName = candidates[(startIndex + offset) % candidates.length];
+
+          if (!usedModuleNames.includes(moduleName)) {
+            return moduleName;
+          }
+        }
+
+        return "";
+      }
+
+      function activePlanElectiveSelections() {
+        const activePlan = state.planVariants[state.activePlanIndex];
+
+        if (!activePlan) {
+          return [];
+        }
+
+        return [...activePlan.values()]
+          .flat()
+          .filter(isElectivePlaceholder)
+          .map((planItem) => ({
+            selectionKey: electiveSelectionKey(planItem),
+            moduleName: selectedElectiveModuleName(planItem)
+          }))
+          .filter((selection) => selection.moduleName);
+      }
+
+      function syncSelectedElectivesWithFocus() {
+        const availableModules = new Set(availableElectiveModuleNames());
+
+        Object.entries(state.selectedElectives).forEach(([slotId, moduleName]) => {
+          if (!availableModules.has(moduleName)) {
+            delete state.selectedElectives[slotId];
+          }
+        });
+      }
+
       function renderElectiveDialog() {
         const list = document.querySelector("[data-elective-list]");
+        const activeSlotId = state.activeElectiveSlotId;
+        const activeSelectionKey = state.activeElectiveSelectionKey;
+        const activeSlotNumber = state.activeElectiveSlotNumber || (activeSlotId ? activeSlotId.replace("wpm-", "") : "");
+        const selectedForActiveSlot = activePlanElectiveSelections()
+          .find((selection) => selection.selectionKey === activeSelectionKey)?.moduleName || "";
+
+        electiveDialogHelp.textContent = activeSlotId
+          ? `Wähle ein Wahlpflichtmodul für Wahlpflichtmodul ${activeSlotNumber}. Bereits gewählte Module sind für andere Platzhalter gesperrt.`
+          : "Wähle ein Modul für den Platzhalter im Semesterplan.";
+
         list.replaceChildren(
-          ...electiveModules.map((moduleName) => {
+          ...availableElectiveModuleNames().map((moduleName) => {
             const item = document.createElement("article");
             const chooseButton = document.createElement("button");
+            const selectedInOtherSlot = activePlanElectiveSelections()
+              .some((selection) => selection.selectionKey !== activeSelectionKey && selection.moduleName === moduleName);
+
             item.className = "elective-item";
             chooseButton.type = "button";
             chooseButton.className = "button-secondary";
-            chooseButton.textContent = state.selectedElectives.includes(moduleName) ? "Ausgewählt" : "Wählen";
+            chooseButton.disabled = !activeSlotId || selectedInOtherSlot;
+            chooseButton.textContent = selectedForActiveSlot === moduleName
+              ? "Ausgewählt"
+              : selectedInOtherSlot ? "Bereits gewählt" : "Auswählen";
             chooseButton.addEventListener("click", () => {
-              if (state.selectedElectives.includes(moduleName)) {
-                state.selectedElectives = state.selectedElectives.filter((selected) => selected !== moduleName);
-                chooseButton.textContent = "Wählen";
-              } else {
-                state.selectedElectives.push(moduleName);
-                chooseButton.textContent = "Ausgewählt";
+              if (!activeSlotId || selectedInOtherSlot) {
+                return;
               }
+
+              state.selectedElectives[activeSelectionKey] = moduleName;
+              regeneratePlanPreservingVariant();
+              electiveDialog.close();
             });
 
             item.append(createModuleButton(moduleName), " ", chooseButton);
             return item;
           })
         );
-      }
-
-      function moduleLimit() {
-        return {
-          1: 3,
-          2: 4,
-          3: 5
-        }[state.loadLevel];
       }
 
       function moduleFitsFocus(module) {
@@ -776,25 +1033,302 @@
         if (loadedModules.length > 0) {
           return loadedModules
             .filter(moduleFitsFocus)
+            .filter((module) => module.pflicht === "Ja")
+            .filter((module) => !isCompletionModuleNumber(module.nr))
             .filter((module) => !state.skippedModules.includes(module.titel))
             .map((module) => ({
               titel: module.titel,
-              semester: Number(module.semester) || 1
+              semester: Number(module.semester) || 1,
+              credits: Number(module.credits) || EMPTY_ELECTIVE_CREDITS
             }));
         }
 
         return planTemplates[state.focus].flat().map((moduleName, index) => ({
           titel: moduleName,
-          semester: Math.floor(index / 5) + 1
+          semester: Math.floor(index / 5) + 1,
+          credits: moduleCredits(moduleName)
         })).filter((module) => !state.skippedModules.includes(module.titel));
       }
 
-      function addModuleToPlan(plan, semester, moduleName) {
-        plan.set(semester, [...(plan.get(semester) || []), moduleName]);
+      function createElectiveSlots(variantIndex = 0) {
+        const usedModuleNames = [];
+
+        return Array.from({ length: ELECTIVE_SLOT_COUNT }, (_, index) => {
+          const slotId = `wpm-${index + 1}`;
+          const selectionKey = `variant-${variantIndex + 1}-${slotId}`;
+          const autoSelectedModuleName = automaticElectiveModuleName(index, variantIndex, usedModuleNames);
+          const selectedModuleName = state.selectedElectives[selectionKey] || autoSelectedModuleName;
+          const selectedModule = selectedModuleName ? findModule(selectedModuleName) : null;
+
+          if (autoSelectedModuleName) {
+            usedModuleNames.push(autoSelectedModuleName);
+          }
+
+          return {
+            type: "elective-placeholder",
+            slotId,
+            selectionKey,
+            slotNumber: index + 1,
+            title: `Wahlpflichtmodul ${index + 1}`,
+            semester: ELECTIVE_START_SEMESTER + Math.floor(index / 2),
+            autoSelectedModuleName,
+            credits: Number(selectedModule?.credits) || EMPTY_ELECTIVE_CREDITS
+          };
+        });
+      }
+
+      function createCompletionItems() {
+        return COMPLETION_MODULE_IDS.map(findModuleByNumber).filter(Boolean).map((module) => ({
+          type: "module",
+          title: moduleTitle(module),
+          semester: completionSemester(),
+          credits: Number(module.credits) || EMPTY_ELECTIVE_CREDITS
+        }));
+      }
+
+      function isCompletionPlanItem(planItem) {
+        const module = findModule(plannedItemTitle(planItem));
+        return module ? isCompletionModuleNumber(module.nr) : false;
+      }
+
+      function ensureCompletionItems(plan) {
+        plan.forEach((planItems, semester) => {
+          plan.set(semester, planItems.filter((planItem) => !isCompletionPlanItem(planItem)));
+        });
+
+        if (!plan.has(completionSemester())) {
+          plan.set(completionSemester(), []);
+        }
+
+        createCompletionItems().forEach((planItem) => {
+          addModuleToPlan(plan, completionSemester(), planItem);
+        });
+
+        return plan;
+      }
+
+      function createApiElectiveItem(moduleId, fallbackIndex = 0, variantIndex = 0, usedModuleNames = []) {
+        const slotId = apiElectiveSlotId(moduleId, fallbackIndex);
+        const slotNumber = slotId.replace("wpm-", "");
+        const selectionKey = `variant-${variantIndex + 1}-${slotId}`;
+        const autoSelectedModuleName = automaticElectiveModuleName(fallbackIndex, variantIndex, usedModuleNames);
+        const selectedModuleName = state.selectedElectives[selectionKey] || autoSelectedModuleName;
+        const selectedModule = selectedModuleName ? findModule(selectedModuleName) : null;
+
+        if (autoSelectedModuleName) {
+          usedModuleNames.push(autoSelectedModuleName);
+        }
+
+        return {
+          type: "elective-placeholder",
+          slotId,
+          selectionKey,
+          slotNumber,
+          title: `Wahlpflichtmodul ${slotNumber}`,
+          semester: ELECTIVE_START_SEMESTER + Math.floor((Number(slotNumber) - 1) / 2),
+          autoSelectedModuleName,
+          credits: Number(selectedModule?.credits) || EMPTY_ELECTIVE_CREDITS
+        };
+      }
+
+      function createEmptyPlan() {
+        const plan = new Map();
+        const finalSemester = lastPlanSemester();
+
+        for (let semester = state.currentSemester; semester <= finalSemester; semester += 1) {
+          plan.set(semester, []);
+        }
+
+        return plan;
+      }
+
+      function planFromSemesterEntries(entries, variantIndex = 0) {
+        const plan = createEmptyPlan();
+        let electiveFallbackIndex = 0;
+        const usedElectiveModuleNames = [];
+
+        entries.forEach((entry) => {
+          const semester = Number(entry.semester);
+          const moduleIds = entry.moduleIds || [];
+
+          moduleIds.forEach((moduleId) => {
+            const moduleNumber = Number(moduleId);
+            let planItems = [];
+
+            if (moduleNumber === API_COMPLETION_MODULE_ID) {
+              planItems = createCompletionItems();
+            } else if (isApiElectiveId(moduleNumber)) {
+              planItems = [createApiElectiveItem(moduleNumber, electiveFallbackIndex, variantIndex, usedElectiveModuleNames)];
+              electiveFallbackIndex += 1;
+            } else {
+              const module = findModuleByNumber(moduleNumber);
+              if (module) {
+                planItems = [{
+                  type: "module",
+                  title: module.titel,
+                  semester: Number(module.semester) || semester,
+                  credits: Number(module.credits) || EMPTY_ELECTIVE_CREDITS
+                }];
+              }
+            }
+
+            planItems.forEach((planItem) => {
+              const targetSemester = Math.min(Math.max(semester, state.currentSemester), lastPlanSemester());
+              addModuleToPlan(plan, targetSemester, planItem);
+            });
+          });
+        });
+
+        return ensureCompletionItems(plan);
+      }
+
+      function numericValues(value) {
+        if (Number.isInteger(Number(value))) {
+          return [Number(value)];
+        }
+
+        if (!Array.isArray(value)) {
+          return [];
+        }
+
+        return value.map(Number).filter(Number.isInteger);
+      }
+
+      function entriesFromObjectSolution(solution) {
+        return Object.entries(solution)
+          .map(([semester, moduleIds]) => ({
+            semester: Number(semester),
+            moduleIds: numericValues(moduleIds)
+          }))
+          .filter((entry) => Number.isInteger(entry.semester) && entry.moduleIds.length > 0);
+      }
+
+      function entriesFromArraySolution(solution) {
+        return solution.flatMap((entry, index) => {
+          if (Array.isArray(entry)) {
+            return [{
+              semester: index + 1,
+              moduleIds: numericValues(entry)
+            }];
+          }
+
+          if (entry && typeof entry === "object") {
+            const semester = entry.semester ?? entry.semesterNummer ?? entry.nr ?? index + 1;
+            const moduleIds = entry.moduleIds
+              ?? entry.moduleIdsInSemester
+              ?? entry.module
+              ?? entry.moduleIdsProSemester
+              ?? entry.modules
+              ?? entry.moduleNummern
+              ?? entry.modulnummern
+              ?? entry.moduleNr
+              ?? entry.moduleNrs
+              ?? entry.modulIds
+              ?? [];
+
+            return [{
+              semester: Number(semester),
+              moduleIds: numericValues(moduleIds)
+            }];
+          }
+
+          return [];
+        }).filter((entry) => Number.isInteger(entry.semester) && entry.moduleIds.length > 0);
+      }
+
+      function semesterEntriesFromApiSolution(solution) {
+        if (Array.isArray(solution)) {
+          return entriesFromArraySolution(solution);
+        }
+
+        if (!solution || typeof solution !== "object") {
+          return [];
+        }
+
+        const directSemesterList = solution.semester
+          ?? solution.semesters
+          ?? solution.semesterListe
+          ?? solution.semesterPlan
+          ?? solution.plan
+          ?? solution.schedule
+          ?? solution.modulplan;
+
+        if (Array.isArray(directSemesterList)) {
+          return entriesFromArraySolution(directSemesterList);
+        }
+
+        const directMapping = solution.moduleProSemester
+          ?? solution.modulesBySemester
+          ?? solution.semesterModule
+          ?? solution.semesterModuleIds
+          ?? solution.semesterToModules;
+
+        if (directMapping && typeof directMapping === "object") {
+          return entriesFromObjectSolution(directMapping);
+        }
+
+        return entriesFromObjectSolution(solution);
+      }
+
+      function createPlanVariantFromApiSolution(solution, variantIndex = 0) {
+        const entries = semesterEntriesFromApiSolution(solution);
+
+        if (entries.length === 0) {
+          return null;
+        }
+
+        return planFromSemesterEntries(entries, variantIndex);
+      }
+
+      function addModuleToPlan(plan, semester, planItem) {
+        plan.set(semester, [...(plan.get(semester) || []), planItem]);
+      }
+
+      function semesterCreditTotal(plan, semester) {
+        return (plan.get(semester) || []).reduce((sum, planItem) => sum + plannedItemCredits(planItem), 0);
+      }
+
+      function findBestSemester(plan, preferredSemester, credits, options = {}) {
+        const targetCredits = planSetting().targetCredits;
+        const excludedSemesters = options.excludedSemesters || [];
+        const availableSemesters = [...plan.keys()].filter((semester) => !excludedSemesters.includes(semester));
+        const semesters = availableSemesters.length > 0 ? availableSemesters : [...plan.keys()];
+        const clampedPreferredSemester = Math.min(
+          Math.max(preferredSemester, state.currentSemester),
+          semesters[semesters.length - 1]
+        );
+        const orderedSemesters = [
+          ...semesters.filter((semester) => semester >= clampedPreferredSemester),
+          ...semesters.filter((semester) => semester < clampedPreferredSemester)
+        ];
+        const fittingSemester = orderedSemesters
+          .map((semester) => ({
+            semester,
+            creditsAfterAdd: semesterCreditTotal(plan, semester) + credits
+          }))
+          .filter((candidate) => candidate.creditsAfterAdd <= targetCredits)
+          .sort((a, b) => {
+            const fillDiff = b.creditsAfterAdd - a.creditsAfterAdd;
+            return fillDiff !== 0 ? fillDiff : a.semester - b.semester;
+          })[0];
+
+        if (fittingSemester) {
+          return fittingSemester.semester;
+        }
+
+        return orderedSemesters
+          .map((semester) => ({
+            semester,
+            creditsAfterAdd: semesterCreditTotal(plan, semester) + credits
+          }))
+          .sort((a, b) => {
+            const overflowDiff = a.creditsAfterAdd - b.creditsAfterAdd;
+            return overflowDiff !== 0 ? overflowDiff : a.semester - b.semester;
+          })[0].semester;
       }
 
       function createPlanVariant(variantIndex) {
-        const plan = new Map();
+        const plan = createEmptyPlan();
         const variantOffsets = [
           [0, 0, 0],
           [0, 1, 0],
@@ -807,34 +1341,108 @@
           const semesterDiff = (a.semester || 1) - (b.semester || 1);
           return semesterDiff !== 0 ? semesterDiff : a.titel.localeCompare(b.titel);
         });
+        const planItems = [
+          ...modules.map((module) => ({
+            type: "module",
+            title: module.titel,
+            semester: module.semester,
+            credits: module.credits
+          })),
+          ...createElectiveSlots(variantIndex)
+        ];
 
-        modules.forEach((module, moduleIndex) => {
+        planItems.forEach((planItem, moduleIndex) => {
           const semesterOffset = offsets[moduleIndex % offsets.length];
-          const preferredSemester = Math.max(state.currentSemester, module.semester || state.currentSemester);
-          const targetSemester = preferredSemester + semesterOffset;
-          const semesterModules = plan.get(targetSemester) || [];
-
-          if (semesterModules.length < moduleLimit() || semesterModules.length === 0) {
-            addModuleToPlan(plan, targetSemester, module.titel);
-          } else {
-            addModuleToPlan(plan, targetSemester + 1, module.titel);
-          }
+          const preferredSemester = Math.max(state.currentSemester, planItem.semester || state.currentSemester);
+          const targetSemester = findBestSemester(
+            plan,
+            preferredSemester + semesterOffset,
+            plannedItemCredits(planItem),
+            { excludedSemesters: [completionSemester()] }
+          );
+          addModuleToPlan(plan, targetSemester, planItem);
         });
 
-        if (state.selectedElectives.length > 0) {
-          const electiveSemester = Math.max(5, state.currentSemester);
-          state.selectedElectives
-            .filter((moduleName) => !state.skippedModules.includes(moduleName))
-            .forEach((moduleName) => addModuleToPlan(plan, electiveSemester, moduleName));
-        }
-
-        return plan;
+        return ensureCompletionItems(plan);
       }
 
-      function generatePlanVariants() {
-        readOptions();
+      function generateLocalPlanVariants() {
         state.planVariants = Array.from({ length: 5 }, (_, index) => createPlanVariant(index));
+        state.planSource = "local";
+      }
+
+      function apiPlanRequest() {
+        return {
+          geschwindigkeit: planSetting().speed,
+          schwerpunkt: focusApiCode(),
+          startJahreszeit: startApiCode(),
+          vorhandeneModule: [],
+          ausgeschlosseneModule: skippedModuleNumbers().slice(0, 3),
+          maxAnzahlLoesungen: 5,
+          faktorReihenfolge: 100,
+          faktorVorEmpf: 100
+        };
+      }
+
+      function apiSolutionsFromResponse(response) {
+        const solutions = response?.loesungen
+          ?? response?.lösungen
+          ?? response?.solutions
+          ?? response?.schedules
+          ?? response?.plaene
+          ?? response?.pläne
+          ?? response?.data
+          ?? [];
+
+        return Array.isArray(solutions) ? solutions : [solutions];
+      }
+
+      async function generateApiPlanVariants() {
+        if (!window.MPMProjekt?.api?.generiereStudienplan) {
+          throw new Error("Die Generator-API ist nicht eingebunden.");
+        }
+
+        const response = await Promise.race([
+          window.MPMProjekt.api.generiereStudienplan(apiPlanRequest()),
+          new Promise((_, reject) => {
+            window.setTimeout(() => {
+              reject(new Error("Der Generator hat nicht rechtzeitig geantwortet."));
+            }, GENERATOR_TIMEOUT_MS);
+          })
+        ]);
+        const apiPlans = apiSolutionsFromResponse(response)
+          .map((solution, index) => createPlanVariantFromApiSolution(solution, index))
+          .filter(Boolean);
+
+        if (apiPlans.length === 0) {
+          throw new Error("Der Generator hat keine auswertbare Planstruktur geliefert.");
+        }
+
+        state.planVariants = apiPlans;
+        state.planSource = "api";
+        state.planMessage = "Generator";
+      }
+
+      async function generatePlanVariants() {
+        readOptions();
         state.activePlanIndex = 0;
+
+        try {
+          await generateApiPlanVariants();
+        } catch (error) {
+          console.warn("[MPM] Generator konnte nicht genutzt werden. Lokaler Fallback wird verwendet.", error);
+          generateLocalPlanVariants();
+          state.planMessage = "lokaler Fallback, Generator nicht erreichbar";
+        }
+      }
+
+      function regeneratePlanPreservingVariant() {
+        const activePlanIndex = state.activePlanIndex;
+        if (state.planSource === "local") {
+          generateLocalPlanVariants();
+        }
+        state.activePlanIndex = Math.min(activePlanIndex, state.planVariants.length - 1);
+        renderPlan();
       }
 
       function renderPlanTabs() {
@@ -877,18 +1485,31 @@
         const activePlan = state.planVariants[state.activePlanIndex] || createPlanVariant(0);
         const semesterSections = [];
         const semesterNumbers = [...activePlan.keys()].sort((a, b) => a - b);
+        const openElectiveCount = semesterNumbers
+          .flatMap((semester) => activePlan.get(semester))
+          .filter(isOpenElectivePlaceholder).length;
+        const totalCredits = semesterNumbers
+          .reduce((sum, semester) => sum + semesterCreditTotal(activePlan, semester), 0);
+        const electiveStatus = openElectiveCount === 0
+          ? "alle Wahlpflichtmodule gewählt"
+          : openElectiveCount === 1 ? "1 Wahlpflichtmodul offen" : `${openElectiveCount} Wahlpflichtmodule offen`;
 
         semesterNumbers.forEach((semester) => {
           const section = document.createElement("section");
           const heading = document.createElement("h2");
           const list = document.createElement("ul");
+          const semesterCredits = semesterCreditTotal(activePlan, semester);
 
           section.className = "semester-section";
           list.className = "semester-modules";
-          heading.textContent = `${semester}. Semester`;
-          activePlan.get(semester).forEach((moduleName) => {
+          heading.textContent = `${semester}. Semester · ${semesterCredits} CrP`;
+          activePlan.get(semester).forEach((planItem) => {
             const item = document.createElement("li");
-            item.append(createModuleButton(moduleName));
+            item.append(
+              isElectivePlaceholder(planItem)
+                ? createElectivePlaceholderButton(planItem)
+                : createModuleButton(plannedItemTitle(planItem))
+            );
             list.append(item);
           });
 
@@ -898,7 +1519,20 @@
 
         renderPlanTabs();
         planContainer.replaceChildren(...semesterSections);
-        planSummary.textContent = `Variante ${state.activePlanIndex + 1}: ${state.focus}, ${state.start}start, ab ${state.currentSemester}. Semester, ${loadOutput.textContent}`;
+        planSummary.textContent = [
+          `Variante ${state.activePlanIndex + 1}: ${state.focus}`,
+          `${state.start}start`,
+          `ab ${state.currentSemester}. Semester`,
+          `${planSetting().semesterCount} Semester`,
+          `Ziel ${planSetting().targetCredits} CrP pro Semester`,
+          `${totalCredits} CrP gesamt`,
+          electiveStatus,
+          state.planSource === "api" ? "Plan aus Generator" : state.planMessage
+        ].filter(Boolean).join(", ");
+        printPlanButton.disabled = openElectiveCount > 0;
+        printPlanButton.title = openElectiveCount > 0
+          ? "Drucken ist erst möglich, wenn alle Wahlpflichtmodule gewählt wurden."
+          : "Semesterplan drucken";
       }
 
       function changePlan(nextIndex) {
@@ -927,7 +1561,7 @@
         const data = await window.MPMProjekt.ladeModuldaten();
         loadedModules = data.modules;
         electiveModules = loadedModules
-          .filter((module) => module.pflicht !== "Ja")
+          .filter(moduleAvailableAsElective)
           .map(moduleTitle);
       }
 
@@ -950,24 +1584,30 @@
       moduleFilterForm.addEventListener("change", renderModuleBrowser);
       document.querySelector("[data-reset-module-filters]").addEventListener("click", resetModuleFilters);
 
-      document.querySelector("[data-open-electives]").addEventListener("click", () => {
-        readOptions();
-        renderElectiveDialog();
-        electiveDialog.showModal();
-      });
+      document.querySelector("[data-open-electives]").addEventListener("click", async (event) => {
+        const generateButton = event.currentTarget;
+        const previousButtonText = generateButton.textContent;
 
-      document.querySelector("[data-create-plan]").addEventListener("click", () => {
-        const createPlan = () => {
-          generatePlanVariants();
+        generateButton.disabled = true;
+        generateButton.textContent = "Generiere...";
+
+        try {
+          await generatePlanVariants();
           renderPlan();
           showScreen("plan");
-        };
+        } finally {
+          generateButton.disabled = false;
+          generateButton.textContent = previousButtonText;
+        }
+      });
 
-        if (window.MPMAnimations?.closeDialog) {
-          window.MPMAnimations.closeDialog(electiveDialog, createPlan);
-        } else {
-          electiveDialog.close();
-          createPlan();
+      document.querySelector("[data-close-elective-dialog]").addEventListener("click", () => {
+        electiveDialog.close();
+      });
+
+      printPlanButton.addEventListener("click", () => {
+        if (!printPlanButton.disabled) {
+          window.print();
         }
       });
 
@@ -1043,7 +1683,8 @@
         renderModuleBrowser();
         renderSkippedModules();
         renderElectiveDialog();
-        generatePlanVariants();
+        readOptions();
+        generateLocalPlanVariants();
         renderPlan();
       }
 
@@ -1052,7 +1693,8 @@
         renderModuleBrowser();
         renderSkippedModules();
         renderElectiveDialog();
-        generatePlanVariants();
+        readOptions();
+        generateLocalPlanVariants();
         renderPlan();
       });
     </script>
