@@ -22,7 +22,7 @@
       "bonuspunkte": "Ja",
       "pflicht": "Ja",
       "voraussetzungenPflicht": null,
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/GDV1 pexels-jakeheinemann-2024-09-28.jpg",
       "pruefungsleistung": "Klausur"
     },
     {
@@ -46,7 +46,7 @@
       "bonuspunkte": "Ja",
       "pflicht": "Ja",
       "voraussetzungenPflicht": null,
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/MG-TB pexels-diva-plavalaguna-2021-02-24.jpg",
       "pruefungsleistung": "Lernportfolio"
     },
     {
@@ -71,7 +71,7 @@
       "pflicht": "Ja",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": "Grafische Datenverarbeitung: Modellierung (Besuch im selben Semester ist ausreichend.) und Softwareentwicklung (Besuch im selben Semester ist ausreichend.)",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/TIA pexels-gvenzl-2021-07-07.jpg",
       "pruefungsleistung": "Klausur"
     },
     {
@@ -96,7 +96,7 @@
       "pflicht": "Ja",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": null,
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/SOFT pexels-naboth-otieno-2024-01-09.jpg",
       "pruefungsleistung": "Projekt"
     },
     {
@@ -121,7 +121,7 @@
       "pflicht": "Ja",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": null,
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/FL pexels-diva-plavalaguna-2020-12-10.jpg",
       "pruefungsleistung": "Lernportfolio (unbenotet)"
     },
     {
@@ -146,7 +146,7 @@
       "pflicht": "Ja",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": null,
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/MG-BT pexels-ron-lach-2021-10-06.jpg",
       "pruefungsleistung": "Schriftliche Ausarbeitung"
     },
     {
@@ -171,7 +171,7 @@
       "pflicht": "Ja",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": "Mediengestaltung: Bewegtbild und Ton (Besuch im selben Semester ist ausreichend.)",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/MP-BT pexels-bertellifotografia-2025-08-31.jpg",
       "pruefungsleistung": "Projekt"
     },
     {
@@ -196,7 +196,7 @@
       "pflicht": "Ja",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": "Grafische Datenverarbeitung: Modellierung",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/GDV2 pexels-tiago-alves-2023-12-02.jpg",
       "pruefungsleistung": "Klausur"
     },
     {
@@ -219,7 +219,7 @@
       "schspezag": "Nein",
       "bonuspunkte": "Nein",
       "pflicht": "Ja",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/WEB pexels-fauxels-2019-11-05.jpg",
       "pruefungsleistung": "Projekt (50 %) + Klausur (50 %)"
     },
     {
@@ -244,7 +244,7 @@
       "pflicht": "Ja",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": "(bei Bedarf) Brückenkurs Mathematik",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/STAT pexels-yankrukov-2021-06-03.jpg",
       "pruefungsleistung": "Klausur"
     },
     {
@@ -269,7 +269,7 @@
       "pflicht": "Ja",
       "voraussetzungenPflicht": "\"Mediengestaltung: Bewegtbild und Ton\" und \"Medienproduktion: Bewegtbild und Ton\"",
       "voraussetzungenEmpfohlen": null,
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/SP-ST pexels-krispytea-2021-10-24.jpg",
       "pruefungsleistung": "Klausur (50 %) + Projekt (50 %)"
     },
     {
@@ -294,7 +294,7 @@
       "pflicht": "Ja",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": "Grafische Datenverarbeitung: Modellierung",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/GDV3 pexels-rd-2025-10-23.jpg",
       "pruefungsleistung": "Projekt"
     },
     {
@@ -319,7 +319,7 @@
       "pflicht": "Ja",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": null,
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/DB pexels-cookiecutter-2026-05-23.jpg",
       "pruefungsleistung": "Klausur"
     },
     {
@@ -344,7 +344,7 @@
       "pflicht": "Ja",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": "Web-Technologien und Statistik",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/CS pexels-ai25studioai-2020-09-29.jpg",
       "pruefungsleistung": "Klausur"
     },
     {
@@ -369,7 +369,7 @@
       "pflicht": "Ja",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": "Softwareentwicklung",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/SPE pexels-rdne-2021-05-16.jpg",
       "pruefungsleistung": "Klausur"
     },
     {
@@ -394,7 +394,7 @@
       "pflicht": "Ja",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": null,
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/BWL pexels-pavel-danilyuk-2021-07-15.jpg",
       "pruefungsleistung": "Projekt"
     },
     {
@@ -419,7 +419,7 @@
       "pflicht": "Ja",
       "voraussetzungenPflicht": "\"Mediengestaltung: Bewegtbild und Ton\" und \"Medienproduktion: Bewegtbild und Ton\"",
       "voraussetzungenEmpfohlen": null,
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/FP-FT pexels-kyleloftusstudios-2021-01-27.jpg",
       "pruefungsleistung": "Projekt"
     },
     {
@@ -444,7 +444,7 @@
       "pflicht": "Ja",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": "Softwareentwicklung",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/MA-G pexels-simonptr-2025-08-25.jpg",
       "pruefungsleistung": "Projekt"
     },
     {
@@ -469,7 +469,7 @@
       "pflicht": "Ja",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": "Die empfohlenen projektspezifischen Voraussetzungen werden zu Beginn der Veranstaltung bekannt gegeben.",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/MPM pexels-ai25studioai-2020-09-28.jpg",
       "pruefungsleistung": "Projekt"
     },
     {
@@ -494,7 +494,7 @@
       "pflicht": "Ja",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": "Eingangsniveau Englisch B1 gemäß GER",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/SEM pexels-bertellifotografia-2024-12-09.jpg",
       "pruefungsleistung": "Projekt"
     },
     {
@@ -519,7 +519,7 @@
       "pflicht": "Ja",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": null,
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/DMT pexels-pavel-danilyuk-2021-06-22.jpg",
       "pruefungsleistung": "Lernportfolio"
     },
     {
@@ -544,7 +544,7 @@
       "pflicht": "Ja",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": null,
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/LAW pexels-sora-shimazaki-2020-10-22.jpg",
       "pruefungsleistung": "Projekt"
     },
     {
@@ -569,7 +569,7 @@
       "pflicht": "Ja",
       "voraussetzungenPflicht": "\"Studiotechnik und Studioproduktion\"",
       "voraussetzungenEmpfohlen": null,
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/ORT pexels-followingnyc-2022-05-03.jpg",
       "pruefungsleistung": "Projekt"
     },
     {
@@ -592,7 +592,7 @@
       "schspezag": "Nein",
       "bonuspunkte": "Nein",
       "pflicht": "Ja",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/3DSPE pexels-pavel-danilyuk-2021-05-04.jpg",
       "pruefungsleistung": "Projekt"
     },
     {
@@ -617,7 +617,7 @@
       "pflicht": "Ja",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": "Web-Technologien",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/WF pexels-fauxels-2019-11-05.jpg",
       "pruefungsleistung": "Projekt"
     },
     {
@@ -642,7 +642,7 @@
       "pflicht": "Ja",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": "Softwareentwicklung",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/MA-SP pexels-rdne-2021-05-16.jpg",
       "pruefungsleistung": "Projekt"
     },
     {
@@ -665,7 +665,7 @@
       "schspezag": "Nein",
       "bonuspunkte": "Nein",
       "pflicht": "Nein",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/FL-BE pexels-hussein-altameemi-2021-08-30.jpg",
       "pruefungsleistung": "Lernportfolio"
     },
     {
@@ -690,7 +690,7 @@
       "pflicht": "Nein",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": "Einführung in die BWL",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/UGF pexels-a-darmel-2021-05-30.jpg",
       "pruefungsleistung": "Projekt oder Ausarbeitung"
     },
     {
@@ -715,7 +715,7 @@
       "pflicht": "Nein",
       "voraussetzungenPflicht": "Nachweis einer Stelle für eine Tutoring/Mentoring-Tätigkeit",
       "voraussetzungenEmpfohlen": "Besuch einer Informationsveranstaltung des ZekoLL zum Modul",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/TM pexels-thirdman-2020-10-20.jpg",
       "pruefungsleistung": "Lernportfolio"
     },
     {
@@ -740,7 +740,7 @@
       "pflicht": "Nein",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": "Grafische Datenverarbeitung: Modellierung",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/FM pexels-the-ghazi-2025-06-15.jpg",
       "pruefungsleistung": "Projekt"
     },
     {
@@ -765,7 +765,7 @@
       "pflicht": "Nein",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": "Grafische Datenverarbeitung: Animation",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/DE pexels-merlin-2023-04-29.jpg",
       "pruefungsleistung": "Projekt"
     },
     {
@@ -790,7 +790,7 @@
       "pflicht": "Nein",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": "Dynamik und Effekte",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/MD pexels-shubhamdhage-2026-06-02.jpg",
       "pruefungsleistung": "Projekt"
     },
     {
@@ -815,7 +815,7 @@
       "pflicht": "Nein",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": "Grafische Datenverarbeitung: Modellierung und Grafische Datenverarbeitung: Shading/Rendering",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/ISS pexels-aboodi-2023-03-30.jpg",
       "pruefungsleistung": "Projekt"
     },
     {
@@ -840,7 +840,7 @@
       "pflicht": "Nein",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": "Sicherer Umgang mit einer 3D-Software",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/FRR pexels-paulseling-2024-03-08.jpg",
       "pruefungsleistung": "Projekt"
     },
     {
@@ -863,7 +863,7 @@
       "schspezag": "Nein",
       "bonuspunkte": "Nein",
       "pflicht": "Nein",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/Z-ST pexels-ron-lach-2021-05-27.jpg",
       "pruefungsleistung": "Lernportfolio"
     },
     {
@@ -888,7 +888,7 @@
       "pflicht": "Nein",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": null,
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/FOTO pexels-klmnb-2023-12-23.jpg",
       "pruefungsleistung": "Lernportfolio"
     },
     {
@@ -913,7 +913,7 @@
       "pflicht": "Nein",
       "voraussetzungenPflicht": "\"Mediengestaltung: Bewegtbild und Ton\" und \"Medienproduktion: Bewegtbild und Ton\" und (\"Studiotechnik und Studioproduktion\" oder \"Filmtechnik und Filmproduktion\")",
       "voraussetzungenEmpfohlen": null,
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/SM pexels-shutter-speed-15406294.jpg",
       "pruefungsleistung": "Projekt"
     },
     {
@@ -938,7 +938,7 @@
       "pflicht": "Nein",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": null,
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/BT-TI pexels-juicemitapfelndrin-2025-02-04.jpg",
       "pruefungsleistung": "Lernportfolio"
     },
     {
@@ -963,7 +963,7 @@
       "pflicht": "Nein",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": "\"Filmtechnik und Filmproduktion\"",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/EMP pexels-jeancont-2021-01-23.jpg",
       "pruefungsleistung": "Projekt"
     },
     {
@@ -988,7 +988,7 @@
       "pflicht": "Nein",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": "Softwareentwicklung und Web-Technologien und Netzwerksicherheit",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/IOT pexels-fotios-photos-2023-04-13.jpg",
       "pruefungsleistung": "Projekt"
     },
     {
@@ -1013,7 +1013,7 @@
       "pflicht": "Nein",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": "Web-Technologien",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/FED pexels-zayed-hossain-2026-03-26.jpg",
       "pruefungsleistung": "Projekt"
     },
     {
@@ -1038,7 +1038,7 @@
       "pflicht": "Nein",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": "Web-Technologien",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/CMS pexels-lucasdc-2021-11-23.jpg",
       "pruefungsleistung": "Projekt"
     },
     {
@@ -1063,7 +1063,7 @@
       "pflicht": "Nein",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": null,
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/MA-PLE pexels-cottonbro-2020-08-11.jpg",
       "pruefungsleistung": "Projekt"
     },
     {
@@ -1088,7 +1088,7 @@
       "pflicht": "Nein",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": "Mobile Apps: Grundlagen",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/MA-FNE pexels-kadiremir-2025-03-13.jpg",
       "pruefungsleistung": "Projekt"
     },
     {
@@ -1113,7 +1113,7 @@
       "pflicht": "Nein",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": "Mobile Apps: Grundlagen",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/MA-PNSP pexels-karola-g-2021-05-12.jpg",
       "pruefungsleistung": "Projekt"
     },
     {
@@ -1138,7 +1138,7 @@
       "pflicht": "Nein",
       "voraussetzungenPflicht": null,
       "voraussetzungenEmpfohlen": "Web-Technologien und Mobile Apps: Grundlagen",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/AWMT pexels-divinetechygirl-2018-05-22.jpg",
       "pruefungsleistung": "Projekt"
     },
     {
@@ -1161,7 +1161,7 @@
       "schspezag": "Nein",
       "bonuspunkte": "Nein",
       "pflicht": "Nein",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/BT-EWAA pexels-dothanhyb-2020-10-05.jpg",
       "pruefungsleistung": "Projekt"
     },
     {
@@ -1186,7 +1186,7 @@
       "pflicht": "Ja",
       "voraussetzungenPflicht": "Praxisprojekt und Begleitstudien werden in der Regel im gleichen Semester gemeinsam absolviert, wobei die Informationsveranstaltungen vor Beginn des Praxisprojektes und die Präsentation über das eigene Praxisprojekt nach deren Durchführung stattfinden sollen. Die genauen (Zulassungs-)Regelungen sind in der Ordnung über die Berufspraktische Phase (Anlage 3 zur Prüfungsordnung) beschrieben. ",
       "voraussetzungenEmpfohlen": "alle Module der ersten fünf Semester",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/BPP pexels-karola-g-2021-05-12.jpg",
       "pruefungsleistung": "Ausarbeitung (80 %) + Präsentation (20 %)"
     },
     {
@@ -1211,7 +1211,7 @@
       "pflicht": "Ja",
       "voraussetzungenPflicht": "Siehe §7 (1) der fachspezifischen Bestimmungen.",
       "voraussetzungenEmpfohlen": "alle Module der ersten fünf Semester",
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/BACHELOR pexels-cottonbro-2020-08-24.jpg",
       "pruefungsleistung": "Bachelorarbeit"
     },
     {
@@ -1236,7 +1236,7 @@
       "pflicht": "Ja",
       "voraussetzungenPflicht": "Siehe §7 (1) der fachspezifischen Bestimmungen.",
       "voraussetzungenEmpfohlen": null,
-      "img": "",
+      "img": "Bilder/Stockimages Cropped/KOL pexels-pavel-danilyuk-2021-03-23.jpg",
       "pruefungsleistung": "Kolloquium"
     }
   ]

@@ -428,10 +428,10 @@
         }
 
         if (module?.nr) {
-          return `Bilder/module-${String(module.nr).padStart(2, "0")}.svg`;
+          return `Bilder/Temp/module-${String(module.nr).padStart(2, "0")}.svg`;
         }
 
-        return "Bilder/module-placeholder.svg";
+        return "Bilder/Temp/module-placeholder.svg";
       }
 
       function moduleFocusText(module) {
@@ -558,7 +558,7 @@
         image.loading = "lazy";
         image.decoding = "async";
         image.addEventListener("error", () => {
-          image.src = "Bilder/module-placeholder.svg";
+          image.src = "Bilder/Temp/module-placeholder.svg";
         }, { once: true });
 
         return image;
