@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Modulhandbuch Seiten-Struktur</title>
-  <link rel="stylesheet" href="CSS/style.css?v=study-plan-ui-2">
-  <link rel="stylesheet" href="CSS/study-plan.css?v=study-plan-ui-2">
+  <link rel="stylesheet" href="CSS/style.css?v=study-plan-ui-3">
+  <link rel="stylesheet" href="CSS/study-plan.css?v=study-plan-ui-3">
 
     <script src="./JS/lib/gsap/gsap.js" defer></script>
 
@@ -50,8 +50,6 @@
           <a class="button-secondary" href="schwerpunktwahl-info.html?v=navigation-menu-2">Schwerpunktwahl Info</a>
         </div>
       </section>
-
-      <div class="options-greyout" data-options-greyout hidden aria-hidden="true"></div>
 
       <section class="screen screen-options" data-screen="options" hidden>
         <div class="study-plan-workspace">
@@ -108,7 +106,7 @@
             </div>
           </aside>
 
-          <main class="study-plan-main">
+          <main class="study-plan-main" data-plan-visible="false">
             <section class="module-selection-panel">
               <div class="panel-heading">
                 <h2>Module auswählen</h2>
@@ -127,7 +125,7 @@
               <div class="plan-module-grid" data-plan-module-grid></div>
             </section>
 
-            <section class="generated-plan-panel">
+            <section class="generated-plan-panel" data-generated-plan-panel hidden>
               <div class="panel-heading">
                 <h2>Generierter Semesterplan</h2>
                 <p class="plan-summary" data-plan-summary>Medienproduktion, Sommerstart, ab 1. Semester, 7 Semester</p>
@@ -375,6 +373,7 @@
         moduleStatuses: {},
         planModuleFilter: "all",
         planModuleSearch: "",
+        planGenerated: false,
         selectedElectives: {},
         activeElectiveSlotId: null,
         activeElectiveSelectionKey: null,
@@ -408,6 +407,8 @@
       const planModuleSearch = document.querySelector("[data-plan-module-search]");
       const planModuleGrid = document.querySelector("[data-plan-module-grid]");
       const planModuleFilterButtons = document.querySelectorAll("[data-plan-module-filter]");
+      const studyPlanMain = document.querySelector(".study-plan-main");
+      const generatedPlanPanel = document.querySelector("[data-generated-plan-panel]");
       const moduleFilterForm = document.querySelector("[data-module-filter-form]");
       const moduleResults = document.querySelector("[data-module-results]");
       const moduleResultsSummary = document.querySelector("[data-module-results-summary]");
@@ -516,6 +517,10 @@
       }
 
       function plannedModuleIds() {
+        if (!state.planGenerated) {
+          return new Set();
+        }
+
         const activePlan = state.planVariants[state.activePlanIndex];
         if (!activePlan) {
           return new Set();
@@ -993,8 +998,11 @@
 
       function createPlanModuleCard(module, plannedIds = plannedModuleIds()) {
         const button = document.createElement("button");
+        const image = createModuleImage(module, "plan-module-image");
+        const content = document.createElement("span");
         const title = document.createElement("strong");
         const meta = document.createElement("span");
+        const stateLine = document.createElement("span");
         const category = document.createElement("span");
         const status = document.createElement("span");
         const currentStatus = moduleStatus(module);
@@ -1009,13 +1017,19 @@
         button.dataset.moduleId = String(module.nr);
         button.dataset.status = currentStatus;
         button.dataset.planned = String(planned);
+        content.className = "plan-module-card-content";
+        title.className = "plan-module-card-title";
+        meta.className = "plan-module-card-meta";
+        stateLine.className = "plan-module-card-state";
         title.textContent = moduleTitle(module);
         meta.textContent = `${module.credits} CrP | ${module.semester}. Semester`;
         category.textContent = planModuleCategoryText(module);
         status.textContent = planModuleStatusText(module, plannedIds);
         category.className = "plan-module-card-category";
         status.className = "plan-module-card-status";
-        button.append(title, meta, category, status);
+        stateLine.append(category, status);
+        content.append(title, meta, stateLine);
+        button.append(image, content);
         button.addEventListener("click", () => openModuleStatusDialog(module));
         return button;
       }
@@ -1066,7 +1080,11 @@
             }
           });
         }
-        regeneratePlanPreservingVariant();
+        if (state.planGenerated) {
+          regeneratePlanPreservingVariant();
+        } else {
+          renderPlanModuleSelection();
+        }
         renderPlanModuleSelection();
         renderElectiveDialog();
         moduleStatusDialog.close();
@@ -1892,12 +1910,27 @@
       }
 
       function regeneratePlanPreservingVariant() {
+        if (!state.planGenerated) {
+          renderPlanModuleSelection();
+          return;
+        }
+
         const activePlanIndex = state.activePlanIndex;
         if (state.planSource === "local") {
           generateLocalPlanVariants();
         }
         state.activePlanIndex = Math.min(activePlanIndex, state.planVariants.length - 1);
         renderPlan();
+      }
+
+      function updateGeneratedPlanVisibility() {
+        if (generatedPlanPanel) {
+          generatedPlanPanel.hidden = !state.planGenerated;
+        }
+
+        if (studyPlanMain) {
+          studyPlanMain.dataset.planVisible = String(state.planGenerated);
+        }
       }
 
       function renderPlanTabs() {
@@ -1937,6 +1970,21 @@
 
       function renderPlan() {
         readOptions();
+        updateGeneratedPlanVisibility();
+
+        if (!state.planGenerated) {
+          planTabs.replaceChildren();
+          planContainer.replaceChildren();
+          planSummary.textContent = "Der Semesterplan wird nach dem Generieren angezeigt.";
+          if (sidebarCreditSummary) {
+            sidebarCreditSummary.textContent = "210 CrP gesamt | Plan noch nicht generiert";
+          }
+          printPlanButton.disabled = true;
+          printPlanButton.title = "Drucken ist erst möglich, wenn ein Plan generiert wurde.";
+          renderPlanModuleSelection();
+          return;
+        }
+
         const activePlan = state.planVariants[state.activePlanIndex] || createPlanVariant(0);
         const semesterSections = [];
         const semesterNumbers = [...activePlan.keys()].sort((a, b) => a - b);
@@ -2103,13 +2151,21 @@
 
       loadInput.addEventListener("input", () => {
         readOptions();
-        generateLocalPlanVariants();
-        renderPlan();
+        if (state.planGenerated) {
+          generateLocalPlanVariants();
+          renderPlan();
+        } else {
+          renderPlanModuleSelection();
+        }
       });
       currentSemesterInput.addEventListener("change", () => {
         readOptions();
-        generateLocalPlanVariants();
-        renderPlan();
+        if (state.planGenerated) {
+          generateLocalPlanVariants();
+          renderPlan();
+        } else {
+          renderPlanModuleSelection();
+        }
       });
       moduleFilterForm?.addEventListener("input", renderModuleBrowser);
       moduleFilterForm?.addEventListener("change", renderModuleBrowser);
@@ -2141,6 +2197,7 @@
         generateButton.textContent = "Generiere...";
 
         try {
+          state.planGenerated = true;
           await generatePlanVariants();
           renderPlan();
           document.querySelector(".generated-plan-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -2233,8 +2290,8 @@
         renderSkippedModules();
         renderElectiveDialog();
         readOptions();
-        generateLocalPlanVariants();
-        renderPlan();
+        updateGeneratedPlanVisibility();
+        renderPlanModuleSelection();
         showScreen(initialScreenName());
       }
 
@@ -2244,8 +2301,8 @@
         renderSkippedModules();
         renderElectiveDialog();
         readOptions();
-        generateLocalPlanVariants();
-        renderPlan();
+        updateGeneratedPlanVisibility();
+        renderPlanModuleSelection();
         showScreen(initialScreenName());
       });
     </script>

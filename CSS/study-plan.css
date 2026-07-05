@@ -6,6 +6,10 @@
   text-align: left;
 }
 
+.options-greyout {
+  display: none !important;
+}
+
 .study-plan-workspace {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -126,19 +130,21 @@
 
 .plan-module-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 0.8rem;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 0.9rem;
   align-items: stretch;
 }
 
 .plan-module-card {
   display: grid;
-  gap: 0.55rem;
-  min-height: 10.25rem;
+  grid-template-rows: 8.5rem 1fr;
+  gap: 0;
+  min-height: 16rem;
+  overflow: hidden;
   border: 1px solid rgba(74, 92, 102, 0.16);
   border-radius: 0.125rem;
   background: #fff;
-  padding: 0.85rem;
+  padding: 0;
   text-align: left;
   color: #4a5c66;
   box-shadow: 0 8px 20px rgba(43, 61, 72, 0.1);
@@ -153,29 +159,42 @@
   outline: none;
 }
 
-.plan-module-card h3 {
+.plan-module-image {
+  width: 100%;
+  height: 100%;
+  background: #4a5c66;
+  object-fit: cover;
+}
+
+.plan-module-card-content {
+  display: grid;
+  gap: 0.55rem;
+  align-content: start;
+  padding: 0.85rem;
+}
+
+.plan-module-card-title {
   font-size: 1rem;
   font-weight: 800;
   line-height: 1.2;
   overflow-wrap: anywhere;
 }
 
-.plan-module-card p {
+.plan-module-card-meta {
   font-size: 0.78rem;
   font-weight: 700;
   line-height: 1.35;
   color: rgba(74, 92, 102, 0.78);
 }
 
-.plan-module-meta,
-.plan-module-state {
+.plan-module-card-state {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
 }
 
-.plan-module-meta span,
-.plan-module-state span {
+.plan-module-card-category,
+.plan-module-card-status {
   border-radius: 0.125rem;
   background: rgba(128, 186, 36, 0.14);
   padding: 0.2rem 0.4rem;
@@ -193,11 +212,16 @@
   color: rgba(74, 92, 102, 0.62);
 }
 
-.plan-module-card[data-status="excluded"] h3 {
+.plan-module-card[data-status="excluded"] .plan-module-image {
+  filter: grayscale(100%);
+  opacity: 0.55;
+}
+
+.plan-module-card[data-status="excluded"] .plan-module-card-title {
   text-decoration: line-through;
 }
 
-.plan-module-card[data-planned="true"] .plan-module-state span:last-child {
+.plan-module-card[data-planned="true"] .plan-module-card-status {
   background: rgba(74, 92, 102, 0.14);
 }
 
@@ -235,6 +259,11 @@
 
 .module-status-dialog {
   width: min(92vw, 32rem);
+  --dialog-backdrop-opacity: 0;
+}
+
+.module-status-dialog::backdrop {
+  background: transparent;
 }
 
 .module-status-actions {
@@ -287,6 +316,10 @@
   .study-plan-main {
     grid-template-columns: minmax(0, 1.05fr) minmax(22rem, 0.95fr);
     align-items: start;
+  }
+
+  .study-plan-main[data-plan-visible="false"] {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
