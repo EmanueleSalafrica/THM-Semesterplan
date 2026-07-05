@@ -47,6 +47,17 @@ function semesterItems(result, semesterNumber) {
   return result.semesters.find((semester) => semester.semesterNumber === semesterNumber)?.modules || [];
 }
 
+function electiveSlotsInSemester(result, semesterNumber) {
+  return semesterItems(result, semesterNumber).filter((item) => item.type === "elective-slot");
+}
+
+function earliestElectiveSemester(result) {
+  return result.semesters
+    .filter((semester) => semester.modules.some((item) => item.type === "elective-slot"))
+    .map((semester) => semester.semesterNumber)
+    .sort((a, b) => a - b)[0] || null;
+}
+
 function selectedSlotsFromOpenPlan(result) {
   const used = new Set();
   return flatten(result)
@@ -72,11 +83,40 @@ function selectedSlotsFromOpenPlan(result) {
 
 {
   const result = plan({ startTerm: "summer", targetSemesterCount: 7 });
-  assert.deepEqual(semesterCredits(result), [30, 30, 30, 30, 30, 30, 30], "Die Regelstudienzeit muss als normaler 7-Semester-Ablauf mit 30 CrP pro Semester geplant werden.");
+  assert.equal(result.creditSummary.totalAfterPlanCrp, 210, "Die Regelstudienzeit muss weiterhin auf 210 CrP kommen.");
   assert.deepEqual(semesterItems(result, 7).map((item) => Number(item.nr)), [27, 28, 29], "Im 7. Semester müssen Berufspraktische Phase, Bachelorarbeit und Kolloquium liegen.");
-  assert.ok(semesterItems(result, 3).some((item) => item.id === "oppositeTrackChoice-1"), "Ein Modul aus dem anderen Schwerpunkt muss schon im 3. Semester auswählbar sein.");
+  assert.equal(electiveSlotsInSemester(result, 3).length, 0, "Im 3. Semester dürfen keine Wahlpflicht-Slots angezeigt werden.");
+  assert.equal(electiveSlotsInSemester(result, 4).length, 0, "Im 4. Semester dürfen keine Wahlpflicht-Slots angezeigt werden.");
   assert.ok(semesterItems(result, 5).some((item) => item.id === "trackElective-1"), "Ein Schwerpunkt-Wahlpflichtslot muss schon im 5. Semester auswählbar sein.");
-  assert.equal(semesterItems(result, 6).filter((item) => item.type === "elective-slot").length, 5, "Im 6. Semester dürfen Wahlpflichtslots liegen, aber nicht alle Wahlpflichtbereiche in ein 60-CrP-Semester gedrückt werden.");
+  assert.equal(earliestElectiveSemester(result), 5, "Wahlpflicht-Slots dürfen frühestens ab Semester 5 erscheinen.");
+}
+
+{
+  const result = plan({ currentSemester: 1 });
+  assert.equal(electiveSlotsInSemester(result, 1).length, 0);
+  assert.equal(electiveSlotsInSemester(result, 2).length, 0);
+  assert.equal(electiveSlotsInSemester(result, 3).length, 0);
+  assert.equal(electiveSlotsInSemester(result, 4).length, 0);
+  assert.equal(earliestElectiveSemester(result), 5);
+}
+
+{
+  const result = plan({ currentSemester: 3, passedModuleIds: idsBySemester(1, 2) });
+  assert.ok(result.semesters.every((semester) => semester.semesterNumber >= 3), "Vergangene Semester dürfen nicht angezeigt werden.");
+  assert.equal(electiveSlotsInSemester(result, 3).length, 0, "currentSemester=3 darf keine Wahlpflicht-Slots in Semester 3 anzeigen.");
+  assert.equal(electiveSlotsInSemester(result, 4).length, 0, "currentSemester=3 darf keine Wahlpflicht-Slots in Semester 4 anzeigen.");
+  assert.equal(earliestElectiveSemester(result), 5, "Wahlpflicht bleibt erst ab Semester 5 sichtbar.");
+}
+
+{
+  const result = plan({ currentSemester: 4, passedModuleIds: idsBySemester(1, 3) });
+  assert.equal(electiveSlotsInSemester(result, 4).length, 0, "currentSemester=4 darf keine Wahlpflicht-Slots in Semester 4 anzeigen.");
+  assert.equal(earliestElectiveSemester(result), 5, "Wahlpflicht erscheint frühestens im 5. Semester.");
+}
+
+{
+  const result = plan({ currentSemester: 5, passedModuleIds: idsBySemester(1, 4) });
+  assert.ok(electiveSlotsInSemester(result, 5).length > 0, "currentSemester=5 darf offene Wahlpflicht-Slots anzeigen.");
 }
 
 {
@@ -176,6 +216,19 @@ function selectedSlotsFromOpenPlan(result) {
   assert.ok(result.semesters.length > 0);
   assert.ok(result.semesters.at(-1).semesterNumber <= 9, "Der 9-Semester-Plan darf maximal bis Semester 9 gehen.");
   assert.ok(result.semesters.every((semester) => semester.modules.length > 0), "Es dürfen keine leeren Semester gerendert werden.");
+  assert.equal(electiveSlotsInSemester(result, 3).length, 0, "Auch im 9-Semester-Plan dürfen keine Wahlpflicht-Slots in Semester 3 liegen.");
+  assert.equal(electiveSlotsInSemester(result, 4).length, 0, "Auch im 9-Semester-Plan dürfen keine Wahlpflicht-Slots in Semester 4 liegen.");
+  assert.ok(result.semesters
+    .filter((semester) => semester.modules.some((item) => item.type === "elective-slot"))
+    .every((semester) => semester.semesterNumber >= 5 && semester.semesterNumber <= 9), "Wahlpflicht-Slots dürfen nur auf Semester 5 bis 9 verteilt werden.");
+}
+
+{
+  const fulfilledElectiveIds = [13, 14, 30, 31, 32, 33, 34, 35, 36];
+  const result = plan({ passedModuleIds: fulfilledElectiveIds });
+  const slots = flatten(result).filter((item) => item.type === "elective-slot");
+
+  assert.equal(slots.length, 0, "Wenn Wahlpflicht-CrP schon erfüllt sind, dürfen keine Wahlpflicht-Slots mehr erscheinen.");
 }
 
 {

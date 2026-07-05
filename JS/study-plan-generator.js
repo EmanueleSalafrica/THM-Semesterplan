@@ -6,6 +6,7 @@
   const TRACK_ELECTIVE_CRP = 24;
   const GENERAL_ELECTIVE_CRP = 12;
   const UNIVERSITY_ELECTIVE_CRP = 6;
+  const MIN_ELECTIVE_SEMESTER = 5;
   const ADVANCED_GATE_CRP = 18;
   const FOUNDATION_GATE_CRP = 60;
   const DEFAULT_TARGET_CREDITS = {
@@ -145,7 +146,7 @@
 
   function preferredElectiveSlotSemester(category, index) {
     if (category === "oppositeTrackChoice") {
-      return index === 0 ? 3 : 5;
+      return MIN_ELECTIVE_SEMESTER;
     }
 
     if (category === "trackElective") {
@@ -161,6 +162,11 @@
     }
 
     return 6;
+  }
+
+  function isElectiveSlotEligibleForSemester(slot, semesterNumber, currentSemester) {
+    const effectiveSemester = Math.max(semesterNumber, currentSemester);
+    return effectiveSemester >= MIN_ELECTIVE_SEMESTER;
   }
 
   function categorizeModule(module, track) {
@@ -471,7 +477,7 @@
 
   function bestSemesterForItem(item, semesters, studentState, plannedItems, variant = "standard") {
     let preferred = item.type === "elective-slot"
-      ? Math.max(item.semesterNumber, studentState.currentSemester)
+      ? Math.max(item.semesterNumber, studentState.currentSemester, MIN_ELECTIVE_SEMESTER)
       : Math.max(moduleSemester(item), studentState.currentSemester);
     if (item.type !== "elective-slot" && isColloquium(item)) {
       const thesisItem = plannedItems.find((plannedItem) => moduleId(plannedItem) === 28);
@@ -481,7 +487,7 @@
     }
     const candidates = semesters.filter((semester) => semester.semesterNumber >= preferred);
     const eligibleCandidates = item.type === "elective-slot"
-      ? candidates
+      ? candidates.filter((semester) => isElectiveSlotEligibleForSemester(item, semester.semesterNumber, studentState.currentSemester))
       : candidates.filter((semester) => isModuleEligible(item, studentState, plannedItems, semester));
 
     if (eligibleCandidates.length === 0) {
@@ -638,6 +644,8 @@
       isGeneralElective,
       isUniversityElective,
       isCompletionModule,
+      isElectiveSlotEligibleForSemester,
+      MIN_ELECTIVE_SEMESTER,
       itemCredits
     }
   };
