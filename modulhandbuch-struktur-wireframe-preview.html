@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Modulhandbuch Seiten-Struktur</title>
-  <link rel="stylesheet" href="CSS/style.css?v=study-plan-ui-6">
-  <link rel="stylesheet" href="CSS/study-plan.css?v=study-plan-ui-6">
+  <link rel="stylesheet" href="CSS/style.css?v=study-plan-ui-9">
+  <link rel="stylesheet" href="CSS/study-plan.css?v=study-plan-ui-9">
 
     <script src="./JS/lib/gsap/gsap.js" defer></script>
 
@@ -432,6 +432,7 @@
           showFocusOverview();
         }
         updateAppMenuVisibility(screenName);
+        updateAppMenuCurrent(screenName);
         window.scrollTo(0, 0);
         document.dispatchEvent(new CustomEvent("mpm:screen-change", {
           detail: { screenName }
@@ -1093,10 +1094,24 @@
         });
       }
 
+      function clearActivePlanModuleCard() {
+        planModuleGrid?.querySelectorAll("[data-active]").forEach((card) => {
+          card.removeAttribute("data-active");
+        });
+      }
+
+      function setActivePlanModuleCard(module) {
+        clearActivePlanModuleCard();
+        planModuleGrid
+          ?.querySelector(`[data-module-id="${Number(module.nr)}"]`)
+          ?.setAttribute("data-active", "true");
+      }
+
       function openModuleStatusDialog(module) {
         moduleStatusDialog.dataset.moduleId = String(module.nr);
+        setActivePlanModuleCard(module);
         moduleStatusTitle.textContent = moduleTitle(module);
-        moduleStatusMeta.textContent = `${module.credits} CrP | ${planModuleCategoryText(module)} | ${module.semester}. Semester`;
+        moduleStatusMeta.textContent = `${module.credits} CrP | ${planModuleCategoryText(module)} | ${module.semester}. Semester | aktuell: ${planModuleStatusText(module)}`;
         moduleStatusWarning.hidden = true;
         moduleStatusWarning.textContent = "";
         moduleStatusDialog.showModal();
@@ -2232,6 +2247,16 @@
         }
       }
 
+      function updateAppMenuCurrent(screenName) {
+        appMenuPanel?.querySelectorAll("[data-screen-link]").forEach((menuItem) => {
+          if (menuItem.dataset.screenLink === screenName) {
+            menuItem.setAttribute("aria-current", "page");
+          } else {
+            menuItem.removeAttribute("aria-current");
+          }
+        });
+      }
+
       function initialScreenName() {
         const screenName = new URLSearchParams(window.location.search).get("screen") || window.location.hash.replace("#", "");
         const allowedScreens = ["start", "modules", "options", "plan"];
@@ -2313,6 +2338,8 @@
           }
         });
       });
+      moduleStatusDialog?.addEventListener("close", clearActivePlanModuleCard);
+      moduleStatusDialog?.addEventListener("cancel", clearActivePlanModuleCard);
 
       document.querySelector("[data-open-electives]").addEventListener("click", async (event) => {
         const generateButton = event.currentTarget;
