@@ -5,7 +5,8 @@
   "scripts": {
     "dev:css": "tailwindcss -i ./CSS/tailwind.css -o ./CSS/style.css --watch",
     "build:css": "tailwindcss -i ./CSS/tailwind.css -o ./CSS/style.css --minify",
-    "build": "npm run build:css"
+    "build": "npm run build:css",
+    "test:study-plan": "node ./tests/study-plan-generator.test.js"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.21",

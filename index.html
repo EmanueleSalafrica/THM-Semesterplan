@@ -226,6 +226,7 @@
 
     <script src="JS/api-client.js"></script>
     <script src="JS/data-loader.js"></script>
+    <script src="JS/study-plan-generator.js?v=po2024-plan-2"></script>
     <script>
       const planTemplates = {
         "Medienproduktion": [
@@ -331,10 +332,13 @@
         activeElectiveSlotId: null,
         activeElectiveSelectionKey: null,
         activeElectiveSlotNumber: null,
+        activeAllowedModuleIds: [],
+        activeElectiveCategory: "",
         activePlanIndex: 0,
         planVariants: [],
         planSource: "local",
-        planMessage: ""
+        planMessage: "",
+        creditSummary: null
       };
       const moduleFilterState = {
         query: "",
@@ -469,10 +473,10 @@
 
       function plannedItemCredits(planItem) {
         if (isElectivePlaceholder(planItem)) {
-          return moduleCredits(selectedElectiveModuleName(planItem)) || EMPTY_ELECTIVE_CREDITS;
+          return Number(planItem?.credits) || Number(planItem?.crp) || moduleCredits(selectedElectiveModuleName(planItem)) || EMPTY_ELECTIVE_CREDITS;
         }
 
-        return Number(planItem?.credits) || moduleCredits(planItem?.title || planItem);
+        return Number(planItem?.credits) || Number(planItem?.crp) || moduleCredits(planItem?.title || planItem);
       }
 
       function plannedItemTitle(planItem) {
@@ -488,7 +492,16 @@
       }
 
       function selectedElectiveModuleName(planItem) {
-        return state.selectedElectives[electiveSelectionKey(planItem)] || planItem?.autoSelectedModuleName || "";
+        const selectedName = state.selectedElectives[electiveSelectionKey(planItem)];
+        if (selectedName) {
+          return selectedName;
+        }
+
+        if (planItem?.selectedModuleId) {
+          return moduleTitle(findModuleByNumber(planItem.selectedModuleId));
+        }
+
+        return planItem?.autoSelectedModuleName || "";
       }
 
       function moduleImagePath(moduleOrName) {
@@ -877,6 +890,8 @@
         state.activeElectiveSlotId = planItem.slotId;
         state.activeElectiveSelectionKey = electiveSelectionKey(planItem);
         state.activeElectiveSlotNumber = planItem.slotNumber || planItem.slotId.replace("wpm-", "");
+        state.activeAllowedModuleIds = planItem.allowedModuleIds || planItem.allowedModules || [];
+        state.activeElectiveCategory = planItem.category || "";
         renderElectiveDialog();
         electiveDialog.showModal();
       }
@@ -1043,7 +1058,7 @@
       }
 
       function syncSelectedElectivesWithFocus() {
-        const availableModules = new Set(availableElectiveModuleNames());
+        const availableModules = new Set(selectableModuleNames());
 
         Object.entries(state.selectedElectives).forEach(([slotId, moduleName]) => {
           if (!availableModules.has(moduleName)) {
@@ -1057,6 +1072,9 @@
         const activeSlotId = state.activeElectiveSlotId;
         const activeSelectionKey = state.activeElectiveSelectionKey;
         const activeSlotNumber = state.activeElectiveSlotNumber || (activeSlotId ? activeSlotId.replace("wpm-", "") : "");
+        const allowedModules = state.activeAllowedModuleIds.length > 0
+          ? state.activeAllowedModuleIds.map(findModuleByNumber).filter(Boolean).map(moduleTitle)
+          : availableElectiveModuleNames();
         const selectedForActiveSlot = activePlanElectiveSelections()
           .find((selection) => selection.selectionKey === activeSelectionKey)?.moduleName || "";
 
@@ -1065,7 +1083,7 @@
           : "Wähle ein Modul für den Platzhalter im Semesterplan.";
 
         list.replaceChildren(
-          ...availableElectiveModuleNames().map((moduleName) => {
+          ...allowedModules.map((moduleName) => {
             const item = document.createElement("article");
             const chooseButton = document.createElement("button");
             const selectedInOtherSlot = activePlanElectiveSelections()
@@ -1437,8 +1455,114 @@
         return ensureCompletionItems(plan);
       }
 
+      function moduleIdsFromNames(moduleNames) {
+        return moduleNames
+          .map(findModule)
+          .filter(Boolean)
+          .map((module) => Number(module.nr));
+      }
+
+      function selectedElectiveModuleIds() {
+        return moduleIdsFromNames(Object.values(state.selectedElectives).filter(Boolean));
+      }
+
+      function categoryFromSlotId(slotId) {
+        return String(slotId || "").replace(/-\d+$/, "");
+      }
+
+      function selectedElectiveSlotsForGenerator() {
+        return Object.entries(state.selectedElectives)
+          .map(([slotId, moduleName]) => {
+            const module = findModule(moduleName);
+            if (!module) {
+              return null;
+            }
+
+            return {
+              id: slotId,
+              category: categoryFromSlotId(slotId),
+              selectedModuleId: Number(module.nr)
+            };
+          })
+          .filter(Boolean);
+      }
+
+      function studyTrackId() {
+        return state.focus === "Medienproduktion" ? "medienproduktion" : "web-mobile";
+      }
+
+      function studyStartTermId() {
+        return state.start === "Sommer" ? "summer" : "winter";
+      }
+
+      function planItemFromModule(module) {
+        if (module?.type === "elective-slot") {
+          return {
+            type: "elective-placeholder",
+            slotId: module.id,
+            selectionKey: module.id,
+            slotNumber: module.id,
+            title: module.label,
+            category: module.category,
+            allowedModuleIds: module.allowedModules || [],
+            selectedModuleId: module.selectedModuleId,
+            status: module.status,
+            semester: Number(module.semesterNumber) || state.currentSemester,
+            credits: Number(module.crp) || EMPTY_ELECTIVE_CREDITS
+          };
+        }
+
+        return {
+          type: "module",
+          moduleId: Number(module.nr),
+          title: moduleTitle(module),
+          semester: Number(module.semester) || state.currentSemester,
+          credits: Number(module.credits) || EMPTY_ELECTIVE_CREDITS
+        };
+      }
+
+      function planMapFromGeneratedSemesters(semesters) {
+        const plan = new Map();
+
+        semesters.forEach((semester) => {
+          plan.set(
+            semester.semesterNumber,
+            semester.modules.map(planItemFromModule)
+          );
+        });
+
+        return plan;
+      }
+
+      function generateStudyPlanVariant() {
+        if (!window.MPMStudyPlan?.generateStudyPlan || loadedModules.length === 0) {
+          return null;
+        }
+
+        const passedModuleIds = moduleIdsFromNames(state.skippedModules);
+        const result = window.MPMStudyPlan.generateStudyPlan({
+          modules: loadedModules,
+          selectedTrack: studyTrackId(),
+          currentSemester: state.currentSemester,
+          startTerm: studyStartTermId(),
+          targetSemesterCount: planSetting().semesterCount,
+          passedModuleIds,
+          excludedModuleIds: [],
+          selectedOppositeTrackModules: [],
+          selectedElectives: selectedElectiveModuleIds(),
+          selectedElectiveSlots: selectedElectiveSlotsForGenerator()
+        });
+
+        state.creditSummary = result.creditSummary || null;
+        state.planMessage = result.message || "PO 2024 Generator";
+        return planMapFromGeneratedSemesters(result.semesters);
+      }
+
       function generateLocalPlanVariants() {
-        state.planVariants = Array.from({ length: 5 }, (_, index) => createPlanVariant(index));
+        const generatedPlan = generateStudyPlanVariant();
+        state.planVariants = generatedPlan
+          ? [generatedPlan]
+          : Array.from({ length: 5 }, (_, index) => createPlanVariant(index));
         state.planSource = "local";
       }
 
@@ -1497,14 +1621,7 @@
       async function generatePlanVariants() {
         readOptions();
         state.activePlanIndex = 0;
-
-        try {
-          await generateApiPlanVariants();
-        } catch (error) {
-          console.warn("[MPM] Generator konnte nicht genutzt werden. Lokaler Fallback wird verwendet.", error);
-          generateLocalPlanVariants();
-          state.planMessage = "lokaler Fallback, Generator nicht erreichbar";
-        }
+        generateLocalPlanVariants();
       }
 
       function regeneratePlanPreservingVariant() {
@@ -1561,6 +1678,7 @@
           .filter(isOpenElectivePlaceholder).length;
         const totalCredits = semesterNumbers
           .reduce((sum, semester) => sum + semesterCreditTotal(activePlan, semester), 0);
+        const creditSummary = state.creditSummary;
         const electiveStatus = openElectiveCount === 0
           ? "alle Wahlpflichtmodule gewählt"
           : openElectiveCount === 1 ? "1 Wahlpflichtmodul offen" : `${openElectiveCount} Wahlpflichtmodule offen`;
@@ -1589,20 +1707,30 @@
         });
 
         renderPlanTabs();
-        planContainer.replaceChildren(...semesterSections);
+        if (semesterSections.length === 0) {
+          const emptyState = document.createElement("p");
+          emptyState.className = "module-browser-empty";
+          emptyState.textContent = state.planMessage || "Alle Anforderungen erfüllt";
+          planContainer.replaceChildren(emptyState);
+        } else {
+          planContainer.replaceChildren(...semesterSections);
+        }
         planSummary.textContent = [
           `Variante ${state.activePlanIndex + 1}: ${state.focus}`,
           `${state.start}start`,
           `ab ${state.currentSemester}. Semester`,
           `${planSetting().semesterCount} Semester`,
-          `Ziel ${planSetting().targetCredits} CrP pro Semester`,
-          `${totalCredits} CrP gesamt`,
+          creditSummary ? `bereits bestanden: ${creditSummary.alreadyPassedCrp} CrP` : "",
+          creditSummary ? `noch geplant: ${creditSummary.plannedRemainingCrp} CrP` : `${totalCredits} CrP gesamt`,
+          creditSummary ? `gesamt nach Plan: ${creditSummary.totalAfterPlanCrp}/${creditSummary.totalRequiredCrp} CrP` : "",
+          creditSummary && creditSummary.missingAfterPlanCrp > 0 ? `fehlend: ${creditSummary.missingAfterPlanCrp} CrP` : "",
           electiveStatus,
           state.planSource === "api" ? "Plan aus Generator" : state.planMessage
         ].filter(Boolean).join(", ");
-        printPlanButton.disabled = openElectiveCount > 0;
+        printPlanButton.disabled = openElectiveCount > 0 || semesterSections.length === 0;
         printPlanButton.title = openElectiveCount > 0
           ? "Drucken ist erst möglich, wenn alle Wahlpflichtmodule gewählt wurden."
+          : semesterSections.length === 0 ? "Drucken ist erst möglich, wenn ein Plan generiert wurde."
           : "Semesterplan drucken";
       }
 
