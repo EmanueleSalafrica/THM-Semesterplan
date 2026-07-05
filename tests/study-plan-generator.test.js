@@ -84,11 +84,21 @@ function selectedSlotsFromOpenPlan(result) {
 {
   const result = plan({ startTerm: "summer", targetSemesterCount: 7 });
   assert.equal(result.creditSummary.totalAfterPlanCrp, 210, "Die Regelstudienzeit muss weiterhin auf 210 CrP kommen.");
-  assert.deepEqual(semesterItems(result, 7).map((item) => Number(item.nr)), [27, 28, 29], "Im 7. Semester müssen Berufspraktische Phase, Bachelorarbeit und Kolloquium liegen.");
+  assert.deepEqual(
+    semesterItems(result, 7).map((item) => Number(item.nr)).filter(Number.isInteger),
+    [27, 28, 29],
+    "Im 7. Semester müssen Berufspraktische Phase, Bachelorarbeit und Kolloquium liegen."
+  );
   assert.equal(electiveSlotsInSemester(result, 3).length, 0, "Im 3. Semester dürfen keine Wahlpflicht-Slots angezeigt werden.");
   assert.equal(electiveSlotsInSemester(result, 4).length, 0, "Im 4. Semester dürfen keine Wahlpflicht-Slots angezeigt werden.");
   assert.ok(semesterItems(result, 5).some((item) => item.id === "trackElective-1"), "Ein Schwerpunkt-Wahlpflichtslot muss schon im 5. Semester auswählbar sein.");
   assert.equal(earliestElectiveSemester(result), 5, "Wahlpflicht-Slots dürfen frühestens ab Semester 5 erscheinen.");
+  assert.notEqual(semesterItems(result, 5).length, 6, "Semester 5 darf nicht starr auf genau 6 Karten geplant werden.");
+  assert.ok(semesterItems(result, 5).length >= 4 && semesterItems(result, 5).length <= 5, "Semester 5 darf je nach CrP-Belastung 4 oder 5 Karten enthalten.");
+  assert.ok(semesterItems(result, 5).reduce((sum, item) => sum + generator._internals.itemCredits(item), 0) >= 24);
+  assert.ok(semesterItems(result, 5).reduce((sum, item) => sum + generator._internals.itemCredits(item), 0) <= 36);
+  assert.equal(semesterItems(result, 3).length, 4, "Mit einem 9-CrP-Modul darf ein Semester auch weniger als 5 Module enthalten.");
+  assert.ok(semesterItems(result, 2).some((item) => Number(item.credits) === 3), "Mehrere 3-CrP-Module dürfen eine höhere Modulanzahl ergeben.");
 }
 
 {

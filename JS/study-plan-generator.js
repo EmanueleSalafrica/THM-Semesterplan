@@ -6,6 +6,8 @@
   const TRACK_ELECTIVE_CRP = 24;
   const GENERAL_ELECTIVE_CRP = 12;
   const UNIVERSITY_ELECTIVE_CRP = 6;
+  const DEFAULT_TARGET_CRP_PER_SEMESTER = 30;
+  const MAX_CRP_PER_SEMESTER = 36;
   const MIN_ELECTIVE_SEMESTER = 5;
   const ADVANCED_GATE_CRP = 18;
   const FOUNDATION_GATE_CRP = 60;
@@ -468,6 +470,43 @@
     return item.type === "elective-slot" ? Number(item.crp) || 6 : moduleCredits(item);
   }
 
+  function semesterLoadScore(semester, item, targetCredits) {
+    const creditsAfterAdd = semester.totalCrp + itemCredits(item);
+    const target = Number(targetCredits) || DEFAULT_TARGET_CRP_PER_SEMESTER;
+    const overMaxPenalty = creditsAfterAdd > MAX_CRP_PER_SEMESTER ? 1000 + creditsAfterAdd - MAX_CRP_PER_SEMESTER : 0;
+    const targetPenalty = creditsAfterAdd > target ? 100 + creditsAfterAdd - target : target - creditsAfterAdd;
+
+    return {
+      creditsAfterAdd,
+      overMaxPenalty,
+      targetPenalty,
+      isUnderTarget: creditsAfterAdd <= target
+    };
+  }
+
+  function compareSemesterLoad(a, b, item, targetCredits, preferLaterWhenFull = false) {
+    const scoreA = semesterLoadScore(a, item, targetCredits);
+    const scoreB = semesterLoadScore(b, item, targetCredits);
+
+    if (scoreA.overMaxPenalty !== scoreB.overMaxPenalty) {
+      return scoreA.overMaxPenalty - scoreB.overMaxPenalty;
+    }
+
+    if (scoreA.isUnderTarget !== scoreB.isUnderTarget) {
+      return scoreA.isUnderTarget ? -1 : 1;
+    }
+
+    if (scoreA.targetPenalty !== scoreB.targetPenalty) {
+      return scoreA.targetPenalty - scoreB.targetPenalty;
+    }
+
+    if (preferLaterWhenFull && !scoreA.isUnderTarget && !scoreB.isUnderTarget) {
+      return b.semesterNumber - a.semesterNumber;
+    }
+
+    return a.semesterNumber - b.semesterNumber;
+  }
+
   function addItemToSemester(semester, item) {
     const plannedItem = { ...item, plannedSemesterNumber: semester.semesterNumber };
     semester.modules.push(plannedItem);
@@ -496,7 +535,7 @@
 
     if (studentState.targetSemesterCount === 7 && variant === "standard") {
       const regularSemester = eligibleCandidates.find((semester) => semester.semesterNumber === preferred);
-      if (regularSemester) {
+      if (regularSemester && item.type !== "elective-slot") {
         return regularSemester;
       }
     }
@@ -512,15 +551,13 @@
 
     return eligibleCandidates
       .slice()
-      .sort((a, b) => {
-        const aFits = a.totalCrp + itemCredits(item) <= studentState.targetCreditsPerSemester ? 0 : 1;
-        const bFits = b.totalCrp + itemCredits(item) <= studentState.targetCreditsPerSemester ? 0 : 1;
-        if (aFits !== bFits) {
-          return aFits - bFits;
-        }
-        const fillDiff = b.totalCrp - a.totalCrp;
-        return fillDiff !== 0 ? fillDiff : a.semesterNumber - b.semesterNumber;
-      })[0];
+      .sort((a, b) => compareSemesterLoad(
+        a,
+        b,
+        item,
+        studentState.targetCreditsPerSemester,
+        item.type === "elective-slot"
+      ))[0];
   }
 
   function requiredModules(studentState) {
@@ -646,6 +683,8 @@
       isCompletionModule,
       isElectiveSlotEligibleForSemester,
       MIN_ELECTIVE_SEMESTER,
+      DEFAULT_TARGET_CRP_PER_SEMESTER,
+      MAX_CRP_PER_SEMESTER,
       itemCredits
     }
   };

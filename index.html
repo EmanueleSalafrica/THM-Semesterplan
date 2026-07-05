@@ -4,7 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Modulhandbuch Seiten-Struktur</title>
-    <link rel="stylesheet" href="CSS/style.css?v=navigation-menu-1">
+  <link rel="stylesheet" href="CSS/style.css?v=study-plan-ui-2">
+  <link rel="stylesheet" href="CSS/study-plan.css?v=study-plan-ui-2">
 
     <script src="./JS/lib/gsap/gsap.js" defer></script>
 
@@ -53,59 +54,91 @@
       <div class="options-greyout" data-options-greyout hidden aria-hidden="true"></div>
 
       <section class="screen screen-options" data-screen="options" hidden>
-        <h1>Semesterplan Optionen</h1>
+        <div class="study-plan-workspace">
+          <aside class="study-plan-sidebar">
+            <h1>Semesterplan</h1>
 
-        <fieldset class="option-group">
-          <legend>Schwerpunkt</legend>
-          <label class="choice-pill">
-            <input type="radio" name="focus" value="Medienproduktion" checked>
-            Medienproduktion
-          </label>
-          <label class="choice-pill">
-            <input type="radio" name="focus" value="Web & Mobile">
-            Web &amp; Mobile
-          </label>
-        </fieldset>
+            <fieldset class="option-group">
+              <legend>Schwerpunkt</legend>
+              <label class="choice-pill">
+                <input type="radio" name="focus" value="Medienproduktion" checked>
+                Medienproduktion
+              </label>
+              <label class="choice-pill">
+                <input type="radio" name="focus" value="Web & Mobile">
+                Web &amp; Mobile
+              </label>
+            </fieldset>
 
-        <fieldset class="option-group">
-          <legend>Startsemester</legend>
-          <label class="choice-pill">
-            <input type="radio" name="start" value="Sommer" checked>
-            Sommer
-          </label>
-          <label class="choice-pill">
-            <input type="radio" name="start" value="Winter">
-            Winter
-          </label>
-        </fieldset>
+            <fieldset class="option-group">
+              <legend>Startsemester</legend>
+              <label class="choice-pill">
+                <input type="radio" name="start" value="Sommer" checked>
+                Sommer
+              </label>
+              <label class="choice-pill">
+                <input type="radio" name="start" value="Winter">
+                Winter
+              </label>
+            </fieldset>
 
-        <label class="form-control">
-          Aktuelles Semester
-          <select data-current-semester-input>
-            <option value="1">1. Semester</option>
-            <option value="2">2. Semester</option>
-            <option value="3">3. Semester</option>
-            <option value="4">4. Semester</option>
-            <option value="5">5. Semester</option>
-            <option value="6">6. Semester</option>
-            <option value="7">7. Semester</option>
-          </select>
-        </label>
+            <label class="form-control">
+              Aktuelles Semester
+              <select data-current-semester-input>
+                <option value="1">1. Semester</option>
+                <option value="2">2. Semester</option>
+                <option value="3">3. Semester</option>
+                <option value="4">4. Semester</option>
+                <option value="5">5. Semester</option>
+                <option value="6">6. Semester</option>
+                <option value="7">7. Semester</option>
+              </select>
+            </label>
 
-        <label class="form-control">
-          Auslastung
-          <input type="range" min="1" max="3" value="3" data-load-input>
-        </label>
-        <p class="load-output"><strong data-load-output>7 Semester (+0)</strong></p>
+            <label class="form-control">
+              Auslastung
+              <input type="range" min="1" max="3" value="3" data-load-input>
+            </label>
+            <p class="load-output"><strong data-load-output>7 Semester (+0)</strong></p>
+            <p class="sidebar-credit-summary" data-sidebar-credit-summary>210 CrP gesamt</p>
 
-        <section class="module-filter">
-          <h2>Bestandene oder auszuschließende Module</h2>
-          <div class="module-filter-grid" data-skipped-modules></div>
-        </section>
+            <div class="screen-actions">
+              <button class="button-primary" type="button" data-open-electives>Plan generieren</button>
+              <button class="button-secondary" type="button" data-screen-link="start">Zurück zur Startseite</button>
+            </div>
+          </aside>
 
-        <div class="screen-actions">
-          <button class="button-primary" type="button" data-open-electives>Generiere</button>
-          <button class="button-secondary" type="button" data-screen-link="start">Zurück zur Startseite</button>
+          <main class="study-plan-main">
+            <section class="module-selection-panel">
+              <div class="panel-heading">
+                <h2>Module auswählen</h2>
+                <p data-plan-module-summary>Module werden geladen.</p>
+              </div>
+              <input class="module-selection-search" type="search" placeholder="Modul suchen..." data-plan-module-search>
+              <div class="module-filter-tabs" data-plan-module-filters aria-label="Modulstatus filtern">
+                <button type="button" data-plan-module-filter="all" aria-pressed="true">Alle</button>
+                <button type="button" data-plan-module-filter="required">Pflichtmodule</button>
+                <button type="button" data-plan-module-filter="focus">Schwerpunktmodule</button>
+                <button type="button" data-plan-module-filter="elective">Wahlpflicht</button>
+                <button type="button" data-plan-module-filter="passed">Bereits bestanden</button>
+                <button type="button" data-plan-module-filter="open">Noch offen</button>
+                <button type="button" data-plan-module-filter="excluded">Ausgeschlossen</button>
+              </div>
+              <div class="plan-module-grid" data-plan-module-grid></div>
+            </section>
+
+            <section class="generated-plan-panel">
+              <div class="panel-heading">
+                <h2>Generierter Semesterplan</h2>
+                <p class="plan-summary" data-plan-summary>Medienproduktion, Sommerstart, ab 1. Semester, 7 Semester</p>
+              </div>
+              <nav class="plan-tabs" aria-label="Planvarianten" data-plan-tabs></nav>
+              <div class="plan-container" data-plan-container></div>
+              <div class="screen-actions">
+                <button class="button-primary" type="button" data-print-plan disabled>Plan drucken</button>
+              </div>
+            </section>
+          </main>
         </div>
       </section>
 
@@ -193,12 +226,9 @@
 
       <section class="screen screen-plan" data-screen="plan" hidden>
         <h1>Generierter Semesterplan</h1>
-        <nav class="plan-tabs" aria-label="Planvarianten" data-plan-tabs></nav>
-        <p class="plan-summary" data-plan-summary>Medienproduktion, Sommerstart, ab 1. Semester, 8 Semester (+1)</p>
-        <div class="plan-container" data-plan-container></div>
+        <p class="module-browser-empty">Der Semesterplan wird im Bereich „Semesterplan erstellen” angezeigt.</p>
         <div class="screen-actions">
-          <button class="button-primary" type="button" data-print-plan disabled>Plan drucken</button>
-          <button class="button-secondary" type="button" data-screen-link="options">Optionen bearbeiten</button>
+          <button class="button-secondary" type="button" data-screen-link="options">Zum Semesterplan</button>
         </div>
       </section>
 
@@ -224,9 +254,23 @@
       </div>
     </dialog>
 
+    <dialog class="app-dialog module-status-dialog" data-dialog="module-status">
+      <form class="dialog-close-form" method="dialog">
+        <button class="dialog-close" type="submit">Schließen</button>
+      </form>
+      <h2 data-status-module-title>Modulstatus ändern</h2>
+      <p data-status-module-meta></p>
+      <p class="status-warning" data-status-warning hidden></p>
+      <div class="module-status-actions">
+        <button class="button-primary" type="button" data-status-action="passed">Als bestanden markieren</button>
+        <button class="button-secondary" type="button" data-status-action="open">Nicht bestanden / offen</button>
+        <button class="button-secondary" type="button" data-status-action="excluded">Ausschließen</button>
+      </div>
+    </dialog>
+
     <script src="JS/api-client.js"></script>
     <script src="JS/data-loader.js"></script>
-    <script src="JS/study-plan-generator.js?v=po2024-plan-3"></script>
+    <script src="JS/study-plan-generator.js?v=po2024-plan-5"></script>
     <script>
       const planTemplates = {
         "Medienproduktion": [
@@ -328,6 +372,9 @@
         loadLevel: 3,
         currentSemester: 1,
         skippedModules: [],
+        moduleStatuses: {},
+        planModuleFilter: "all",
+        planModuleSearch: "",
         selectedElectives: {},
         activeElectiveSlotId: null,
         activeElectiveSelectionKey: null,
@@ -356,6 +403,11 @@
       const planSummary = document.querySelector("[data-plan-summary]");
       const planTabs = document.querySelector("[data-plan-tabs]");
       const planContainer = document.querySelector("[data-plan-container]");
+      const sidebarCreditSummary = document.querySelector("[data-sidebar-credit-summary]");
+      const planModuleSummary = document.querySelector("[data-plan-module-summary]");
+      const planModuleSearch = document.querySelector("[data-plan-module-search]");
+      const planModuleGrid = document.querySelector("[data-plan-module-grid]");
+      const planModuleFilterButtons = document.querySelectorAll("[data-plan-module-filter]");
       const moduleFilterForm = document.querySelector("[data-module-filter-form]");
       const moduleResults = document.querySelector("[data-module-results]");
       const moduleResultsSummary = document.querySelector("[data-module-results-summary]");
@@ -363,6 +415,10 @@
       const electiveDialogHelp = document.querySelector("[data-elective-dialog-help]");
       const moduleDialog = document.querySelector('[data-dialog="module"]');
       const moduleDetails = document.querySelector("[data-module-details]");
+      const moduleStatusDialog = document.querySelector('[data-dialog="module-status"]');
+      const moduleStatusTitle = document.querySelector("[data-status-module-title]");
+      const moduleStatusMeta = document.querySelector("[data-status-module-meta]");
+      const moduleStatusWarning = document.querySelector("[data-status-warning]");
       const printPlanButton = document.querySelector("[data-print-plan]");
       const appMenuToggle = document.querySelector("[data-app-menu-toggle]");
       const appMenuPanel = document.querySelector("[data-app-menu-panel]");
@@ -414,9 +470,63 @@
         return loadedModules.find((module) => Number(module.nr) === Number(moduleNumber));
       }
 
+      function moduleNumber(moduleOrName) {
+        const module = typeof moduleOrName === "string" ? findModule(moduleOrName) : moduleOrName;
+        return Number(module?.nr);
+      }
+
       function moduleCredits(moduleOrName) {
         const module = typeof moduleOrName === "string" ? findModule(moduleOrName) : moduleOrName;
         return Number(module?.credits) || EMPTY_ELECTIVE_CREDITS;
+      }
+
+      function moduleStatus(module) {
+        return state.moduleStatuses[Number(module.nr)] || "open";
+      }
+
+      function setModuleStatus(module, nextStatus) {
+        const id = Number(module.nr);
+        if (nextStatus === "open") {
+          delete state.moduleStatuses[id];
+        } else {
+          state.moduleStatuses[id] = nextStatus;
+        }
+      }
+
+      function moduleNamesByStatus(status) {
+        return loadedModules
+          .filter((module) => moduleStatus(module) === status)
+          .map(moduleTitle);
+      }
+
+      function moduleIdsByStatus(status) {
+        return loadedModules
+          .filter((module) => moduleStatus(module) === status)
+          .map((module) => Number(module.nr));
+      }
+
+      function isElectiveModule(module) {
+        return module?.pflicht !== "Ja";
+      }
+
+      function isFocusSpecificModule(module) {
+        const focusField = state.focus === "Medienproduktion" ? "medienproduktion" : "webmobile";
+        const otherField = state.focus === "Medienproduktion" ? "webmobile" : "medienproduktion";
+        return module?.pflicht === "Ja" && module?.[focusField] === "Ja" && module?.[otherField] !== "Ja";
+      }
+
+      function plannedModuleIds() {
+        const activePlan = state.planVariants[state.activePlanIndex];
+        if (!activePlan) {
+          return new Set();
+        }
+
+        const ids = [...activePlan.values()].flat().flatMap((planItem) => [
+          Number(planItem.moduleId),
+          Number(planItem.selectedModuleId)
+        ]);
+
+        return new Set(ids.filter(Number.isInteger));
       }
 
       function focusApiCode() {
@@ -809,6 +919,159 @@
         return item;
       }
 
+      function planModuleCategoryText(module) {
+        if (isElectiveModule(module)) {
+          return "Wahlpflicht";
+        }
+
+        if (isCompletionModuleNumber(module.nr)) {
+          return "Abschluss";
+        }
+
+        if (isFocusSpecificModule(module)) {
+          return "Schwerpunkt";
+        }
+
+        return "Pflicht";
+      }
+
+      function planModuleStatusText(module, plannedIds = plannedModuleIds()) {
+        const status = moduleStatus(module);
+        if (status === "passed") {
+          return "Bestanden";
+        }
+
+        if (status === "excluded") {
+          return "Ausgeschlossen";
+        }
+
+        if (plannedIds.has(Number(module.nr))) {
+          return "Geplant";
+        }
+
+        return "Offen";
+      }
+
+      function moduleMatchesPlanFilter(module, plannedIds = plannedModuleIds()) {
+        const query = state.planModuleSearch.trim().toLocaleLowerCase("de-DE");
+        const status = moduleStatus(module);
+        const searchable = [module.titel, module.kurzbeschreibung, module.inhalt]
+          .filter(hasValue)
+          .join(" ")
+          .toLocaleLowerCase("de-DE");
+
+        if (query && !searchable.includes(query)) {
+          return false;
+        }
+
+        if (state.planModuleFilter === "required") {
+          return module.pflicht === "Ja";
+        }
+
+        if (state.planModuleFilter === "focus") {
+          return isFocusSpecificModule(module);
+        }
+
+        if (state.planModuleFilter === "elective") {
+          return isElectiveModule(module);
+        }
+
+        if (state.planModuleFilter === "passed") {
+          return status === "passed";
+        }
+
+        if (state.planModuleFilter === "excluded") {
+          return status === "excluded";
+        }
+
+        if (state.planModuleFilter === "open") {
+          return status === "open" && !plannedIds.has(Number(module.nr));
+        }
+
+        return true;
+      }
+
+      function createPlanModuleCard(module, plannedIds = plannedModuleIds()) {
+        const button = document.createElement("button");
+        const title = document.createElement("strong");
+        const meta = document.createElement("span");
+        const category = document.createElement("span");
+        const status = document.createElement("span");
+        const currentStatus = moduleStatus(module);
+        const planned = plannedIds.has(Number(module.nr));
+
+        button.type = "button";
+        button.className = [
+          "plan-module-card",
+          `plan-module-card-${currentStatus}`,
+          planned ? "plan-module-card-planned" : ""
+        ].filter(Boolean).join(" ");
+        button.dataset.moduleId = String(module.nr);
+        button.dataset.status = currentStatus;
+        button.dataset.planned = String(planned);
+        title.textContent = moduleTitle(module);
+        meta.textContent = `${module.credits} CrP | ${module.semester}. Semester`;
+        category.textContent = planModuleCategoryText(module);
+        status.textContent = planModuleStatusText(module, plannedIds);
+        category.className = "plan-module-card-category";
+        status.className = "plan-module-card-status";
+        button.append(title, meta, category, status);
+        button.addEventListener("click", () => openModuleStatusDialog(module));
+        return button;
+      }
+
+      function renderPlanModuleSelection() {
+        if (!planModuleGrid || !planModuleSummary) {
+          return;
+        }
+
+        const plannedIds = plannedModuleIds();
+        const filteredModules = loadedModules.filter((module) => moduleMatchesPlanFilter(module, plannedIds));
+        const emptyState = textBlock("p", "Keine Module gefunden.");
+        emptyState.className = "module-browser-empty";
+
+        planModuleSummary.textContent = filteredModules.length === 1
+          ? "1 Modul in der Auswahl"
+          : `${filteredModules.length} Module in der Auswahl`;
+        planModuleGrid.replaceChildren(
+          ...(filteredModules.length > 0 ? filteredModules.map((module) => createPlanModuleCard(module, plannedIds)) : [emptyState])
+        );
+
+        planModuleFilterButtons.forEach((button) => {
+          button.ariaPressed = String(button.dataset.planModuleFilter === state.planModuleFilter);
+        });
+      }
+
+      function openModuleStatusDialog(module) {
+        moduleStatusDialog.dataset.moduleId = String(module.nr);
+        moduleStatusTitle.textContent = moduleTitle(module);
+        moduleStatusMeta.textContent = `${module.credits} CrP | ${planModuleCategoryText(module)} | ${module.semester}. Semester`;
+        moduleStatusWarning.hidden = true;
+        moduleStatusWarning.textContent = "";
+        moduleStatusDialog.showModal();
+      }
+
+      function applyModuleStatus(module, nextStatus) {
+        if (nextStatus === "excluded" && !isElectiveModule(module)) {
+          moduleStatusWarning.hidden = false;
+          moduleStatusWarning.innerText = "Dieses Modul ist Pflicht nach PO und kann nicht ausgeschlossen werden. Du kannst es nur als bestanden markieren oder später einplanen.";
+          return;
+        }
+
+        setModuleStatus(module, nextStatus);
+        if (nextStatus === "excluded" || nextStatus === "passed") {
+          Object.entries(state.selectedElectives).forEach(([slotId, moduleName]) => {
+            if (moduleName === moduleTitle(module)) {
+              delete state.selectedElectives[slotId];
+            }
+          });
+        }
+        regeneratePlanPreservingVariant();
+        renderPlanModuleSelection();
+        renderElectiveDialog();
+        moduleStatusDialog.close();
+      }
+
       function renderModuleBrowser() {
         readModuleFilters();
 
@@ -859,7 +1122,7 @@
         state.start = document.querySelector('input[name="start"]:checked').value;
         state.loadLevel = Number(loadInput.value);
         state.currentSemester = Number(currentSemesterInput.value);
-        state.skippedModules = checkedValues("[data-skipped-modules] input:checked");
+        state.skippedModules = moduleNamesByStatus("passed");
         loadOutput.textContent = loadLabels[state.loadLevel];
         syncSelectedElectivesWithFocus();
       }
@@ -953,9 +1216,12 @@
       }
 
       function renderSkippedModules() {
-        document.querySelector("[data-skipped-modules]").replaceChildren(
-          ...selectableModuleNames().map(moduleCheckbox)
-        );
+        const skippedModulesContainer = document.querySelector("[data-skipped-modules]");
+        if (skippedModulesContainer) {
+          skippedModulesContainer.replaceChildren(
+            ...selectableModuleNames().map(moduleCheckbox)
+          );
+        }
       }
 
       function moduleAvailableAsElective(module) {
@@ -1061,7 +1327,8 @@
         const availableModules = new Set(selectableModuleNames());
 
         Object.entries(state.selectedElectives).forEach(([slotId, moduleName]) => {
-          if (!availableModules.has(moduleName)) {
+          const module = findModule(moduleName);
+          if (!availableModules.has(moduleName) || (module && moduleStatus(module) !== "open")) {
             delete state.selectedElectives[slotId];
           }
         });
@@ -1539,7 +1806,7 @@
           return null;
         }
 
-        const passedModuleIds = moduleIdsFromNames(state.skippedModules);
+        const passedModuleIds = moduleIdsByStatus("passed");
         const result = window.MPMStudyPlan.generateStudyPlan({
           modules: loadedModules,
           selectedTrack: studyTrackId(),
@@ -1547,7 +1814,7 @@
           startTerm: studyStartTermId(),
           targetSemesterCount: planSetting().semesterCount,
           passedModuleIds,
-          excludedModuleIds: [],
+          excludedModuleIds: moduleIdsByStatus("excluded"),
           selectedOppositeTrackModules: [],
           selectedElectives: selectedElectiveModuleIds(),
           selectedElectiveSlots: selectedElectiveSlotsForGenerator()
@@ -1727,11 +1994,17 @@
           electiveStatus,
           state.planSource === "api" ? "Plan aus Generator" : state.planMessage
         ].filter(Boolean).join(", ");
+        if (sidebarCreditSummary) {
+          sidebarCreditSummary.textContent = creditSummary
+            ? `${creditSummary.totalAfterPlanCrp}/${creditSummary.totalRequiredCrp} CrP nach Plan | ${electiveStatus}`
+            : `${totalCredits} CrP im aktuellen Plan`;
+        }
         printPlanButton.disabled = openElectiveCount > 0 || semesterSections.length === 0;
         printPlanButton.title = openElectiveCount > 0
           ? "Drucken ist erst möglich, wenn alle Wahlpflichtmodule gewählt wurden."
           : semesterSections.length === 0 ? "Drucken ist erst möglich, wenn ein Plan generiert wurde."
           : "Semesterplan drucken";
+        renderPlanModuleSelection();
       }
 
       function changePlan(nextIndex) {
@@ -1828,11 +2101,37 @@
         });
       });
 
-      loadInput.addEventListener("input", readOptions);
-      currentSemesterInput.addEventListener("change", readOptions);
-      moduleFilterForm.addEventListener("input", renderModuleBrowser);
-      moduleFilterForm.addEventListener("change", renderModuleBrowser);
-      document.querySelector("[data-reset-module-filters]").addEventListener("click", resetModuleFilters);
+      loadInput.addEventListener("input", () => {
+        readOptions();
+        generateLocalPlanVariants();
+        renderPlan();
+      });
+      currentSemesterInput.addEventListener("change", () => {
+        readOptions();
+        generateLocalPlanVariants();
+        renderPlan();
+      });
+      moduleFilterForm?.addEventListener("input", renderModuleBrowser);
+      moduleFilterForm?.addEventListener("change", renderModuleBrowser);
+      document.querySelector("[data-reset-module-filters]")?.addEventListener("click", resetModuleFilters);
+      planModuleSearch?.addEventListener("input", (event) => {
+        state.planModuleSearch = event.currentTarget.value;
+        renderPlanModuleSelection();
+      });
+      planModuleFilterButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          state.planModuleFilter = button.dataset.planModuleFilter || "all";
+          renderPlanModuleSelection();
+        });
+      });
+      moduleStatusDialog?.querySelectorAll("[data-status-action]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const module = findModuleByNumber(moduleStatusDialog.dataset.moduleId);
+          if (module) {
+            applyModuleStatus(module, button.dataset.statusAction);
+          }
+        });
+      });
 
       document.querySelector("[data-open-electives]").addEventListener("click", async (event) => {
         const generateButton = event.currentTarget;
@@ -1844,7 +2143,7 @@
         try {
           await generatePlanVariants();
           renderPlan();
-          showScreen("plan");
+          document.querySelector(".generated-plan-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
         } finally {
           generateButton.disabled = false;
           generateButton.textContent = previousButtonText;
