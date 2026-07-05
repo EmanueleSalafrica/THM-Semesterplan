@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Modulhandbuch Seiten-Struktur</title>
-  <link rel="stylesheet" href="CSS/style.css?v=study-plan-ui-5">
-  <link rel="stylesheet" href="CSS/study-plan.css?v=study-plan-ui-5">
+  <link rel="stylesheet" href="CSS/style.css?v=study-plan-ui-6">
+  <link rel="stylesheet" href="CSS/study-plan.css?v=study-plan-ui-6">
 
     <script src="./JS/lib/gsap/gsap.js" defer></script>
 
@@ -1185,7 +1185,8 @@
       function createModuleButton(moduleName, buttonText = moduleName, options = {}) {
         const button = document.createElement("button");
         const buttonLabel = document.createElement("span");
-        const module = findModule(moduleName);
+        const module = options.moduleId ? findModuleByNumber(options.moduleId) : findModule(moduleName);
+        const dialogModuleName = module ? moduleTitle(module) : moduleName;
 
         button.type = "button";
         button.className = buttonText === "Info" ? "module-info-button" : "module-card";
@@ -1203,8 +1204,15 @@
           button.ariaLabel = `${buttonText}, Unterschied zu Variante 1`;
         }
 
+        if (options.apiType && buttonText !== "Info") {
+          const apiMeta = document.createElement("span");
+          apiMeta.className = "module-card-api-meta";
+          apiMeta.textContent = options.apiType;
+          button.append(apiMeta);
+        }
+
         button.addEventListener("click", () => {
-          openModuleDialog(moduleName);
+          openModuleDialog(dialogModuleName);
         });
         return button;
       }
@@ -1243,6 +1251,12 @@
         if (options.isVariantDifference) {
           button.classList.add("module-card-variant-difference");
           button.ariaLabel = `${button.ariaLabel}, Unterschied zu Variante 1`;
+        }
+        if (options.apiType) {
+          const apiMeta = document.createElement("span");
+          apiMeta.className = "module-card-api-meta";
+          apiMeta.textContent = options.apiType;
+          button.append(apiMeta);
         }
         button.addEventListener("click", () => openElectiveDialog(planItem));
         return button;
@@ -1497,12 +1511,27 @@
         });
       }
 
-      function createCompletionItems() {
+      function createCompletionItems(semesterNumber = completionSemester()) {
         return COMPLETION_MODULE_IDS.map(findModuleByNumber).filter(Boolean).map((module) => ({
           type: "module",
+          moduleId: Number(module.nr),
           title: moduleTitle(module),
-          semester: completionSemester(),
+          semester: semesterNumber,
           credits: Number(module.credits) || EMPTY_ELECTIVE_CREDITS
+        }));
+      }
+
+      function createApiCompletionItems(apiModule, semesterNumber) {
+        return [28, 29].map(findModuleByNumber).filter(Boolean).map((module) => ({
+          type: "module",
+          moduleId: Number(module.nr),
+          title: moduleTitle(module),
+          semester: semesterNumber,
+          credits: Number(module.credits) || EMPTY_ELECTIVE_CREDITS,
+          apiModuleId: Number(apiModule?.nr) || API_COMPLETION_MODULE_ID,
+          apiType: apiModule?.typ || "SSA",
+          apiVisualGroup: apiModule?.visualisierungsgruppe || "",
+          apiSemester: semesterNumber
         }));
       }
 
@@ -1527,7 +1556,7 @@
         return plan;
       }
 
-      function createApiElectiveItem(moduleId, fallbackIndex = 0, variantIndex = 0, usedModuleNames = []) {
+      function createApiElectiveItem(moduleId, fallbackIndex = 0, variantIndex = 0, usedModuleNames = [], apiModule = {}, semesterNumber = ELECTIVE_START_SEMESTER) {
         const slotId = apiElectiveSlotId(moduleId, fallbackIndex);
         const slotNumber = slotId.replace("wpm-", "");
         const selectionKey = `variant-${variantIndex + 1}-${slotId}`;
@@ -1544,10 +1573,14 @@
           slotId,
           selectionKey,
           slotNumber,
-          title: `Wahlpflichtmodul ${slotNumber}`,
-          semester: ELECTIVE_START_SEMESTER + Math.floor((Number(slotNumber) - 1) / 2),
+          title: apiModule?.titel || `Wahlpflichtmodul ${slotNumber}`,
+          semester: semesterNumber,
           autoSelectedModuleName,
-          credits: Number(selectedModule?.credits) || EMPTY_ELECTIVE_CREDITS
+          credits: Number(apiModule?.credits) || Number(selectedModule?.credits) || EMPTY_ELECTIVE_CREDITS,
+          apiModuleId: Number(apiModule?.nr) || Number(moduleId),
+          apiType: apiModule?.typ || "WP",
+          apiVisualGroup: apiModule?.visualisierungsgruppe || "",
+          apiSemester: semesterNumber
         };
       }
 
@@ -1563,48 +1596,59 @@
       }
 
       function planFromSemesterEntries(entries, variantIndex = 0) {
-        const plan = createEmptyPlan();
+        const plan = new Map();
         let electiveFallbackIndex = 0;
         const usedElectiveModuleNames = [];
 
         entries.forEach((entry) => {
           const semester = Number(entry.semester);
-          const moduleIds = entry.moduleIds || [];
+          const modules = entry.modules || [];
 
-          moduleIds.forEach((moduleId) => {
-            const moduleNumber = Number(moduleId);
+          if (!Number.isInteger(semester) || semester < state.currentSemester) {
+            return;
+          }
+
+          if (!plan.has(semester)) {
+            plan.set(semester, []);
+          }
+
+          modules.forEach((apiModule) => {
+            const moduleNumber = Number(apiModule.nr);
             let planItems = [];
 
             if (moduleNumber === API_COMPLETION_MODULE_ID) {
-              planItems = createCompletionItems();
+              planItems = createApiCompletionItems(apiModule, semester);
             } else if (isApiElectiveId(moduleNumber)) {
-              planItems = [createApiElectiveItem(moduleNumber, electiveFallbackIndex, variantIndex, usedElectiveModuleNames)];
+              planItems = [createApiElectiveItem(moduleNumber, electiveFallbackIndex, variantIndex, usedElectiveModuleNames, apiModule, semester)];
               electiveFallbackIndex += 1;
             } else {
               const module = findModuleByNumber(moduleNumber);
-              if (module) {
+              if (module || apiModule.titel) {
                 planItems = [{
                   type: "module",
-                  title: module.titel,
-                  semester: Number(module.semester) || semester,
-                  credits: Number(module.credits) || EMPTY_ELECTIVE_CREDITS
+                  moduleId: moduleNumber,
+                  title: apiModule.titel || moduleTitle(module),
+                  semester,
+                  credits: Number(apiModule.credits) || Number(module?.credits) || EMPTY_ELECTIVE_CREDITS,
+                  apiType: apiModule.typ || "",
+                  apiVisualGroup: apiModule.visualisierungsgruppe || "",
+                  apiSemester: semester
                 }];
               }
             }
 
             planItems.forEach((planItem) => {
-              const targetSemester = Math.min(Math.max(semester, state.currentSemester), lastPlanSemester());
-              addModuleToPlan(plan, targetSemester, planItem);
+              addModuleToPlan(plan, semester, planItem);
             });
           });
         });
 
-        return ensureCompletionItems(plan);
+        return plan;
       }
 
-      function numericValues(value) {
+      function apiModuleEntries(value) {
         if (Number.isInteger(Number(value))) {
-          return [Number(value)];
+          return [{ nr: Number(value) }];
         }
 
         if (!Array.isArray(value)) {
@@ -1614,31 +1658,41 @@
         return value
           .map((entry) => {
             if (Number.isInteger(Number(entry))) {
-              return Number(entry);
+              return { nr: Number(entry) };
             }
 
             if (entry && typeof entry === "object") {
-              return Number(
+              const nr = Number(
                 entry.nr
                 ?? entry.moduleId
                 ?? entry.modulId
                 ?? entry.moduleNr
                 ?? entry.modulNr
               );
+
+              return Number.isInteger(nr)
+                ? {
+                  nr,
+                  titel: entry.titel || entry.title || "",
+                  credits: Number(entry.credits) || Number(entry.crp) || 0,
+                  typ: entry.typ || "",
+                  visualisierungsgruppe: entry.visualisierungsgruppe || ""
+                }
+                : null;
             }
 
-            return NaN;
+            return null;
           })
-          .filter(Number.isInteger);
+          .filter(Boolean);
       }
 
       function entriesFromObjectSolution(solution) {
         return Object.entries(solution)
-          .map(([semester, moduleIds]) => ({
+          .map(([semester, modules]) => ({
             semester: Number(semester),
-            moduleIds: numericValues(moduleIds)
+            modules: apiModuleEntries(modules)
           }))
-          .filter((entry) => Number.isInteger(entry.semester) && entry.moduleIds.length > 0);
+          .filter((entry) => Number.isInteger(entry.semester) && entry.modules.length > 0);
       }
 
       function entriesFromArraySolution(solution) {
@@ -1646,7 +1700,7 @@
           if (Array.isArray(entry)) {
             return [{
               semester: index + 1,
-              moduleIds: numericValues(entry)
+              modules: apiModuleEntries(entry)
             }];
           }
 
@@ -1666,12 +1720,12 @@
 
             return [{
               semester: Number(semester),
-              moduleIds: numericValues(moduleIds)
+              modules: apiModuleEntries(moduleIds)
             }];
           }
 
           return [];
-        }).filter((entry) => Number.isInteger(entry.semester) && entry.moduleIds.length > 0);
+        }).filter((entry) => Number.isInteger(entry.semester) && entry.modules.length > 0);
       }
 
       function semesterEntriesFromApiSolution(solution) {
@@ -2083,8 +2137,15 @@
             const isVariantDifference = changedPlanKeys.has(`${semester}:${index}`);
             item.append(
               isElectivePlaceholder(planItem)
-                ? createElectivePlaceholderButton(planItem, { isVariantDifference })
-                : createModuleButton(plannedItemTitle(planItem), plannedItemTitle(planItem), { isVariantDifference })
+                ? createElectivePlaceholderButton(planItem, {
+                  isVariantDifference,
+                  apiType: planItem.apiType
+                })
+                : createModuleButton(plannedItemTitle(planItem), plannedItemTitle(planItem), {
+                  isVariantDifference,
+                  moduleId: planItem.moduleId,
+                  apiType: planItem.apiType
+                })
             );
             list.append(item);
           });
@@ -2106,7 +2167,7 @@
           `Variante ${state.activePlanIndex + 1}: ${state.focus}`,
           `${state.start}start`,
           `ab ${state.currentSemester}. Semester`,
-          `${planSetting().semesterCount} Semester`,
+          state.planSource === "api" ? `${semesterNumbers.length} API-Semester` : `${planSetting().semesterCount} Semester`,
           creditSummary ? `bereits bestanden: ${creditSummary.alreadyPassedCrp} CrP` : "",
           creditSummary ? `noch geplant: ${creditSummary.plannedRemainingCrp} CrP` : `${totalCredits} CrP gesamt`,
           creditSummary ? `gesamt nach Plan: ${creditSummary.totalAfterPlanCrp}/${creditSummary.totalRequiredCrp} CrP` : "",

@@ -280,6 +280,20 @@
   text-transform: uppercase;
 }
 
+.generated-plan-panel .module-card-api-meta {
+  position: absolute;
+  left: 0.45rem;
+  top: 0.45rem;
+  z-index: 12;
+  border-radius: 0.125rem;
+  background: rgba(255, 255, 255, 0.94);
+  color: #4a5c66;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.62rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
 .module-status-dialog {
   width: min(92vw, 32rem);
   --dialog-backdrop-opacity: 0;
