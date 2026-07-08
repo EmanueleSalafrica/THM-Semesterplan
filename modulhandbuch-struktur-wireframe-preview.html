@@ -302,6 +302,7 @@
       const API_COMPLETION_MODULE_ID = 100;
       const COMPLETION_MODULE_IDS = [27, 28, 29];
       const GENERATOR_TIMEOUT_MS = 12000;
+      const LOCAL_PLAN_VARIANTS = ["standard", "balanced", "relaxed", "standard", "balanced"];
       const planSettings = {
         1: { semesterCount: 9, targetCredits: 21, speed: 70 },
         2: { semesterCount: 8, targetCredits: 24, speed: 80 },
@@ -1242,6 +1243,38 @@
         electiveDialog.showModal();
       }
 
+      function firstElectivePlaceholderInActivePlan() {
+        const activePlan = state.planVariants[state.activePlanIndex];
+
+        if (!activePlan) {
+          return null;
+        }
+
+        return [...activePlan.keys()]
+          .sort((a, b) => a - b)
+          .flatMap((semester) => activePlan.get(semester) || [])
+          .find(isElectivePlaceholder) || null;
+      }
+
+      function nextUnselectedElectivePlaceholderInActivePlan(currentSelectionKey) {
+        const activePlan = state.planVariants[state.activePlanIndex];
+
+        if (!activePlan) {
+          return null;
+        }
+
+        const placeholders = [...activePlan.keys()]
+          .sort((a, b) => a - b)
+          .flatMap((semester) => activePlan.get(semester) || [])
+          .filter(isElectivePlaceholder);
+        const currentIndex = placeholders.findIndex((planItem) => electiveSelectionKey(planItem) === currentSelectionKey);
+        const orderedPlaceholders = currentIndex >= 0
+          ? [...placeholders.slice(currentIndex + 1), ...placeholders.slice(0, currentIndex)]
+          : placeholders;
+
+        return orderedPlaceholders.find((planItem) => !state.selectedElectives[electiveSelectionKey(planItem)]) || null;
+      }
+
       function createElectivePlaceholderButton(planItem, options = {}) {
         const button = document.createElement("button");
         const buttonLabel = document.createElement("span");
@@ -1259,8 +1292,8 @@
           : `Wahlpflichtmodul ${slotNumber} auswählen`;
         buttonLabel.className = "module-card-label";
         buttonLabel.textContent = selectedModuleName
-          ? `${selectedModuleName} (${credits} CrP)`
-          : `${planItem.title} (${credits} CrP)`;
+          ? selectedModuleName
+          : planItem.title;
 
         button.append(createModuleImage(selectedModule || "Wahlpflichtmodul"), buttonLabel);
         if (options.isVariantDifference) {
@@ -1273,7 +1306,6 @@
           apiMeta.textContent = options.apiType;
           button.append(apiMeta);
         }
-        button.addEventListener("click", () => openElectiveDialog(planItem));
         return button;
       }
 
@@ -1435,35 +1467,58 @@
         const allowedModules = state.activeAllowedModuleIds.length > 0
           ? state.activeAllowedModuleIds.map(findModuleByNumber).filter(Boolean).map(moduleTitle)
           : availableElectiveModuleNames();
-        const selectedForActiveSlot = activePlanElectiveSelections()
-          .find((selection) => selection.selectionKey === activeSelectionKey)?.moduleName || "";
+        const selectableModules = [...new Set([
+          ...Object.values(state.selectedElectives).filter(Boolean),
+          ...allowedModules
+        ])];
+        const selectedForActiveSlot = state.selectedElectives[activeSelectionKey] || "";
 
         electiveDialogHelp.textContent = activeSlotId
           ? `Wähle ein Wahlpflichtmodul für Wahlpflichtmodul ${activeSlotNumber}. Bereits gewählte Module sind für andere Platzhalter gesperrt.`
           : "Wähle ein Modul für den Platzhalter im Semesterplan.";
 
         list.replaceChildren(
-          ...allowedModules.map((moduleName) => {
+          ...selectableModules.map((moduleName) => {
             const item = document.createElement("article");
             const chooseButton = document.createElement("button");
-            const selectedInOtherSlot = activePlanElectiveSelections()
-              .some((selection) => selection.selectionKey !== activeSelectionKey && selection.moduleName === moduleName);
+            const selectedInOtherSlot = Object.entries(state.selectedElectives)
+              .find(([selectionKey, selectedModuleName]) => selectionKey !== activeSelectionKey && selectedModuleName === moduleName);
 
             item.className = "elective-item";
             chooseButton.type = "button";
             chooseButton.className = "button-secondary";
-            chooseButton.disabled = !activeSlotId || selectedInOtherSlot;
+            chooseButton.disabled = !activeSlotId;
             chooseButton.textContent = selectedForActiveSlot === moduleName
               ? "Ausgewählt"
               : selectedInOtherSlot ? "Bereits gewählt" : "Auswählen";
             chooseButton.addEventListener("click", () => {
-              if (!activeSlotId || selectedInOtherSlot) {
+              if (!activeSlotId) {
+                return;
+              }
+
+              if (selectedInOtherSlot) {
+                delete state.selectedElectives[selectedInOtherSlot[0]];
+                regeneratePlanPreservingVariant();
+                renderElectiveDialog();
+                return;
+              }
+
+              if (state.selectedElectives[activeSelectionKey] === moduleName) {
+                delete state.selectedElectives[activeSelectionKey];
+                regeneratePlanPreservingVariant();
+                renderElectiveDialog();
                 return;
               }
 
               state.selectedElectives[activeSelectionKey] = moduleName;
               regeneratePlanPreservingVariant();
-              electiveDialog.close();
+              const nextElectivePlaceholder = nextUnselectedElectivePlaceholderInActivePlan(activeSelectionKey);
+
+              if (nextElectivePlaceholder) {
+                openElectiveDialog(nextElectivePlaceholder);
+              } else {
+                renderElectiveDialog();
+              }
             });
 
             item.append(createModuleButton(moduleName), " ", chooseButton);
@@ -1616,7 +1671,7 @@
         const usedElectiveModuleNames = [];
 
         entries.forEach((entry) => {
-          const semester = Number(entry.semester);
+          const semester = Math.min(Number(entry.semester), lastPlanSemester());
           const modules = entry.modules || [];
 
           if (!Number.isInteger(semester) || semester < state.currentSemester) {
@@ -1846,7 +1901,17 @@
         const offsets = variantOffsets[variantIndex] || variantOffsets[0];
         const modules = modulesForPlanning().sort((a, b) => {
           const semesterDiff = (a.semester || 1) - (b.semester || 1);
-          return semesterDiff !== 0 ? semesterDiff : a.titel.localeCompare(b.titel);
+          if (semesterDiff !== 0) {
+            return semesterDiff;
+          }
+          if (variantIndex === 3) {
+            return b.titel.localeCompare(a.titel);
+          }
+          if (variantIndex === 4) {
+            const creditDiff = (Number(b.credits) || 0) - (Number(a.credits) || 0);
+            return creditDiff !== 0 ? creditDiff : a.titel.localeCompare(b.titel);
+          }
+          return a.titel.localeCompare(b.titel);
         });
         const planItems = [
           ...modules.map((module) => ({
@@ -1943,16 +2008,42 @@
         const plan = new Map();
 
         semesters.forEach((semester) => {
+          const semesterNumber = Math.min(Number(semester.semesterNumber), lastPlanSemester());
           plan.set(
-            semester.semesterNumber,
-            semester.modules.map(planItemFromModule)
+            semesterNumber,
+            [...(plan.get(semesterNumber) || []), ...semester.modules.map(planItemFromModule)]
           );
         });
 
         return plan;
       }
 
-      function generateStudyPlanVariant() {
+      function planSignature(plan) {
+        return [...plan.keys()]
+          .sort((a, b) => a - b)
+          .map((semester) => `${semester}:${(plan.get(semester) || []).map(plannedItemDifferenceKey).join(",")}`)
+          .join("|");
+      }
+
+      function uniquePlanVariants(planVariants) {
+        const signatures = new Set();
+
+        return planVariants.filter((plan) => {
+          if (!plan) {
+            return false;
+          }
+
+          const signature = planSignature(plan);
+          if (signatures.has(signature)) {
+            return false;
+          }
+
+          signatures.add(signature);
+          return true;
+        });
+      }
+
+      function generateStudyPlanVariant(variant = "standard") {
         if (!window.MPMStudyPlan?.generateStudyPlan || loadedModules.length === 0) {
           return null;
         }
@@ -1968,7 +2059,8 @@
           excludedModuleIds: moduleIdsByStatus("excluded"),
           selectedOppositeTrackModules: [],
           selectedElectives: selectedElectiveModuleIds(),
-          selectedElectiveSlots: selectedElectiveSlotsForGenerator()
+          selectedElectiveSlots: selectedElectiveSlotsForGenerator(),
+          variant
         });
 
         state.creditSummary = result.creditSummary || null;
@@ -1976,11 +2068,15 @@
         return planMapFromGeneratedSemesters(result.semesters);
       }
 
+      function localPlanCandidates() {
+        return [
+          ...LOCAL_PLAN_VARIANTS.map((variant) => generateStudyPlanVariant(variant)),
+          ...Array.from({ length: 5 }, (_, index) => createPlanVariant(index))
+        ];
+      }
+
       function generateLocalPlanVariants() {
-        const generatedPlan = generateStudyPlanVariant();
-        state.planVariants = generatedPlan
-          ? [generatedPlan]
-          : Array.from({ length: 5 }, (_, index) => createPlanVariant(index));
+        state.planVariants = uniquePlanVariants(localPlanCandidates()).slice(0, 5);
         state.planSource = "local";
       }
 
@@ -2035,7 +2131,7 @@
           throw new Error("Der Generator hat keine auswertbare Planstruktur geliefert.");
         }
 
-        state.planVariants = apiPlans;
+        state.planVariants = uniquePlanVariants([...apiPlans, ...localPlanCandidates()]).slice(0, 5);
         state.planSource = "api";
         state.planMessage = "THM/CurrGen API";
         state.creditSummary = null;
@@ -2353,6 +2449,11 @@
           await generatePlanVariants();
           renderPlan();
           showScreen("plan");
+          const firstElectivePlaceholder = firstElectivePlaceholderInActivePlan();
+
+          if (firstElectivePlaceholder) {
+            openElectiveDialog(firstElectivePlaceholder);
+          }
         } finally {
           generateButton.disabled = false;
           generateButton.textContent = previousButtonText;
