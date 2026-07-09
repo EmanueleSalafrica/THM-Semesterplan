@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Modulhandbuch Seiten-Struktur</title>
-  <link rel="stylesheet" href="CSS/style.css?v=study-plan-ui-9">
-  <link rel="stylesheet" href="CSS/study-plan.css?v=study-plan-ui-9">
+  <link rel="stylesheet" href="CSS/style.css?v=study-plan-ui-10">
+  <link rel="stylesheet" href="CSS/study-plan.css?v=study-plan-ui-10">
 
     <script src="./JS/lib/gsap/gsap.js" defer></script>
 
@@ -15,6 +15,7 @@
     <!-- Optional für Text Animation -->
     <script src="./JS/lib/gsap/SplitText.js" defer></script>
 
+    <script src="./JS/start-background.js?v=start-bg-2" defer></script>
     <script src="./GSAP/GsapScript.js" defer></script>
   </head>
   <body class="app-shell">
@@ -43,6 +44,7 @@
 
     <main class="app-main">
       <section class="screen screen-start" data-screen="start">
+        <div class="start-circle-background" data-start-background aria-hidden="true"></div>
         <h1>Willkommen im digitalen Modulhandbuch</h1>
         <div class="action-stack">
           <button class="button-primary" type="button" data-screen-link="modules">Modulhandbuch Filter</button>
@@ -90,14 +92,22 @@
                 <option value="5">5. Semester</option>
                 <option value="6">6. Semester</option>
                 <option value="7">7. Semester</option>
+                <option value="8">8. Semester</option>
+                <option value="9">9. Semester</option>
+                <option value="10">10. Semester</option>
+                <option value="11">11. Semester</option>
+                <option value="12">12. Semester</option>
+                <option value="13">13. Semester</option>
+                <option value="14">14. Semester</option>
+                <option value="15">15. Semester</option>
               </select>
             </label>
 
             <label class="form-control">
-              Auslastung
-              <input type="range" min="1" max="3" value="3" data-load-input>
+              Auslastung / Planlänge
+              <input type="range" min="1" max="6" value="6" data-load-input>
             </label>
-            <p class="load-output"><strong data-load-output>7 Semester (+0)</strong></p>
+            <p class="load-output"><strong data-load-output>Regelstudienzeit: 7 Semester (API-Speed 100, ca. 30 CrP/Sem.)</strong></p>
             <p class="sidebar-credit-summary" data-sidebar-credit-summary>210 CrP gesamt</p>
 
             <div class="screen-actions">
@@ -283,9 +293,12 @@
       const COMPLETION_MODULE_IDS = [27, 28, 29];
       const GENERATOR_TIMEOUT_MS = 12000;
       const planSettings = {
-        1: { semesterCount: 9, targetCredits: 21, speed: 70 },
-        2: { semesterCount: 8, targetCredits: 24, speed: 80 },
-        3: { semesterCount: 7, targetCredits: 27, speed: 90 }
+        1: { label: "Sehr langsam", semesterCount: 15, targetCredits: 14, speed: 50 },
+        2: { label: "Langsam", semesterCount: 12, targetCredits: 18, speed: 60 },
+        3: { label: "Entspannt", semesterCount: 10, targetCredits: 21, speed: 70 },
+        4: { label: "Zügig", semesterCount: 9, targetCredits: 24, speed: 80 },
+        5: { label: "Ausgewogen", semesterCount: 8, targetCredits: 27, speed: 90 },
+        6: { label: "Regelstudienzeit", semesterCount: 7, targetCredits: 30, speed: 100 }
       };
       const moduleImagePathsByNumber = {
         1: "Bilder/Stockimages Cropped/GDV1 pexels-jakeheinemann-2024-09-28.jpg",
@@ -343,7 +356,7 @@
       const state = {
         focus: "Medienproduktion",
         start: "Sommer",
-        loadLevel: 3,
+        loadLevel: 6,
         currentSemester: 1,
         skippedModules: [],
         moduleStatuses: {},
@@ -398,11 +411,12 @@
       const printPlanButton = document.querySelector("[data-print-plan]");
       const appMenuToggle = document.querySelector("[data-app-menu-toggle]");
       const appMenuPanel = document.querySelector("[data-app-menu-panel]");
-      const loadLabels = {
-        1: "9 Semester (+2)",
-        2: "8 Semester (+1)",
-        3: "7 Semester (+0)"
-      };
+      const loadLabels = Object.fromEntries(
+        Object.entries(planSettings).map(([level, setting]) => [
+          level,
+          `${setting.label}: ${setting.semesterCount} Semester (API-Speed ${setting.speed}, ca. ${setting.targetCredits} CrP/Sem.)`
+        ])
+      );
 
       function showScreen(screenName) {
         screens.forEach((screen) => {
@@ -539,7 +553,7 @@
       }
 
       function planSetting() {
-        return planSettings[state.loadLevel] || planSettings[3];
+        return planSettings[state.loadLevel] || planSettings[6];
       }
 
       function lastPlanSemester() {
