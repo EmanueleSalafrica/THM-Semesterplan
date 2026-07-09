@@ -264,27 +264,7 @@
 
     <script src="JS/api-client.js"></script>
     <script src="JS/data-loader.js"></script>
-    <script src="JS/study-plan-generator.js?v=po2024-plan-5"></script>
     <script>
-      const planTemplates = {
-        "Medienproduktion": [
-          ["GDV 1", "AV 1", "SWE 1", "WEB 1", "MG 1"],
-          ["GDV 2", "AV 2", "SWE 2", "WEB 2"],
-          ["MP 1", "3D 1", "UX 1", "DB 1"],
-          ["MP 2", "Film 1", "PM 1", "WEB 3"],
-          ["Projekt 1"],
-          ["Praxis", "Portfolio"]
-        ],
-        "Web & Mobile": [
-          ["WEB 1", "SWE 1", "GDV 1", "UX 1", "WM 1"],
-          ["WEB 2", "SWE 2", "DB 1", "AV 1"],
-          ["WM 2", "UX 2", "API 1", "GDV 2"],
-          ["WEB 3", "APP 1", "PM 1", "MP 1"],
-          ["Projekt 1"],
-          ["Praxis", "Portfolio"]
-        ]
-      };
-
       let electiveModules = [
         "Wahlpflicht A",
         "Wahlpflicht B",
@@ -379,7 +359,7 @@
         activeElectiveCategory: "",
         activePlanIndex: 0,
         planVariants: [],
-        planSource: "local",
+        planSource: "api",
         planMessage: "",
         creditSummary: null
       };
@@ -1337,7 +1317,7 @@
           return loadedModules.map(moduleTitle);
         }
 
-        return [...new Set(Object.values(planTemplates).flat(2))];
+        return [];
       }
 
       function renderSkippedModules() {
@@ -1533,64 +1513,6 @@
           : module.webmobile === "Ja";
       }
 
-      function modulesForPlanning() {
-        if (loadedModules.length > 0) {
-          return loadedModules
-            .filter(moduleFitsFocus)
-            .filter((module) => module.pflicht === "Ja")
-            .filter((module) => !isCompletionModuleNumber(module.nr))
-            .filter((module) => !state.skippedModules.includes(module.titel))
-            .map((module) => ({
-              titel: module.titel,
-              semester: Number(module.semester) || 1,
-              credits: Number(module.credits) || EMPTY_ELECTIVE_CREDITS
-            }));
-        }
-
-        return planTemplates[state.focus].flat().map((moduleName, index) => ({
-          titel: moduleName,
-          semester: Math.floor(index / 5) + 1,
-          credits: moduleCredits(moduleName)
-        })).filter((module) => !state.skippedModules.includes(module.titel));
-      }
-
-      function createElectiveSlots(variantIndex = 0) {
-        const usedModuleNames = [];
-
-        return Array.from({ length: ELECTIVE_SLOT_COUNT }, (_, index) => {
-          const slotId = `wpm-${index + 1}`;
-          const selectionKey = `variant-${variantIndex + 1}-${slotId}`;
-          const autoSelectedModuleName = automaticElectiveModuleName(index, variantIndex, usedModuleNames);
-          const selectedModuleName = state.selectedElectives[selectionKey] || autoSelectedModuleName;
-          const selectedModule = selectedModuleName ? findModule(selectedModuleName) : null;
-
-          if (autoSelectedModuleName) {
-            usedModuleNames.push(autoSelectedModuleName);
-          }
-
-          return {
-            type: "elective-placeholder",
-            slotId,
-            selectionKey,
-            slotNumber: index + 1,
-            title: `Wahlpflichtmodul ${index + 1}`,
-            semester: ELECTIVE_START_SEMESTER + Math.floor(index / 2),
-            autoSelectedModuleName,
-            credits: Number(selectedModule?.credits) || EMPTY_ELECTIVE_CREDITS
-          };
-        });
-      }
-
-      function createCompletionItems(semesterNumber = completionSemester()) {
-        return COMPLETION_MODULE_IDS.map(findModuleByNumber).filter(Boolean).map((module) => ({
-          type: "module",
-          moduleId: Number(module.nr),
-          title: moduleTitle(module),
-          semester: semesterNumber,
-          credits: Number(module.credits) || EMPTY_ELECTIVE_CREDITS
-        }));
-      }
-
       function createApiCompletionItems(apiModule, semesterNumber) {
         return [28, 29].map(findModuleByNumber).filter(Boolean).map((module) => ({
           type: "module",
@@ -1603,27 +1525,6 @@
           apiVisualGroup: apiModule?.visualisierungsgruppe || "",
           apiSemester: semesterNumber
         }));
-      }
-
-      function isCompletionPlanItem(planItem) {
-        const module = findModule(plannedItemTitle(planItem));
-        return module ? isCompletionModuleNumber(module.nr) : false;
-      }
-
-      function ensureCompletionItems(plan) {
-        plan.forEach((planItems, semester) => {
-          plan.set(semester, planItems.filter((planItem) => !isCompletionPlanItem(planItem)));
-        });
-
-        if (!plan.has(completionSemester())) {
-          plan.set(completionSemester(), []);
-        }
-
-        createCompletionItems().forEach((planItem) => {
-          addModuleToPlan(plan, completionSemester(), planItem);
-        });
-
-        return plan;
       }
 
       function createApiElectiveItem(moduleId, fallbackIndex = 0, variantIndex = 0, usedModuleNames = [], apiModule = {}, semesterNumber = ELECTIVE_START_SEMESTER) {
@@ -1652,17 +1553,6 @@
           apiVisualGroup: apiModule?.visualisierungsgruppe || "",
           apiSemester: semesterNumber
         };
-      }
-
-      function createEmptyPlan() {
-        const plan = new Map();
-        const finalSemester = lastPlanSemester();
-
-        for (let semester = state.currentSemester; semester <= finalSemester; semester += 1) {
-          plan.set(semester, []);
-        }
-
-        return plan;
       }
 
       function planFromSemesterEntries(entries, variantIndex = 0) {
@@ -1850,174 +1740,6 @@
         return (plan.get(semester) || []).reduce((sum, planItem) => sum + plannedItemCredits(planItem), 0);
       }
 
-      function findBestSemester(plan, preferredSemester, credits, options = {}) {
-        const targetCredits = planSetting().targetCredits;
-        const excludedSemesters = options.excludedSemesters || [];
-        const availableSemesters = [...plan.keys()].filter((semester) => !excludedSemesters.includes(semester));
-        const semesters = availableSemesters.length > 0 ? availableSemesters : [...plan.keys()];
-        const clampedPreferredSemester = Math.min(
-          Math.max(preferredSemester, state.currentSemester),
-          semesters[semesters.length - 1]
-        );
-        const orderedSemesters = [
-          ...semesters.filter((semester) => semester >= clampedPreferredSemester),
-          ...semesters.filter((semester) => semester < clampedPreferredSemester)
-        ];
-        const fittingSemester = orderedSemesters
-          .map((semester) => ({
-            semester,
-            creditsAfterAdd: semesterCreditTotal(plan, semester) + credits
-          }))
-          .filter((candidate) => candidate.creditsAfterAdd <= targetCredits)
-          .sort((a, b) => {
-            const fillDiff = b.creditsAfterAdd - a.creditsAfterAdd;
-            return fillDiff !== 0 ? fillDiff : a.semester - b.semester;
-          })[0];
-
-        if (fittingSemester) {
-          return fittingSemester.semester;
-        }
-
-        return orderedSemesters
-          .map((semester) => ({
-            semester,
-            creditsAfterAdd: semesterCreditTotal(plan, semester) + credits
-          }))
-          .sort((a, b) => {
-            const overflowDiff = a.creditsAfterAdd - b.creditsAfterAdd;
-            return overflowDiff !== 0 ? overflowDiff : a.semester - b.semester;
-          })[0].semester;
-      }
-
-      function createPlanVariant(variantIndex) {
-        const plan = createEmptyPlan();
-        const variantOffsets = [
-          [0, 0, 0],
-          [0, 1, 0],
-          [1, 0, 1],
-          [0, 1, 1],
-          [1, 1, 0]
-        ];
-        const offsets = variantOffsets[variantIndex] || variantOffsets[0];
-        const modules = modulesForPlanning().sort((a, b) => {
-          const semesterDiff = (a.semester || 1) - (b.semester || 1);
-          if (semesterDiff !== 0) {
-            return semesterDiff;
-          }
-          if (variantIndex === 3) {
-            return b.titel.localeCompare(a.titel);
-          }
-          if (variantIndex === 4) {
-            const creditDiff = (Number(b.credits) || 0) - (Number(a.credits) || 0);
-            return creditDiff !== 0 ? creditDiff : a.titel.localeCompare(b.titel);
-          }
-          return a.titel.localeCompare(b.titel);
-        });
-        const planItems = [
-          ...modules.map((module) => ({
-            type: "module",
-            title: module.titel,
-            semester: module.semester,
-            credits: module.credits
-          })),
-          ...createElectiveSlots(variantIndex)
-        ];
-
-        planItems.forEach((planItem, moduleIndex) => {
-          const semesterOffset = offsets[moduleIndex % offsets.length];
-          const preferredSemester = Math.max(state.currentSemester, planItem.semester || state.currentSemester);
-          const targetSemester = findBestSemester(
-            plan,
-            preferredSemester + semesterOffset,
-            plannedItemCredits(planItem),
-            { excludedSemesters: [completionSemester()] }
-          );
-          addModuleToPlan(plan, targetSemester, planItem);
-        });
-
-        return ensureCompletionItems(plan);
-      }
-
-      function moduleIdsFromNames(moduleNames) {
-        return moduleNames
-          .map(findModule)
-          .filter(Boolean)
-          .map((module) => Number(module.nr));
-      }
-
-      function selectedElectiveModuleIds() {
-        return moduleIdsFromNames(Object.values(state.selectedElectives).filter(Boolean));
-      }
-
-      function categoryFromSlotId(slotId) {
-        return String(slotId || "").replace(/-\d+$/, "");
-      }
-
-      function selectedElectiveSlotsForGenerator() {
-        return Object.entries(state.selectedElectives)
-          .map(([slotId, moduleName]) => {
-            const module = findModule(moduleName);
-            if (!module) {
-              return null;
-            }
-
-            return {
-              id: slotId,
-              category: categoryFromSlotId(slotId),
-              selectedModuleId: Number(module.nr)
-            };
-          })
-          .filter(Boolean);
-      }
-
-      function studyTrackId() {
-        return state.focus === "Medienproduktion" ? "medienproduktion" : "web-mobile";
-      }
-
-      function studyStartTermId() {
-        return state.start === "Sommer" ? "summer" : "winter";
-      }
-
-      function planItemFromModule(module) {
-        if (module?.type === "elective-slot") {
-          return {
-            type: "elective-placeholder",
-            slotId: module.id,
-            selectionKey: module.id,
-            slotNumber: module.id,
-            title: module.label,
-            category: module.category,
-            allowedModuleIds: module.allowedModules || [],
-            selectedModuleId: module.selectedModuleId,
-            status: module.status,
-            semester: Number(module.semesterNumber) || state.currentSemester,
-            credits: Number(module.crp) || EMPTY_ELECTIVE_CREDITS
-          };
-        }
-
-        return {
-          type: "module",
-          moduleId: Number(module.nr),
-          title: moduleTitle(module),
-          semester: Number(module.semester) || state.currentSemester,
-          credits: Number(module.credits) || EMPTY_ELECTIVE_CREDITS
-        };
-      }
-
-      function planMapFromGeneratedSemesters(semesters) {
-        const plan = new Map();
-
-        semesters.forEach((semester) => {
-          const semesterNumber = Math.min(Number(semester.semesterNumber), lastPlanSemester());
-          plan.set(
-            semesterNumber,
-            [...(plan.get(semesterNumber) || []), ...semester.modules.map(planItemFromModule)]
-          );
-        });
-
-        return plan;
-      }
-
       function planSignature(plan) {
         return [...plan.keys()]
           .sort((a, b) => a - b)
@@ -2041,43 +1763,6 @@
           signatures.add(signature);
           return true;
         });
-      }
-
-      function generateStudyPlanVariant(variant = "standard") {
-        if (!window.MPMStudyPlan?.generateStudyPlan || loadedModules.length === 0) {
-          return null;
-        }
-
-        const passedModuleIds = moduleIdsByStatus("passed");
-        const result = window.MPMStudyPlan.generateStudyPlan({
-          modules: loadedModules,
-          selectedTrack: studyTrackId(),
-          currentSemester: state.currentSemester,
-          startTerm: studyStartTermId(),
-          targetSemesterCount: planSetting().semesterCount,
-          passedModuleIds,
-          excludedModuleIds: moduleIdsByStatus("excluded"),
-          selectedOppositeTrackModules: [],
-          selectedElectives: selectedElectiveModuleIds(),
-          selectedElectiveSlots: selectedElectiveSlotsForGenerator(),
-          variant
-        });
-
-        state.creditSummary = result.creditSummary || null;
-        state.planMessage = result.message || "PO 2024 Generator";
-        return planMapFromGeneratedSemesters(result.semesters);
-      }
-
-      function localPlanCandidates() {
-        return [
-          ...LOCAL_PLAN_VARIANTS.map((variant) => generateStudyPlanVariant(variant)),
-          ...Array.from({ length: 5 }, (_, index) => createPlanVariant(index))
-        ];
-      }
-
-      function generateLocalPlanVariants() {
-        state.planVariants = uniquePlanVariants(localPlanCandidates()).slice(0, 5);
-        state.planSource = "local";
       }
 
       function apiPlanRequest() {
@@ -2131,7 +1816,7 @@
           throw new Error("Der Generator hat keine auswertbare Planstruktur geliefert.");
         }
 
-        state.planVariants = uniquePlanVariants([...apiPlans, ...localPlanCandidates()]).slice(0, 5);
+        state.planVariants = uniquePlanVariants(apiPlans).slice(0, 5);
         state.planSource = "api";
         state.planMessage = "THM/CurrGen API";
         state.creditSummary = null;
@@ -2143,22 +1828,23 @@
         try {
           await generateApiPlanVariants();
         } catch (error) {
-          console.warn("[MPM] THM/CurrGen API nicht erreichbar oder nicht auswertbar. Lokaler Generator wird genutzt.", error);
-          generateLocalPlanVariants();
+          console.warn("[MPM] THM/CurrGen API nicht erreichbar oder nicht auswertbar.", error);
+          state.planVariants = [];
+          state.planSource = "api";
+          state.planMessage = "Der Semesterplan konnte nicht über die THM/CurrGen API generiert werden.";
+          state.creditSummary = null;
         }
       }
 
-      function regeneratePlanPreservingVariant() {
+      async function regeneratePlanPreservingVariant() {
         if (!state.planGenerated) {
           renderPlanModuleSelection();
           return;
         }
 
         const activePlanIndex = state.activePlanIndex;
-        if (state.planSource === "local") {
-          generateLocalPlanVariants();
-        }
-        state.activePlanIndex = Math.min(activePlanIndex, state.planVariants.length - 1);
+        await generatePlanVariants();
+        state.activePlanIndex = Math.max(0, Math.min(activePlanIndex, state.planVariants.length - 1));
         renderPlan();
       }
 
@@ -2220,7 +1906,23 @@
           return;
         }
 
-        const activePlan = state.planVariants[state.activePlanIndex] || createPlanVariant(0);
+        if (state.planVariants.length === 0) {
+          planTabs.replaceChildren();
+          const emptyState = document.createElement("p");
+          emptyState.className = "module-browser-empty";
+          emptyState.textContent = state.planMessage || "Der Semesterplan konnte nicht über die THM/CurrGen API generiert werden.";
+          planContainer.replaceChildren(emptyState);
+          planSummary.textContent = "Kein Plan aus der THM/CurrGen API verfügbar.";
+          if (sidebarCreditSummary) {
+            sidebarCreditSummary.textContent = "Kein API-Plan verfügbar";
+          }
+          printPlanButton.disabled = true;
+          printPlanButton.title = "Drucken ist erst möglich, wenn ein Plan über die API generiert wurde.";
+          renderPlanModuleSelection();
+          return;
+        }
+
+        const activePlan = state.planVariants[state.activePlanIndex];
         const changedPlanKeys = variantDifferenceKeys();
         const semesterSections = [];
         const semesterNumbers = [...activePlan.keys()].sort((a, b) => a - b);
@@ -2395,19 +2097,19 @@
         });
       });
 
-      loadInput.addEventListener("input", () => {
+      loadInput.addEventListener("input", async () => {
         readOptions();
         if (state.planGenerated) {
-          generateLocalPlanVariants();
+          await generatePlanVariants();
           renderPlan();
         } else {
           renderPlanModuleSelection();
         }
       });
-      currentSemesterInput.addEventListener("change", () => {
+      currentSemesterInput.addEventListener("change", async () => {
         readOptions();
         if (state.planGenerated) {
-          generateLocalPlanVariants();
+          await generatePlanVariants();
           renderPlan();
         } else {
           renderPlanModuleSelection();
