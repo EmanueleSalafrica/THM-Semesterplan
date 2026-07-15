@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Modulhandbuch Seiten-Struktur</title>
-  <link rel="stylesheet" href="CSS/style.css?v=study-plan-ui-10">
-  <link rel="stylesheet" href="CSS/study-plan.css?v=study-plan-ui-10">
+  <link rel="stylesheet" href="CSS/style.css?v=ci-fix-1">
+  <link rel="stylesheet" href="CSS/study-plan.css?v=cards-slider-fix-1">
 
     <script src="./JS/lib/gsap/gsap.js" defer></script>
 
@@ -21,8 +21,7 @@
   <body class="app-shell">
     <header class="app-header">
       <button class="app-logo" type="button" data-screen-link="start" aria-label="Zurück zum Hauptmenü">
-        <span>THM</span>
-        <small>Technische Hochschule Mittelhessen</small>
+        <img class="app-logo-image" src="SVG/thm-logo.svg" alt="THM - Technische Hochschule Mittelhessen">
       </button>
       <nav class="app-menu" aria-label="Hauptnavigation">
         <button class="app-menu-button" type="button" aria-expanded="false" aria-controls="app-menu-panel" data-app-menu-toggle>
@@ -51,6 +50,13 @@
           <button class="button-primary" type="button" data-screen-link="options">Semesterplan erstellen</button>
           <a class="button-secondary" href="schwerpunktwahl-info.html?v=navigation-menu-2">Schwerpunktwahl Info</a>
         </div>
+        <a class="start-qr-panel" href="https://hosting.iem.thm.de/mpm-projects/2026/t2/" target="_blank" rel="noopener" aria-label="Online-Version der Projektwebseite öffnen">
+          <img src="Bilder/QR-Code-MPM-Projekt-Team-2.svg?v=1" alt="QR-Code zur Online-Version des Projekts">
+          <span>
+            <strong>Online testen</strong>
+            <small>QR-Code zur Projektwebseite</small>
+          </span>
+        </a>
       </section>
 
       <section class="screen screen-options" data-screen="options" hidden>
@@ -197,7 +203,6 @@
               <option value="all">Alle Schwerpunkte</option>
               <option value="medienproduktion">Medienproduktion</option>
               <option value="webmobile">Web &amp; Mobile</option>
-              <option value="both">Beide Schwerpunkte</option>
             </select>
           </label>
 
@@ -418,6 +423,16 @@
           `${setting.label}: ${setting.semesterCount} Semester (API-Speed ${setting.speed}, ca. ${setting.targetCredits} CrP/Sem.)`
         ])
       );
+
+      function updateLoadSliderVisual() {
+        const min = Number(loadInput.min);
+        const max = Number(loadInput.max);
+        const value = Number(loadInput.value);
+        const rawProgress = max > min ? (value - min) / (max - min) : 0;
+        const visualProgress = rawProgress * 100;
+
+        loadInput.style.setProperty("--load-range-fill", `${visualProgress}%`);
+      }
 
       function showScreen(screenName) {
         screens.forEach((screen) => {
@@ -649,7 +664,7 @@
           return moduleTitle(findModuleByNumber(planItem.selectedModuleId));
         }
 
-        return planItem?.autoSelectedModuleName || "";
+        return "";
       }
 
       function moduleImagePath(moduleOrName) {
@@ -682,6 +697,76 @@
         }
 
         return focusAreas.length > 0 ? focusAreas.join(", ") : "Allgemeiner Studienbereich";
+      }
+
+      function moduleFocusBadges(module) {
+        const badges = [];
+
+        if (module?.medienproduktion === "Ja") {
+          badges.push({ type: "media", label: "Medienproduktion", shortLabel: "MP" });
+        }
+
+        if (module?.webmobile === "Ja") {
+          badges.push({ type: "web", label: "Web & Mobile", shortLabel: "WM" });
+        }
+
+        return badges;
+      }
+
+      function appendFocusBadges(container, module) {
+        const badges = moduleFocusBadges(module);
+
+        if (badges.length === 0) {
+          return;
+        }
+
+        const badgeList = document.createElement("span");
+        badgeList.className = "module-focus-badges";
+        badges.forEach((badge) => {
+          const badgeElement = document.createElement("span");
+          badgeElement.className = `module-focus-badge module-focus-badge-${badge.type}`;
+          badgeElement.title = badge.label;
+          badgeElement.setAttribute("aria-label", badge.label);
+          badgeElement.textContent = badge.shortLabel;
+          badgeList.append(badgeElement);
+        });
+        container.append(badgeList);
+      }
+
+      function electiveFocusRelation(module) {
+        const focusField = state.focus === "Medienproduktion" ? "medienproduktion" : "webmobile";
+        const otherField = state.focus === "Medienproduktion" ? "webmobile" : "medienproduktion";
+
+        if (module?.[focusField] === "Ja") {
+          return "Eigener Schwerpunkt";
+        }
+
+        if (module?.[otherField] === "Ja") {
+          return "Fremder Schwerpunkt";
+        }
+
+        return "Freier Wahlpflichtbereich";
+      }
+
+      function selectedElectiveModules() {
+        return Object.values(state.selectedElectives)
+          .filter(Boolean)
+          .map(findModule)
+          .filter(Boolean);
+      }
+
+      function electiveRuleSummary() {
+        const selectedModules = selectedElectiveModules();
+        const ownCount = selectedModules.filter((module) => electiveFocusRelation(module) === "Eigener Schwerpunkt").length;
+        const foreignCount = selectedModules.filter((module) => electiveFocusRelation(module) === "Fremder Schwerpunkt").length;
+        const ruleSatisfied = ownCount >= 3 && foreignCount >= 1;
+
+        return {
+          ownCount,
+          foreignCount,
+          ruleSatisfied,
+          text: `Wahlpflicht-Regel: ${ownCount}/3 eigener Schwerpunkt, ${foreignCount}/1 fremder Schwerpunkt`
+        };
       }
 
       function moduleOfferText(module) {
@@ -831,6 +916,9 @@
         ].forEach((factText) => {
           const fact = document.createElement("li");
           fact.textContent = factText;
+          if (factText === `${module.credits} Credits`) {
+            appendFocusBadges(fact, module);
+          }
           facts.append(fact);
         });
         overview.append(summary, facts);
@@ -934,6 +1022,7 @@
         const content = document.createElement("div");
         const title = document.createElement("h2");
         const description = document.createElement("p");
+        const tail = document.createElement("div");
         const meta = document.createElement("p");
         const focus = document.createElement("p");
         const infoButton = document.createElement("button");
@@ -942,6 +1031,7 @@
         content.className = "module-browser-content";
         title.className = "module-browser-title";
         description.className = "module-browser-description";
+        tail.className = "module-browser-tail";
         meta.className = "module-browser-meta";
         focus.className = "module-browser-focus";
         infoButton.type = "button";
@@ -949,10 +1039,12 @@
         title.textContent = module.titel;
         description.textContent = moduleCapabilityText(module);
         meta.textContent = moduleMetaText(module);
+        appendFocusBadges(meta, module);
         focus.textContent = moduleFocusText(module);
         infoButton.textContent = "Details ansehen";
         infoButton.addEventListener("click", () => openModuleDialog(module.titel));
-        content.append(title, description, meta, focus, infoButton);
+        tail.append(meta, focus, infoButton);
+        content.append(title, description, tail);
         item.append(image, content);
         return item;
       }
@@ -1056,6 +1148,7 @@
         stateLine.className = "plan-module-card-state";
         title.textContent = moduleTitle(module);
         meta.textContent = `${module.credits} CrP | ${module.semester}. Semester`;
+        appendFocusBadges(meta, module);
         category.textContent = planModuleCategoryText(module);
         status.textContent = planModuleStatusText(module, plannedIds);
         category.className = "plan-module-card-category";
@@ -1106,7 +1199,8 @@
         moduleStatusDialog.dataset.moduleId = String(module.nr);
         setActivePlanModuleCard(module);
         moduleStatusTitle.textContent = moduleTitle(module);
-        moduleStatusMeta.textContent = `${module.credits} CrP | ${planModuleCategoryText(module)} | ${module.semester}. Semester | aktuell: ${planModuleStatusText(module)}`;
+        moduleStatusMeta.replaceChildren(`${module.credits} CrP | ${planModuleCategoryText(module)} | ${module.semester}. Semester | aktuell: ${planModuleStatusText(module)}`);
+        appendFocusBadges(moduleStatusMeta, module);
         moduleStatusWarning.hidden = true;
         moduleStatusWarning.textContent = "";
         moduleStatusDialog.showModal();
@@ -1189,6 +1283,7 @@
         state.currentSemester = Number(currentSemesterInput.value);
         state.skippedModules = moduleNamesByStatus("passed");
         loadOutput.textContent = loadLabels[state.loadLevel];
+        updateLoadSliderVisual();
         syncSelectedElectivesWithFocus();
       }
 
@@ -1300,6 +1395,7 @@
           apiMeta.textContent = options.apiType;
           button.append(apiMeta);
         }
+        button.addEventListener("click", () => openElectiveDialog(planItem));
         return button;
       }
 
@@ -1344,8 +1440,7 @@
       }
 
       function moduleAvailableAsElective(module) {
-        const assignedToFocus = module.medienproduktion === "Ja" || module.webmobile === "Ja";
-        return module.pflicht !== "Ja" && (!assignedToFocus || moduleFitsFocus(module));
+        return module.pflicht !== "Ja";
       }
 
       function electiveCandidateModules() {
@@ -1474,11 +1569,18 @@
         list.replaceChildren(
           ...selectableModules.map((moduleName) => {
             const item = document.createElement("article");
+            const module = findModule(moduleName);
+            const relation = document.createElement("p");
             const chooseButton = document.createElement("button");
             const selectedInOtherSlot = Object.entries(state.selectedElectives)
               .find(([selectionKey, selectedModuleName]) => selectionKey !== activeSelectionKey && selectedModuleName === moduleName);
 
             item.className = "elective-item";
+            relation.className = "elective-relation";
+            relation.textContent = module ? electiveFocusRelation(module) : "Wahlpflichtbereich";
+            if (module) {
+              appendFocusBadges(relation, module);
+            }
             chooseButton.type = "button";
             chooseButton.className = "button-secondary";
             chooseButton.disabled = !activeSlotId;
@@ -1515,7 +1617,7 @@
               }
             });
 
-            item.append(createModuleButton(moduleName), " ", chooseButton);
+            item.append(createModuleButton(moduleName), relation, chooseButton);
             return item;
           })
         );
@@ -1545,12 +1647,11 @@
         const slotId = apiElectiveSlotId(moduleId, fallbackIndex);
         const slotNumber = slotId.replace("wpm-", "");
         const selectionKey = `variant-${variantIndex + 1}-${slotId}`;
-        const autoSelectedModuleName = automaticElectiveModuleName(fallbackIndex, variantIndex, usedModuleNames);
-        const selectedModuleName = state.selectedElectives[selectionKey] || autoSelectedModuleName;
+        const selectedModuleName = state.selectedElectives[selectionKey] || "";
         const selectedModule = selectedModuleName ? findModule(selectedModuleName) : null;
 
-        if (autoSelectedModuleName) {
-          usedModuleNames.push(autoSelectedModuleName);
+        if (selectedModuleName) {
+          usedModuleNames.push(selectedModuleName);
         }
 
         return {
@@ -1560,7 +1661,7 @@
           slotNumber,
           title: apiModule?.titel || `Wahlpflichtmodul ${slotNumber}`,
           semester: semesterNumber,
-          autoSelectedModuleName,
+          autoSelectedModuleName: "",
           credits: Number(apiModule?.credits) || Number(selectedModule?.credits) || EMPTY_ELECTIVE_CREDITS,
           apiModuleId: Number(apiModule?.nr) || Number(moduleId),
           apiType: apiModule?.typ || "WP",
@@ -1940,9 +2041,12 @@
         const changedPlanKeys = variantDifferenceKeys();
         const semesterSections = [];
         const semesterNumbers = [...activePlan.keys()].sort((a, b) => a - b);
-        const openElectiveCount = semesterNumbers
+        const electivePlaceholders = semesterNumbers
           .flatMap((semester) => activePlan.get(semester))
-          .filter(isOpenElectivePlaceholder).length;
+          .filter(isElectivePlaceholder);
+        const openElectiveCount = electivePlaceholders.filter(isOpenElectivePlaceholder).length;
+        const electiveRule = electiveRuleSummary();
+        const electiveRuleRequired = electivePlaceholders.length > 0;
         const totalCredits = semesterNumbers
           .reduce((sum, semester) => sum + semesterCreditTotal(activePlan, semester), 0);
         const creditSummary = state.creditSummary;
@@ -2000,17 +2104,19 @@
           creditSummary ? `gesamt nach Plan: ${creditSummary.totalAfterPlanCrp}/${creditSummary.totalRequiredCrp} CrP` : "",
           creditSummary && creditSummary.missingAfterPlanCrp > 0 ? `fehlend: ${creditSummary.missingAfterPlanCrp} CrP` : "",
           electiveStatus,
+          electiveRuleRequired ? electiveRule.text : "",
           changedPlanKeys.size > 0 ? `${changedPlanKeys.size} Unterschied${changedPlanKeys.size === 1 ? "" : "e"} zu Variante 1 hervorgehoben` : "",
           state.planSource === "api" ? "Plan aus THM/CurrGen API" : state.planMessage
         ].filter(Boolean).join(", ");
         if (sidebarCreditSummary) {
           sidebarCreditSummary.textContent = creditSummary
-            ? `${creditSummary.totalAfterPlanCrp}/${creditSummary.totalRequiredCrp} CrP nach Plan | ${electiveStatus}`
+            ? `${creditSummary.totalAfterPlanCrp}/${creditSummary.totalRequiredCrp} CrP nach Plan | ${electiveStatus}${electiveRuleRequired ? ` | ${electiveRule.text}` : ""}`
             : `${totalCredits} CrP im aktuellen Plan`;
         }
-        printPlanButton.disabled = openElectiveCount > 0 || semesterSections.length === 0;
+        printPlanButton.disabled = openElectiveCount > 0 || (electiveRuleRequired && !electiveRule.ruleSatisfied) || semesterSections.length === 0;
         printPlanButton.title = openElectiveCount > 0
           ? "Drucken ist erst möglich, wenn alle Wahlpflichtmodule gewählt wurden."
+          : electiveRuleRequired && !electiveRule.ruleSatisfied ? "Drucken ist erst möglich, wenn mindestens 3 Wahlpflichtmodule aus dem eigenen Schwerpunkt und 1 aus dem fremden Schwerpunkt gewählt wurden."
           : semesterSections.length === 0 ? "Drucken ist erst möglich, wenn ein Plan generiert wurde."
           : "Semesterplan drucken";
         renderPlanModuleSelection();
@@ -2073,6 +2179,21 @@
         const screenName = new URLSearchParams(window.location.search).get("screen") || window.location.hash.replace("#", "");
         const allowedScreens = ["start", "modules", "options", "plan"];
         return allowedScreens.includes(screenName) ? screenName : "start";
+      }
+
+      function applyInitialOptionsFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        const focusParam = (params.get("focus") || "").toLocaleLowerCase("de-DE");
+        const focusValue = focusParam === "wm" || focusParam === "webmobile" || focusParam === "web-mobile"
+          ? "Web & Mobile"
+          : focusParam === "mp" || focusParam === "medienproduktion" ? "Medienproduktion" : "";
+
+        if (focusValue) {
+          const focusInput = document.querySelector(`input[name="focus"][value="${focusValue}"]`);
+          if (focusInput) {
+            focusInput.checked = true;
+          }
+        }
       }
 
       appMenuToggle?.addEventListener("click", (event) => {
@@ -2258,6 +2379,7 @@
         renderModuleBrowser();
         renderSkippedModules();
         renderElectiveDialog();
+        applyInitialOptionsFromUrl();
         readOptions();
         updateGeneratedPlanVisibility();
         renderPlanModuleSelection();
@@ -2269,6 +2391,7 @@
         renderModuleBrowser();
         renderSkippedModules();
         renderElectiveDialog();
+        applyInitialOptionsFromUrl();
         readOptions();
         updateGeneratedPlanVisibility();
         renderPlanModuleSelection();

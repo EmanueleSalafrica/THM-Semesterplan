@@ -36,38 +36,11 @@
   }
 
   .app-logo {
-    @apply inline-grid cursor-pointer grid-cols-[2.125rem_auto] items-end gap-x-3 border-0 bg-transparent p-0 text-left transition hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:grid-cols-[2.625rem_auto];
+    @apply inline-flex cursor-pointer items-center rounded-sm border-0 bg-white px-2 py-1 text-left shadow-sm transition hover:opacity-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white;
   }
 
-  .app-logo::before {
-    @apply inline-block h-8 w-6 self-center border-r border-white/80 pr-2.5 md:h-10 md:w-[1.875rem] md:pr-3;
-    content: "";
-    box-sizing: content-box;
-    background:
-      linear-gradient(white 0 0) 40% 0 / 20% 16%,
-      linear-gradient(white 0 0) 80% 0 / 20% 16%,
-      linear-gradient(white 0 0) 0 28% / 20% 16%,
-      linear-gradient(white 0 0) 40% 28% / 20% 16%,
-      linear-gradient(white 0 0) 80% 28% / 20% 16%,
-      linear-gradient(white 0 0) 0 56% / 20% 16%,
-      linear-gradient(white 0 0) 40% 56% / 20% 16%,
-      linear-gradient(white 0 0) 80% 56% / 20% 16%,
-      linear-gradient(white 0 0) 0 84% / 20% 16%,
-      linear-gradient(white 0 0) 40% 84% / 20% 16%,
-      linear-gradient(white 0 0) 80% 84% / 20% 16%;
-    background-repeat: no-repeat;
-    background-origin: content-box;
-    background-clip: content-box;
-  }
-
-  .app-logo span {
-    @apply text-4xl font-semibold leading-none text-white md:text-5xl;
-    font-family: "Arial Narrow", "DIN Condensed", "DIN Pro", Arial, sans-serif;
-  }
-
-  .app-logo small {
-    @apply col-span-2 mt-1 block w-full whitespace-nowrap text-[0.48rem] font-bold uppercase leading-none text-white md:text-[0.6rem];
-    font-family: "Arial Narrow", "DIN Condensed", "DIN Pro", Arial, sans-serif;
+  .app-logo-image {
+    @apply block h-8 w-auto md:h-10;
   }
 
   .app-menu {
@@ -292,6 +265,11 @@
 
   .module-browser-title {
     @apply text-lg font-bold leading-tight text-thm-gray;
+    min-height: 2.75rem;
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
   }
 
   .module-browser-description {
@@ -300,6 +278,11 @@
     overflow: hidden;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 4;
+  }
+
+  .module-browser-tail {
+    @apply mt-auto grid gap-2;
+    align-self: stretch;
   }
 
   .module-browser-meta,
@@ -316,7 +299,25 @@
   }
 
   .module-browser-detail-button {
-    @apply mt-auto w-full;
+    @apply w-full;
+  }
+
+  .module-focus-badges {
+    @apply inline-flex items-center gap-1 align-middle;
+    margin-left: 0.35rem;
+  }
+
+  .module-focus-badge {
+    @apply inline-flex h-5 min-w-7 items-center justify-center rounded-sm px-1 text-[0.62rem] font-black leading-none text-white;
+    letter-spacing: 0;
+  }
+
+  .module-focus-badge-media {
+    background: #8d5b00;
+  }
+
+  .module-focus-badge-web {
+    background: #2f4f88;
   }
 
   .module-browser-empty {
