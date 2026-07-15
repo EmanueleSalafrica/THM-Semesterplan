@@ -211,7 +211,7 @@ a {
   z-index: 1;
   display: grid;
   gap: 1.25rem;
-  padding-bottom: clamp(7rem, 12vh, 9rem);
+  padding-bottom: clamp(4.5rem, 9vh, 7rem);
 }
 
 .panel-content p {
@@ -232,7 +232,7 @@ a {
 .focus-generator-card {
   position: fixed;
   bottom: clamp(1rem, 2vw, 1.5rem);
-  z-index: 28;
+  z-index: 45;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
@@ -596,6 +596,12 @@ a {
   .focus-generator-card-web {
     right: 1rem;
     left: auto;
+  }
+
+  .focus-app[data-focus-mode="media"] .focus-generator-card-web,
+  .focus-app[data-focus-mode="web"] .focus-generator-card-media {
+    opacity: 0.42;
+    transform: scale(0.92);
   }
 
   .focus-generator-card small,
