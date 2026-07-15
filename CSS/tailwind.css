@@ -36,11 +36,11 @@
   }
 
   .app-logo {
-    @apply inline-flex cursor-pointer items-center rounded-sm border-0 bg-white px-2 py-1 text-left shadow-sm transition hover:opacity-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white;
+    @apply inline-flex h-[2.9rem] w-[8.6rem] min-w-[8.6rem] cursor-pointer items-center justify-center rounded-sm border-0 bg-white px-2 py-1 text-left shadow-sm transition hover:opacity-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:h-[3.25rem] md:w-[10.25rem] md:min-w-[10.25rem];
   }
 
   .app-logo-image {
-    @apply block h-8 w-auto md:h-10;
+    @apply block h-[2.25rem] max-h-[2.25rem] w-full object-contain md:h-10 md:max-h-10;
   }
 
   .app-menu {

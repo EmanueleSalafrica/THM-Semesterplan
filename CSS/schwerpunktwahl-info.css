@@ -29,21 +29,6 @@ a {
   font: inherit;
 }
 
-.app-header .app-logo {
-  min-width: clamp(6.7rem, 13vw, 9.8rem);
-  background: #fff;
-  padding: 0.32rem 0.6rem;
-  box-shadow: 0 0.8rem 1.8rem rgb(38 54 64 / 0.18);
-}
-
-.app-header .app-logo-image {
-  display: block;
-  width: 100%;
-  height: auto;
-  max-height: 2.8rem;
-  object-fit: contain;
-}
-
 .focus-app {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
@@ -226,7 +211,7 @@ a {
   z-index: 1;
   display: grid;
   gap: 1.25rem;
-  padding-bottom: clamp(3rem, 8vh, 6rem);
+  padding-bottom: clamp(7rem, 12vh, 9rem);
 }
 
 .panel-content p {
@@ -245,14 +230,14 @@ a {
 }
 
 .focus-generator-card {
-  position: sticky;
-  top: 0.85rem;
-  z-index: 8;
+  position: fixed;
+  bottom: clamp(1rem, 2vw, 1.5rem);
+  z-index: 28;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.85rem;
-  width: min(100%, 29rem);
+  width: min(25rem, calc(50vw - 2rem));
   border: 1px solid rgb(255 255 255 / 0.78);
   border-radius: 999px;
   background:
@@ -301,12 +286,12 @@ a {
 }
 
 .focus-generator-card-media {
-  justify-self: start;
+  left: clamp(1rem, 2.5vw, 2rem);
   border-left: 0.45rem solid #faebb1;
 }
 
 .focus-generator-card-web {
-  justify-self: end;
+  right: clamp(1rem, 2.5vw, 2rem);
   border-left: 0.45rem solid #7389b8;
 }
 
@@ -593,8 +578,10 @@ a {
   .focus-generator-card,
   .focus-generator-card-media,
   .focus-generator-card-web {
-    justify-self: stretch;
-    width: 100%;
+    right: 1rem;
+    left: 1rem;
+    bottom: 1rem;
+    width: auto;
     padding: 0.8rem 0.85rem;
   }
 
