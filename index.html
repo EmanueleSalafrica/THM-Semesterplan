@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Modulhandbuch Seiten-Struktur</title>
   <link rel="stylesheet" href="CSS/style.css?v=ci-fix-1">
-  <link rel="stylesheet" href="CSS/study-plan.css?v=cards-slider-fix-1">
+  <link rel="stylesheet" href="CSS/study-plan.css?v=cards-meta-align-2">
 
     <script src="./JS/lib/gsap/gsap.js" defer></script>
 
@@ -297,6 +297,7 @@
       const API_COMPLETION_MODULE_ID = 100;
       const COMPLETION_MODULE_IDS = [27, 28, 29];
       const GENERATOR_TIMEOUT_MS = 12000;
+      const LOCAL_PLAN_VARIANTS = ["standard", "balanced", "relaxed", "standard", "balanced"];
       const planSettings = {
         1: { label: "Sehr langsam", semesterCount: 15, targetCredits: 14, speed: 50 },
         2: { label: "Langsam", semesterCount: 12, targetCredits: 18, speed: 60 },
@@ -1380,8 +1381,8 @@
           : `Wahlpflichtmodul ${slotNumber} auswählen`;
         buttonLabel.className = "module-card-label";
         buttonLabel.textContent = selectedModuleName
-          ? `${selectedModuleName} (${credits} CrP)`
-          : `${planItem.title} (${credits} CrP)`;
+          ? selectedModuleName
+          : planItem.title;
 
         button.append(createModuleImage(selectedModule || "Wahlpflichtmodul"), buttonLabel);
         if (options.isVariantDifference) {
@@ -1562,7 +1563,7 @@
         const selectedForActiveSlot = state.selectedElectives[activeSelectionKey] || "";
 
         electiveDialogHelp.textContent = activeSlotId
-          ? `Wähle ein Wahlpflichtmodul für Wahlpflichtmodul ${activeSlotNumber}. Bereits gewählte Module kannst du bei Bedarf direkt neu zuordnen.`
+          ? `Wähle ein Wahlpflichtmodul für Wahlpflichtmodul ${activeSlotNumber}. Bereits gewählte Module sind für andere Platzhalter gesperrt.`
           : "Wähle ein Modul für den Platzhalter im Semesterplan.";
 
         list.replaceChildren(
@@ -1675,7 +1676,7 @@
         const usedElectiveModuleNames = [];
 
         entries.forEach((entry) => {
-          const semester = Number(entry.semester);
+          const semester = Math.min(Number(entry.semester), lastPlanSemester());
           const modules = entry.modules || [];
 
           if (!Number.isInteger(semester) || semester < state.currentSemester) {
@@ -1854,6 +1855,31 @@
         return (plan.get(semester) || []).reduce((sum, planItem) => sum + plannedItemCredits(planItem), 0);
       }
 
+      function planSignature(plan) {
+        return [...plan.keys()]
+          .sort((a, b) => a - b)
+          .map((semester) => `${semester}:${(plan.get(semester) || []).map(plannedItemDifferenceKey).join(",")}`)
+          .join("|");
+      }
+
+      function uniquePlanVariants(planVariants) {
+        const signatures = new Set();
+
+        return planVariants.filter((plan) => {
+          if (!plan) {
+            return false;
+          }
+
+          const signature = planSignature(plan);
+          if (signatures.has(signature)) {
+            return false;
+          }
+
+          signatures.add(signature);
+          return true;
+        });
+      }
+
       function apiPlanRequest() {
         const excludedElectiveIds = moduleIdsByStatus("excluded")
           .filter((moduleId) => isElectiveModule(findModuleByNumber(moduleId)))
@@ -1905,7 +1931,7 @@
           throw new Error("Der Generator hat keine auswertbare Planstruktur geliefert.");
         }
 
-        state.planVariants = apiPlans;
+        state.planVariants = uniquePlanVariants(apiPlans).slice(0, 5);
         state.planSource = "api";
         state.planMessage = "THM/CurrGen API";
         state.creditSummary = null;
@@ -2158,6 +2184,7 @@
       function applyInitialOptionsFromUrl() {
         const params = new URLSearchParams(window.location.search);
         const focusParam = (params.get("focus") || "").toLocaleLowerCase("de-DE");
+        const moduleFilterParam = (params.get("moduleFilter") || params.get("filter") || "").toLocaleLowerCase("de-DE");
         const focusValue = focusParam === "wm" || focusParam === "webmobile" || focusParam === "web-mobile"
           ? "Web & Mobile"
           : focusParam === "mp" || focusParam === "medienproduktion" ? "Medienproduktion" : "";
@@ -2167,6 +2194,10 @@
           if (focusInput) {
             focusInput.checked = true;
           }
+        }
+
+        if (focusValue || moduleFilterParam === "focus" || moduleFilterParam === "schwerpunkt") {
+          state.planModuleFilter = "focus";
         }
       }
 

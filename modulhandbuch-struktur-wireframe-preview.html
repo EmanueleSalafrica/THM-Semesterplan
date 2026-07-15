@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Modulhandbuch Seiten-Struktur</title>
   <link rel="stylesheet" href="CSS/style.css?v=ci-fix-1">
-  <link rel="stylesheet" href="CSS/study-plan.css?v=cards-meta-align-1">
+  <link rel="stylesheet" href="CSS/study-plan.css?v=cards-meta-align-2">
 
     <script src="./JS/lib/gsap/gsap.js" defer></script>
 
@@ -2184,6 +2184,7 @@
       function applyInitialOptionsFromUrl() {
         const params = new URLSearchParams(window.location.search);
         const focusParam = (params.get("focus") || "").toLocaleLowerCase("de-DE");
+        const moduleFilterParam = (params.get("moduleFilter") || params.get("filter") || "").toLocaleLowerCase("de-DE");
         const focusValue = focusParam === "wm" || focusParam === "webmobile" || focusParam === "web-mobile"
           ? "Web & Mobile"
           : focusParam === "mp" || focusParam === "medienproduktion" ? "Medienproduktion" : "";
@@ -2193,6 +2194,10 @@
           if (focusInput) {
             focusInput.checked = true;
           }
+        }
+
+        if (focusValue || moduleFilterParam === "focus" || moduleFilterParam === "schwerpunkt") {
+          state.planModuleFilter = "focus";
         }
       }
 
