@@ -256,6 +256,10 @@ a {
   display: block;
 }
 
+.focus-generator-short {
+  display: none;
+}
+
 .focus-generator-card strong {
   font-size: clamp(0.95rem, 1.2vw, 1.12rem);
   font-weight: 900;
@@ -578,11 +582,37 @@ a {
   .focus-generator-card,
   .focus-generator-card-media,
   .focus-generator-card-web {
-    right: 1rem;
-    left: 1rem;
     bottom: 1rem;
     width: auto;
-    padding: 0.8rem 0.85rem;
+    min-width: 4.8rem;
+    padding: 0.62rem 0.68rem 0.62rem 0.82rem;
+  }
+
+  .focus-generator-card-media {
+    right: auto;
+    left: 1rem;
+  }
+
+  .focus-generator-card-web {
+    right: 1rem;
+    left: auto;
+  }
+
+  .focus-generator-card small,
+  .focus-generator-full {
+    display: none;
+  }
+
+  .focus-generator-short {
+    display: inline;
+    font-size: 0.98rem;
+    letter-spacing: 0.02em;
+  }
+
+  .focus-generator-card-icon {
+    width: 1.95rem;
+    height: 1.95rem;
+    font-size: 1.1rem;
   }
 
   .focus-app[data-focus-mode="media"] .focus-panel-web .panel-title,
