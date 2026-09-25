@@ -5,8 +5,8 @@ module.exports = {
     extend: {
       colors: {
         thm: {
-          green: "#80ba24",
-          gray: "#4a5c66",
+          green: "#80ba27",
+          gray: "#4b5c66",
           red: "#b00040",
           yellow: "#ffb300",
           cyan: "#00aeef",

@@ -1,0 +1,69 @@
+.site-intro {
+  --intro-green: #80ba27;
+  --intro-gray: #4b5c66;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: none;
+  place-items: center;
+  overflow: hidden;
+  background: #ffffff;
+  color: var(--intro-gray);
+  isolation: isolate;
+}
+
+.intro-pending {
+  overflow: hidden;
+}
+
+.intro-pending .site-intro {
+  display: grid;
+}
+
+.site-intro-content {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  width: min(78vw, 32rem);
+  min-height: 12rem;
+  align-content: center;
+  justify-items: center;
+  text-align: center;
+}
+
+.site-intro-logo {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.intro-reveal-stroke {
+  stroke-dasharray: 1 1;
+  stroke-dashoffset: 1;
+}
+
+.intro-reveal-detail {
+  opacity: 0;
+}
+
+.intro-ribbon {
+  fill: none;
+  stroke: var(--intro-green);
+  /* Same width as the vertical stems in the original THM SVG. */
+  stroke-width: 20.44;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 0 1;
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-pending {
+    overflow: auto;
+  }
+
+  .intro-pending .site-intro {
+    display: none;
+  }
+}

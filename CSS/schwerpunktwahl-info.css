@@ -1,7 +1,7 @@
 :root {
-  --thm-green: #80ba24;
+  --thm-green: #80ba27;
   --thm-green-dark: #6fb022;
-  --thm-gray: #4a5c66;
+  --thm-gray: #4b5c66;
   --media: #f6bd3f;
   --media-soft: #fff0b8;
   --web: #7890bd;
@@ -248,7 +248,7 @@ a {
   text-decoration: none;
   box-shadow: 0 1.1rem 2.4rem rgb(38 54 64 / 0.28), inset 0 1px 0 rgb(255 255 255 / 0.44);
   backdrop-filter: blur(10px);
-  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  transition: transform 180ms ease, opacity 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
 }
 
 .focus-generator-card strong,
@@ -466,24 +466,25 @@ a {
   }
 
   .focus-app {
-    --focus-peek-width: 3.85rem;
+    --focus-peek-width: 3.6rem;
     width: 100vw;
     height: 100dvh;
   }
 
   .focus-question {
-    min-height: clamp(6rem, 18dvh, 8rem);
+    min-height: clamp(4.75rem, 13dvh, 6.5rem);
+    padding: 0.65rem 1rem;
   }
 
   .focus-question h1 {
-    max-width: 19rem;
-    font-size: clamp(1.55rem, 6.5vw, 2.05rem);
+    max-width: 18rem;
+    font-size: clamp(1.35rem, 5.8vw, 1.85rem);
   }
 
   .focus-panel {
-    --panel-pad-x: 1rem;
-    --panel-pad-top: 1.25rem;
-    --panel-pad-bottom: 3.75rem;
+    --panel-pad-x: 0.9rem;
+    --panel-pad-top: 1rem;
+    --panel-pad-bottom: 5.75rem;
     padding: var(--panel-pad-top) var(--panel-pad-x) var(--panel-pad-bottom);
   }
 
@@ -505,7 +506,7 @@ a {
   }
 
   .panel-title h2 {
-    font-size: clamp(1.85rem, 8.6vw, 2.5rem);
+    font-size: clamp(1.65rem, 7.8vw, 2.25rem);
     text-align: center;
   }
 
@@ -550,8 +551,8 @@ a {
   .focus-app[data-focus-mode="media"] .focus-panel-web,
   .focus-app[data-focus-mode="web"] .focus-panel-media {
     --panel-pad-x: 0.35rem;
-    --panel-pad-top: 1.25rem;
-    --panel-pad-bottom: 3.75rem;
+    --panel-pad-top: 1rem;
+    --panel-pad-bottom: 5.75rem;
     flex: 0 0 var(--focus-peek-width);
     flex-basis: var(--focus-peek-width);
     padding: var(--panel-pad-top) var(--panel-pad-x) var(--panel-pad-bottom);
@@ -586,6 +587,9 @@ a {
     width: auto;
     min-width: 4.8rem;
     padding: 0.62rem 0.68rem 0.62rem 0.82rem;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(0.4rem) scale(0.88);
   }
 
   .focus-generator-card-media {
@@ -600,8 +604,22 @@ a {
 
   .focus-app[data-focus-mode="media"] .focus-generator-card-web,
   .focus-app[data-focus-mode="web"] .focus-generator-card-media {
-    opacity: 0.42;
-    transform: scale(0.92);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(0.4rem) scale(0.88);
+  }
+
+  .focus-app[data-focus-mode="overview"] .focus-panels.is-hovering-media ~ .focus-generator-card-media,
+  .focus-app[data-focus-mode="overview"] .focus-panels:has(.focus-panel-media:hover) ~ .focus-generator-card-media,
+  .focus-app[data-focus-mode="overview"] .focus-panels:has(.focus-panel-media:focus-visible) ~ .focus-generator-card-media,
+  .focus-app[data-focus-mode="overview"] .focus-panels.is-hovering-web ~ .focus-generator-card-web,
+  .focus-app[data-focus-mode="overview"] .focus-panels:has(.focus-panel-web:hover) ~ .focus-generator-card-web,
+  .focus-app[data-focus-mode="overview"] .focus-panels:has(.focus-panel-web:focus-visible) ~ .focus-generator-card-web,
+  .focus-app[data-focus-mode="media"] .focus-generator-card-media,
+  .focus-app[data-focus-mode="web"] .focus-generator-card-web {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
   }
 
   .focus-generator-card small,
@@ -655,6 +673,7 @@ a {
   .module-entry,
   .module-entry:nth-of-type(even) {
     grid-template-columns: 1fr;
+    gap: 0.7rem;
   }
 
   .intro-block:nth-of-type(even) p,

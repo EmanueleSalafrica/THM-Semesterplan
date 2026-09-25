@@ -4,8 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Modulhandbuch Seiten-Struktur</title>
-  <link rel="stylesheet" href="CSS/style.css?v=menu-fab-fix-1">
+  <link rel="stylesheet" href="CSS/style.css?v=t2-intro-1">
   <link rel="stylesheet" href="CSS/study-plan.css?v=cards-meta-align-2">
+  <link rel="stylesheet" href="CSS/site-intro.css?v=t2-intro-8">
 
     <script src="./JS/lib/gsap/gsap.js" defer></script>
 
@@ -15,10 +16,31 @@
     <!-- Optional für Text Animation -->
     <script src="./JS/lib/gsap/SplitText.js" defer></script>
 
+    <script src="./JS/site-intro.js?v=t2-intro-8" defer></script>
     <script src="./JS/start-background.js?v=start-bg-2" defer></script>
     <script src="./GSAP/GsapScript.js" defer></script>
   </head>
-  <body class="app-shell">
+  <body class="app-shell intro-pending">
+    <div class="site-intro" data-site-intro role="status" aria-label="THM-Webseite wird geöffnet">
+      <div class="site-intro-content">
+        <svg class="site-intro-logo" viewBox="0 0 438.79 145.98" role="img" aria-label="THM - Technische Hochschule Mittelhessen">
+          <defs>
+            <clipPath id="intro-letter-bounds"><rect x="146.62" width="292.17" height="100.8"></rect></clipPath>
+            <mask id="intro-logo-reveal" maskUnits="userSpaceOnUse" x="0" y="0" width="438.79" height="145.98" style="mask-type: luminance">
+              <g clip-path="url(#intro-letter-bounds)" fill="none" stroke="white" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
+                <path class="intro-reveal-stroke" pathLength="1" d="M-96 118 C-58 151 8 135 26 93 C48 39 9 -18 44 -33 C78 -49 84 39 119 25 C133 20 134 9.165 146.62 9.165 H221.77 C244 -17 184.195 -24 184.195 9.165 V100.8 C184.195 131 254.9 131 254.9 100.8 V0 Q254.9 -14 254.9 0 V49.63 H310.78 V0 Q310.78 -14 310.78 0 V100.8 C310.78 125 354.13 125 354.13 100.8 V9 L391.41 72 L428.54 9 V100.8"></path>
+              </g>
+              <rect class="intro-reveal-detail" data-intro-detail="emblem" width="74" height="101" fill="white"></rect>
+              <rect class="intro-reveal-detail" data-intro-detail="divider" x="108" width="4" height="101" fill="white"></rect>
+              <rect class="intro-reveal-detail" data-intro-detail="caption" y="120" width="438.79" height="25.98" fill="white"></rect>
+            </mask>
+          </defs>
+          <image href="SVG/thm-logo.svg" width="438.79" height="145.98" mask="url(#intro-logo-reveal)"></image>
+          <path class="intro-ribbon" pathLength="1" d="M-96 118 C-58 151 8 135 26 93 C48 39 9 -18 44 -33 C78 -49 84 39 119 25 C133 20 134 9.165 146.62 9.165 H221.77 C244 -17 184.195 -24 184.195 9.165 V100.8 C184.195 131 254.9 131 254.9 100.8 V0 Q254.9 -14 254.9 0 V49.63 H310.78 V0 Q310.78 -14 310.78 0 V100.8 C310.78 125 354.13 125 354.13 100.8 V9 L391.41 72 L428.54 9 V100.8" aria-hidden="true"></path>
+        </svg>
+      </div>
+    </div>
+    <noscript><style>.site-intro { display: none !important; }</style></noscript>
     <header class="app-header">
       <button class="app-logo" type="button" data-screen-link="start" aria-label="Zurück zum Hauptmenü">
         <img class="app-logo-image" src="SVG/thm-logo.svg" alt="THM - Technische Hochschule Mittelhessen">
